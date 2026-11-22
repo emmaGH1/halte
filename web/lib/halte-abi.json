@@ -128,6 +128,25 @@
     "internalType": "bytes32",
     "name": "id",
     "type": "bytes32"
+   }
+  ],
+  "name": "OfferCancelled",
+  "type": "event"
+ },
+ {
+  "anonymous": false,
+  "inputs": [
+   {
+    "indexed": true,
+    "internalType": "uint256",
+    "name": "offerId",
+    "type": "uint256"
+   },
+   {
+    "indexed": true,
+    "internalType": "bytes32",
+    "name": "id",
+    "type": "bytes32"
    },
    {
     "indexed": true,
@@ -216,6 +235,19 @@
    }
   ],
   "name": "acceptOffer",
+  "outputs": [],
+  "stateMutability": "nonpayable",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "uint256",
+    "name": "offerId",
+    "type": "uint256"
+   }
+  ],
+  "name": "cancelOffer",
   "outputs": [],
   "stateMutability": "nonpayable",
   "type": "function"

@@ -41,6 +41,7 @@ contract Halte {
     event Transferred(bytes32 indexed id, address indexed from, address indexed to, uint256 offerId);
     event Frozen(bytes32 indexed id, address indexed owner, uint64 epoch, uint64 nonce);
     event Recovered(bytes32 indexed id, address indexed owner, uint64 epoch, uint64 nonce);
+    event OfferCancelled(uint256 indexed offerId, bytes32 indexed id);
 
     error NotOwner();
     error NotDealer();
@@ -82,14 +83,29 @@ contract Halte {
         if (p.status == Status.Frozen) revert PassportFrozen();
         if (o.epoch != p.epoch) revert StaleOffer();
         _requirePqcKey(msg.sender); // the new owner must be able to freeze too
-        o.open = false;
+        bytes32 id = o.passportId;
+        delete offers[offerId]; // QCAI-1 L: closed offers free their storage
         address from = p.owner;
         p.owner = msg.sender;
         p.nonce++;
-        emit Transferred(o.passportId, from, msg.sender, offerId);
+        emit Transferred(id, from, msg.sender, offerId);
     }
 
-    /// Anyone may relay; authority comes only from the owner's ML-DSA-87 signature.
+    /// The owner withdraws an open offer and frees its storage (QCAI-1 L: unbounded storage).
+    function cancelOffer(uint256 offerId) external {
+        Offer storage o = offers[offerId];
+        if (!o.open) revert OfferClosed();
+        bytes32 id = o.passportId;
+        if (msg.sender != passports[id].owner) revert NotOwner();
+        delete offers[offerId];
+        emit OfferCancelled(offerId, id);
+    }
+
+    /// Access control (QCAI-1 H): there is deliberately no msg.sender check. Authority comes only from
+    /// an ML-DSA-87 signature by the key the passport owner registered on QoreChain, verified on chain by
+    /// pqcVerify over a digest bound to chain id, this contract, the passport, its nonce and an expiry.
+    /// A msg.sender check would only add the owner's classical secp256k1 key, the key Q-Day breaks,
+    /// and would stop a phone or a recovery service from relaying the owner's signed report.
     function freeze(bytes32 id, uint64 expiry, bytes calldata signature) external {
         Passport storage p = passports[id];
         if (p.status == Status.None) revert UnknownPassport();

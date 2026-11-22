@@ -8,7 +8,7 @@
     "build": "hardhat build",
     "test": "hardhat test",
     "window": "tsx --env-file=.env scripts/window.ts",
-    "deploy:testnet": "tsx --env-file=.env scripts/spike-onchain.ts",
+    "deploy:testnet": "tsx --env-file=.env scripts/deploy.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

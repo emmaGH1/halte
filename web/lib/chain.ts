@@ -23,6 +23,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import abi from "./halte-abi.json";
+import deployment from "./deployment.json";
 
 export const HALTE_ABI = abi as any;
 export const CHAIN_ID = "qorechain-diana";
@@ -39,11 +40,11 @@ export const diana = defineChain({
 });
 
 export const contract = () => {
-  const a = process.env.HALTE_CONTRACT;
-  if (!a || !/^0x[0-9a-fA-F]{40}$/.test(a)) throw new Error("HALTE_CONTRACT is not set");
+  const a = deployment.contract;
+  if (!/^0x[0-9a-fA-F]{40}$/.test(a)) throw new Error("lib/deployment.json has no contract address");
   return a as Hex;
 };
-export const deployBlock = () => BigInt(process.env.HALTE_DEPLOY_BLOCK ?? "0");
+export const deployBlock = () => BigInt(deployment.deployBlock);
 
 export const txUrl = (hash: string) => `${EXPLORER}/tx/${hash.replace(/^0x/, "").toUpperCase()}`;
 

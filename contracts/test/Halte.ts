@@ -65,6 +65,23 @@ describe("Halte", () => {
     await viem.assertions.revertWithCustomError(halte.write.acceptOffer([1n], { account: dealer.account }), halte, "OfferClosed");
   });
 
+  it("lets only the owner cancel an offer, and frees closed offers' storage", async () => {
+    await halte.write.mint([id]);
+    await halte.write.makeOffer([id, dealer.account.address]);
+    await viem.assertions.revertWithCustomError(halte.write.cancelOffer([1n], { account: thief.account }), halte, "NotOwner");
+    await viem.assertions.emit(halte.write.cancelOffer([1n]), halte, "OfferCancelled");
+    const [pid, d, , open] = await halte.read.offers([1n]);
+    assert.equal(open, false);
+    assert.equal(pid, "0x" + "0".repeat(64)); // storage cleared
+    assert.equal(d, "0x0000000000000000000000000000000000000000");
+    await viem.assertions.revertWithCustomError(halte.write.acceptOffer([1n], { account: dealer.account }), halte, "OfferClosed");
+    await viem.assertions.revertWithCustomError(halte.write.cancelOffer([1n]), halte, "OfferClosed");
+    await halte.write.makeOffer([id, dealer.account.address]);
+    await halte.write.acceptOffer([2n], { account: dealer.account });
+    const [pid2] = await halte.read.offers([2n]);
+    assert.equal(pid2, "0x" + "0".repeat(64)); // accepted offer cleared too
+  });
+
   it("freezes on the owner's PQ signature, relayed by anyone, and kills open offers", async () => {
     await halte.write.mint([id]);
     await halte.write.makeOffer([id, dealer.account.address]);

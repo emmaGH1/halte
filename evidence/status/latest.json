@@ -1,10 +1,10 @@
 {
-  "at": "2026-11-22T19:17:27.093Z",
-  "deploy": "deploy 186939e",
-  "clock": "Clock 0% elapsed · 25% sponsor milestone already green",
-  "approval": "✓ checks match what you approved (22/11/2026, 19:43 WAT · approvals: 3)",
+  "at": "2026-11-22T19:49:27.418Z",
+  "deploy": "deploy 27dd594",
+  "clock": "Clock 1% elapsed · 25% mark: sponsor step must pass",
+  "approval": "✓ checks match what you approved (22/11/2026, 20:18 WAT · approvals: 4)",
   "approved": true,
-  "fingerprint": "51ef886e13ee3da6",
+  "fingerprint": "90de267ffdffa2ff",
   "problems": [],
   "steps": [
     {
@@ -12,43 +12,43 @@
       "step": "open Halte and mint a fresh demo passport",
       "done": "the public link opens the app (not a landing page); one tap makes a new passport with a random ID, its owner, status \"active\" and a Diana tx link, read back from the contract",
       "sponsor": false,
-      "state": "pass",
-      "saw": "fresh passport 0x1053dbc0… active on Diana (tx 37588961…)"
+      "state": "fail",
+      "saw": "locator.waitFor: Timeout 90000ms exceeded."
     },
     {
       "id": "J2",
       "step": "a dealer makes an offer, then the owner reports the watch missing",
       "done": "the open offer is listed; \"report missing\" sends an ML-DSA-87-signed freeze; the app shows status \"frozen\", the Diana tx hash, and that `pqcVerify` passed, read back from the contract for this passport ID",
       "sponsor": true,
-      "state": "pass",
-      "saw": "ML-DSA freeze landed (tx 670A4743…); chain status frozen"
+      "state": "unreached",
+      "saw": ""
     },
     {
       "id": "J3",
       "step": "the dealer tries to accept the open offer",
       "done": "the app shows \"refused: passport frozen\", with the reverted call or tx as evidence; the owner on chain is unchanged",
       "sponsor": false,
-      "state": "pass",
-      "saw": "dealer accept refused; passport still frozen on chain"
+      "state": "unreached",
+      "saw": ""
     },
     {
       "id": "J3!",
       "step": "fail-closed: freeze signed with a wrong or classical-only key",
       "done": "the contract refuses; the app shows \"refused\", never \"frozen\"; status on chain stays \"active\"",
       "sponsor": false,
-      "state": "pass",
-      "saw": "wrong-key freeze refused; chain status stayed active"
+      "state": "unreached",
+      "saw": ""
     },
     {
       "id": "J4",
       "step": "the owner recovers the passport with their PQ key",
       "done": "status goes back to \"active\" with a new Diana tx; the pre-freeze offer still fails (the epoch was bumped)",
       "sponsor": true,
-      "state": "pass",
-      "saw": "recovered (tx 39B33B3F…); stale pre-freeze offer still refused"
+      "state": "unreached",
+      "saw": ""
     }
   ],
-  "passed": 5,
+  "passed": 0,
   "total": 5,
-  "next": "Next: journey green. polish, proof and demo are now allowed."
+  "next": "Next: make J1 pass — the public link opens the app (not a landing page); one tap makes a new passport with a random ID, its owner, status \"active\" and a Diana tx link, read back from the contract"
 }
