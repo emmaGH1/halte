@@ -2,7 +2,7 @@
 
 > the human's. agents never edit this file: they propose one exact change (old line, new line, why), the human says yes, then `node scripts/status.mjs --approve "<why>"`.
 >
-> **Halte** (French for "stop", as in *halte!*): a watch passport that a stolen key can't sell.
+> **Halte** · *Stolen means unsellable.* Halte freezes a watch's digital passport the moment it's reported missing, and only the owner's quantum-safe key can lift it.
 
 ## north star
 
