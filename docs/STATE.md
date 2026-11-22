@@ -4,7 +4,7 @@
 
 ## next action
 
-- J1: build the web app (Next.js on Vercel) with mint + passport view + /version.json, using the deployed Halte contract; then deploy and run status.
+- journey green on https://halte-roan.vercel.app (22 nov 20:08 WAT). Next: Foundry/Hardhat tests + QCAI stage 1 audit, then readme hero + film from a recorded run.
 
 ## verified constants (22 nov 2026, do not guess)
 
@@ -29,8 +29,12 @@
 
 ## proposed plan changes (waiting for the human's yes)
 
+- checks/journey.mjs `"https://halte.invalid"` → `"https://halte-roan.vercel.app"` · why: so plain `node scripts/status.mjs` checks the live app without LIVE_URL
+
 
 ## friction log
+
+- 22 nov 20:05 · Vercel runtime + @cosmjs/crypto (pulled in by @qorechain/sdk) · saw ERR_REQUIRE_ESM on @noble/hashes/argon2.js when the SDK is a serverExternalPackage · fix: let Next bundle it · anyone deploying the SDK on Vercel hits this
 
 - 22 nov 19:3x · create-qorechain-dapp 0.14.0 + pnpm 12 · expected install · saw ERR_PNPM_IGNORED_BUILDS (esbuild) · fix: pnpm-workspace.yaml allowBuilds esbuild · the scaffold aborts for anyone on pnpm 12
 - 22 nov · @qorechain/sdk deriveUnifiedAccount is async (returns a Promise); easy to miss
