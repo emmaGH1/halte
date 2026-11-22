@@ -1,0 +1,2 @@
+$ tsx --env-file=.env scripts/window.ts register
+registered: EA55741ED2D6082644C00EFEFF4119EB80AB1F84179E1D0A99B56BE7489F169D

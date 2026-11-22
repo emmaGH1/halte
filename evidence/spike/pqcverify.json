@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-22T18:37:05.503Z",
+  "account": "0xB047D9D582ed279bb73791164D6527E477Cc33f9",
+  "registered": true,
+  "algorithmId": 1,
+  "registeredMatches": true,
+  "pubkeyBytes": 2592,
+  "sigBytes": 4627,
+  "message": "0x2ec8b31323785f7e552cb86ab0c2d5a0c16996ad58d3fa21b1f9a07ecdaf7ad0",
+  "goodVerifies": true,
+  "tamperedVerifies": false
+}

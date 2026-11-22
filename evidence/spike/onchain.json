@@ -1,0 +1,32 @@
+{
+  "at": "2026-11-22T18:38:25.562Z",
+  "owner": "0xB047D9D582ed279bb73791164D6527E477Cc33f9",
+  "dealer": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414",
+  "txs": {
+    "deploy": {
+      "hash": "0x0a65d70e0bcd221d7a62c600209879f412278ee5d7f5291eb965b77bc8b1cbb0",
+      "status": "success",
+      "gasUsed": "1759939"
+    },
+    "mint": {
+      "hash": "0xf6d1ed614f94b0fc009e793e3bad1a32f599e63a8979ca7df8227912f9cb7065",
+      "status": "success",
+      "gasUsed": "1500000"
+    },
+    "offer": {
+      "hash": "0xd543a4954c6221e3802719be980f29a890bbe60d1b02462ee830bcae3583135b",
+      "status": "success",
+      "gasUsed": "1500000"
+    },
+    "freeze": {
+      "hash": "0x64ac6fc30972f03a514c7cb3dc813755d2f8d6262bb71c57fbec468113a66836",
+      "status": "success",
+      "gasUsed": "1500000"
+    }
+  },
+  "contract": "0xe9b1dd118035ec08e490f68b9ca3d5c89ae5a654",
+  "passportId": "0xd8ca59269fcedec2f97d134a0f86d351452217a24afcf1bea6cfc80ef80a40e1",
+  "wrongKeyFreeze": "reverted: The contract function \"freeze\" reverted.",
+  "statusAfterFreeze": 2,
+  "dealerAccept": "reverted: The contract function \"acceptOffer\" reverted."
+}

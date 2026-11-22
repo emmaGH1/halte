@@ -1,27 +1,47 @@
 # state
 
-> progress is not written here. it's measured: `node scripts/status.mjs` (latest board in `evidence/status/latest.json`).
+> progress is not written here. It's measured: `node scripts/status.mjs` (latest board in `evidence/status/latest.json`).
 
 ## next action
 
-- <the first journey step that isn't passing, and the next concrete move on it>
+- J1: build the web app (Next.js on Vercel) with mint + passport view + /version.json, using the deployed Halte contract; then deploy and run status.
+
+## verified constants (22 nov 2026, do not guess)
+
+- Diana EVM RPC https://evm-testnet.qore.host · chain id 9800 · REST https://api-testnet.qore.host
+- precompiles: pqcVerify 0x…0a01 (pubkey, sig, message) → bool · pqcKeyStatus 0x…0a02 (account) → (registered, algorithmId=1 ML-DSA-87, pubkey 2592 B)
+- ML-DSA-87 signature from `pqcSign` = 4627 bytes
+- deployer (owner, account 0): 0xB047D9D582ed279bb73791164D6527E477Cc33f9 / qor1kpran4vza5nehdehjyty6ef8u3mucvleeqw08f · PQC key registered (tx EA55741E…)
+- dealer (account 1): 0xAa5D98cB68a67AA47c3F858B054919EbE6070414 · not funded or registered yet
+- spike contract: Halte at 0xe9b1dd118035ec08e490f68b9ca3d5c89ae5a654
+
+## spike results (hour 1)
+
+- read-only: pqcVerify(good) = true, pqcVerify(tampered) = false · `evidence/spike/pqcverify.json`
+- on chain: deploy → mint → offer → **freeze with ML-DSA-87 sig verified in-contract: success**; status 2 (frozen); wrong-key freeze simulate: reverted; dealer accept simulate: reverted · `evidence/spike/onchain.json`
+- gas: every call bills 1,500,000 (half of the 3M limit); deploy 1.76M. Window: 600 blocks / 10 txs / 7.5 QOR.
 
 ## later (parked: moves no journey step yet)
 
--
+- decode the custom error names in the revert evidence (BadPqcSignature vs PassportFrozen)
+- Foundry/Hardhat tests with a mock precompile via hardhat_setCode (needed for the QCAI audit + PQ dApp requirement)
+- QCAI stage 1 audit (one free run a day): start by 25 nov
 
 ## proposed plan changes (waiting for the human's yes)
 
-- <old line> → <new line> · why:
+- PLAN "riskiest assumption … result: _not run yet_" → "result: passed 22 nov: in-contract pqcVerify freeze tx 0x64ac6fc3… succeeded; wrong key reverted" · why: record the hour-1 result
 
-## friction log (becomes `SPONSOR_NOTES.md` if the event scores feedback)
+## friction log
 
-- <time> · <version> · expected <x> · saw <y> · how to reproduce · effect on the user
+- 22 nov 19:3x · create-qorechain-dapp 0.14.0 + pnpm 12 · expected install · saw ERR_PNPM_IGNORED_BUILDS (esbuild) · fix: pnpm-workspace.yaml allowBuilds esbuild · the scaffold aborts for anyone on pnpm 12
+- 22 nov · @qorechain/sdk deriveUnifiedAccount is async (returns a Promise); easy to miss
+- 22 nov · solc rejects the uppercase precompile address `0x…0A01` from the docs (checksum); use lowercase `0x…0a01`
+- 22 nov · gasUsed reported as exactly half the gas limit on every call; fee sizing in the window must assume that
 
-## limits and disclosures (each goes where a reader could otherwise draw the wrong conclusion)
+## limits and disclosures
 
-- <what's generated, hand-built, precomputed or staged, and where it shows>
+- the demo owner and dealer keys are held by the server for the judge demo; this will be labelled in the app
 
-## away mode (only when the human is away)
+## away mode
 
-locked: idea · journey · cut list · allowed integrations · deploy allowed? · stop condition
+locked: —

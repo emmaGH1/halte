@@ -1,0 +1,4 @@
+$ tsx --env-file=.env scripts/window.ts open
+opened: EBE1E00EADD18354F2CD4FA66B36912FCF03A2F14C56554FBF96035724393131
+window: 600 blocks, 10 txs, 7500000 uqor (value plus fees)
+Opening advanced the account's nonce; deploy now.
