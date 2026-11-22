@@ -23,8 +23,9 @@
 
 ## later (parked: moves no journey step yet)
 
+- done 22 nov: 10 Hardhat tests (mock PQC precompile) · evidence/tests/halte-tests.txt
+
 - decode the custom error names in the revert evidence (BadPqcSignature vs PassportFrozen)
-- Foundry/Hardhat tests with a mock precompile via hardhat_setCode (needed for the QCAI audit + PQ dApp requirement)
 - QCAI stage 1 audit (one free run a day): start by 25 nov
 
 ## proposed plan changes (waiting for the human's yes)

@@ -1,0 +1,11 @@
+    ✔ mints only for an account with a registered ML-DSA-87 key (78ms)
+    ✔ refuses a second mint of the same id
+    ✔ lets only the owner open an offer, and a live offer transfers ownership
+    ✔ freezes on the owner's PQ signature, relayed by anyone, and kills open offers
+    ✔ refuses a freeze signed by any key other than the owner's registered one
+    ✔ refuses an expired authorisation
+    ✔ recovers on the owner's PQ signature; offers from before the freeze stay dead
+    ✔ cannot replay a freeze signature, or use a freeze signature to recover
+    ✔ after a sale, only the new owner's PQ key can freeze
+    ✔ fails closed when the PQC precompile is missing (returns no data)
+  10 passing (1018ms)

@@ -8,7 +8,7 @@
     "build": "hardhat build",
     "test": "hardhat test",
     "window": "tsx --env-file=.env scripts/window.ts",
-    "deploy:testnet": "hardhat ignition deploy ignition/modules/Counter.ts --network qorechainTestnet",
+    "deploy:testnet": "tsx --env-file=.env scripts/spike-onchain.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
