@@ -51,7 +51,7 @@ one passport timeline at phone width: `offer issued → frozen (ML-DSA-87 ✓ pq
 
 ## riskiest assumption
 
-the `pqcVerify` precompile verifies an ML-DSA-87 signature over our freeze message (chain, contract, passport ID, action, nonce, expiry) inside a Solidity call on Diana, and a wrong key is refused · hour-1 test: deploy a 20-line contract that calls `pqcVerify` with one good and one tampered signature through a scoped window · result: _not run yet_
+the `pqcVerify` precompile verifies an ML-DSA-87 signature over our freeze message (chain, contract, passport ID, action, nonce, expiry) inside a Solidity call on Diana, and a wrong key is refused · hour-1 test: deploy a 20-line contract that calls `pqcVerify` with one good and one tampered signature through a scoped window · result: **passed 22 nov 2026**: in-contract `pqcVerify` freeze tx `0x64ac6fc30972f03a514c7cb3dc813755d2f8d6262bb71c57fbec468113a66836` succeeded on Diana (contract `0xe9b1dd118035ec08e490f68b9ca3d5c89ae5a654`); a wrong-key freeze reverted in simulation · `evidence/spike/onchain.json`
 
 ## ideas dropped (and why)
 

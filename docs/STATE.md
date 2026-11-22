@@ -29,7 +29,6 @@
 
 ## proposed plan changes (waiting for the human's yes)
 
-- PLAN "riskiest assumption … result: _not run yet_" → "result: passed 22 nov: in-contract pqcVerify freeze tx 0x64ac6fc3… succeeded; wrong key reverted" · why: record the hour-1 result
 
 ## friction log
 
