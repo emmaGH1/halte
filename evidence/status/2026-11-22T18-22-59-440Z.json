@@ -1,0 +1,54 @@
+{
+  "at": "2026-11-22T18:22:59.440Z",
+  "deploy": "commit a5cdd2e",
+  "clock": "Clock 0% elapsed · 25% mark: sponsor step must pass",
+  "approval": "⚠ plan + checks never approved",
+  "approved": false,
+  "fingerprint": "cb5496b1dafbb38d",
+  "problems": [],
+  "steps": [
+    {
+      "id": "J1",
+      "step": "open Halte and mint a fresh demo passport",
+      "done": "the public link opens the app (not a landing page); one tap makes a new passport with a random ID, its owner, status \"active\" and a Diana tx link, read back from the contract",
+      "sponsor": false,
+      "state": "fail",
+      "saw": "Cannot find package 'playwright' imported from /data/home/.t3/projects/qorechain-hackathon/checks/journey.mjs"
+    },
+    {
+      "id": "J2",
+      "step": "a dealer makes an offer, then the owner reports the watch missing",
+      "done": "the open offer is listed; \"report missing\" sends an ML-DSA-87-signed freeze; the app shows status \"frozen\", the Diana tx hash, and that `pqcVerify` passed, read back from the contract for this passport ID",
+      "sponsor": true,
+      "state": "unreached",
+      "saw": ""
+    },
+    {
+      "id": "J3",
+      "step": "the dealer tries to accept the open offer",
+      "done": "the app shows \"refused: passport frozen\", with the reverted call or tx as evidence; the owner on chain is unchanged",
+      "sponsor": false,
+      "state": "unreached",
+      "saw": ""
+    },
+    {
+      "id": "J3!",
+      "step": "fail-closed: freeze signed with a wrong or classical-only key",
+      "done": "the contract refuses; the app shows \"refused\", never \"frozen\"; status on chain stays \"active\"",
+      "sponsor": false,
+      "state": "unreached",
+      "saw": ""
+    },
+    {
+      "id": "J4",
+      "step": "the owner recovers the passport with their PQ key",
+      "done": "status goes back to \"active\" with a new Diana tx; the pre-freeze offer still fails (the epoch was bumped)",
+      "sponsor": true,
+      "state": "unreached",
+      "saw": ""
+    }
+  ],
+  "passed": 0,
+  "total": 5,
+  "next": "Next: make J1 pass — the public link opens the app (not a landing page); one tap makes a new passport with a random ID, its owner, status \"active\" and a Diana tx link, read back from the contract"
+}
