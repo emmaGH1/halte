@@ -29,7 +29,6 @@
 
 ## proposed plan changes (waiting for the human's yes)
 
-- checks/journey.mjs `"https://halte.invalid"` → `"https://halte-roan.vercel.app"` · why: so plain `node scripts/status.mjs` checks the live app without LIVE_URL
 
 
 ## friction log

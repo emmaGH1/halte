@@ -8,7 +8,7 @@
 //   offer, offer-id, report-missing, pqc-verified, dealer-accept, refused, wrong-key-freeze, recover
 //   /version.json -> { commit, contract }   (contract = Halte passport contract address on Diana)
 
-export const url = process.env.LIVE_URL ?? "https://halte.invalid";
+export const url = process.env.LIVE_URL ?? "https://halte-roan.vercel.app";
 const EVM = "https://evm-testnet.qore.host";
 const REST = "https://api-testnet.qore.host";
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };

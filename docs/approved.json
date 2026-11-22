@@ -1,6 +1,6 @@
 {
-  "fingerprint": "51ef886e13ee3da6",
-  "at": "2026-11-22T18:43:58.644Z",
-  "commit": "c161746a0cc60d849c87da27c4d1a3ee5135c99a",
-  "note": "record hour-1 spike result"
+  "fingerprint": "90de267ffdffa2ff",
+  "at": "2026-11-22T19:18:18.652Z",
+  "commit": "41b4b262306b89365ba89b0a5c472cb506f6c1e5",
+  "note": "checks default to the live url halte-roan.vercel.app"
 }
