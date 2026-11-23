@@ -1,12 +1,33 @@
-    ✔ mints only for an account with a registered ML-DSA-87 key (108ms)
-    ✔ refuses a second mint of the same id
-    ✔ lets only the owner open an offer, and a live offer transfers ownership
-    ✔ lets only the owner cancel an offer, and frees closed offers' storage
-    ✔ freezes on the owner's PQ signature, relayed by anyone, and kills open offers
-    ✔ refuses a freeze signed by any key other than the owner's registered one
-    ✔ refuses an expired authorisation
-    ✔ recovers on the owner's PQ signature; offers from before the freeze stay dead
-    ✔ cannot replay a freeze signature, or use a freeze signature to recover
-    ✔ after a sale, only the new owner's PQ key can freeze
-    ✔ fails closed when the PQC precompile is missing (returns no data)
-  11 passing (1820ms)
+Running node:test tests
+
+  Halte
+    key admission
+      ✔ mints only for an account with a registered, PoP-proven ML-DSA-87 key (143ms)
+      ✔ refuses a second mint of the same id
+      ✔ fails closed when a PQC precompile is missing or malformed
+    transfer offers
+      ✔ needs the holder's PQ signature: a stolen classical key can't hand the passport away
+      ✔ binds the signed offer to its dealer, and refuses a replay
+      ✔ binds the offer digest to chain, contract, passport, dealer, epoch, nonce and expiry
+      ✔ refuses an empty or self-addressed dealer
+      ✔ only the named dealer, with a PoP-proven key, can accept; acceptance transfers the passport
+      ✔ a dealer without a usable PQ key can't accept
+      ✔ a handoff kills every other offer the previous holder issued
+      ✔ offers expire: valid at the expiry second, refused one second later
+      ✔ lets only the holder cancel an offer, and frees its storage
+    freeze and recovery
+      ✔ freezes on the holder's PQ signature, relayed by anyone, and blocks the same dealer and offer
+      ✔ refuses a freeze signed by any key other than the holder's registered one
+      ✔ refuses an expired authorisation
+      ✔ recovers on the holder's PQ signature; offers from before the freeze stay dead
+      ✔ cannot replay a freeze signature, or use a freeze signature to recover
+    ordering
+      ✔ an offer landing first leaves a pending freeze valid
+      ✔ a freeze landing first kills a pending offer, during the freeze and after recovery
+      ✔ an acceptance landing first voids the previous holder's pending freeze
+      ✔ a key rotation voids unsubmitted signatures; an offer already issued lives until its epoch moves
+
+
+  21 passing (2049ms)
+
+

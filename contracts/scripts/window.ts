@@ -11,6 +11,9 @@
  *   pnpm window register   register the account's ML-DSA-87 key (once)
  *   pnpm window open       open a window sized for a few deploys
  *   pnpm window recovery-code   print a new PQC recovery code (QRC1)
+ *   pnpm window fund <index> <qor>   send QOR from account 0 to account <index> of the same mnemonic
+ *
+ * QORE_ACCOUNT_INDEX picks the mnemonic account (0 = demo owner, 1 = demo dealer/relayer).
  *
  * The account comes from QORE_MNEMONIC (BIP-44 m/44'/60'/0'/0/0), whose
  * ML-DSA-87 key is derived from the same mnemonic, or, if unset, from
@@ -57,7 +60,7 @@ function network(): (typeof NETWORKS)[NetworkName] {
 
 async function account(): Promise<UnifiedAccount> {
   const mnemonic = process.env.QORE_MNEMONIC?.trim();
-  if (mnemonic) return deriveUnifiedAccount(mnemonic, 0);
+  if (mnemonic) return deriveUnifiedAccount(mnemonic, Number(process.env.QORE_ACCOUNT_INDEX ?? "0"));
   const key = process.env.PRIVATE_KEY?.trim();
   if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
     throw new Error("Set QORE_MNEMONIC, or PRIVATE_KEY as 0x followed by 64 hex characters, in .env");
@@ -165,11 +168,23 @@ async function recoveryCode(): Promise<void> {
   console.log("Use the same code every time: a new code gives the account a different ML-DSA-87 key.");
 }
 
-const commands: Record<string, () => Promise<void>> = { status, register, open, "recovery-code": recoveryCode };
+async function fund(): Promise<void> {
+  const mnemonic = process.env.QORE_MNEMONIC?.trim();
+  if (!mnemonic) throw new Error("fund needs QORE_MNEMONIC");
+  const index = Number(process.argv[3]);
+  const qor = Number(process.argv[4] ?? "5");
+  if (!Number.isInteger(index) || index < 1 || !(qor > 0 && qor <= 20)) throw new Error("usage: fund <index ≥ 1> <qor ≤ 20>");
+  const from = await deriveUnifiedAccount(mnemonic, 0);
+  const to = await deriveUnifiedAccount(mnemonic, index);
+  const msg = { typeUrl: "/cosmos.bank.v1beta1.MsgSend", value: { fromAddress: from.cosmos, toAddress: to.cosmos, amount: [{ denom: "uqor", amount: String(Math.round(qor * 1e6)) }] } };
+  console.log(`sent ${qor} QOR to ${to.cosmos} (${to.evm}): ${await broadcast(from, "hybrid", [msg] as any)}`);
+}
+
+const commands: Record<string, () => Promise<void>> = { status, register, open, fund, "recovery-code": recoveryCode };
 const cmd = process.argv[2] ?? "status";
 const run = commands[cmd];
 if (!run) {
-  console.error(`Unknown command "${cmd}". Use: status | register | open | recovery-code`);
+  console.error(`Unknown command "${cmd}". Use: status | register | open | fund | recovery-code`);
   process.exit(1);
 }
 run().catch((err: unknown) => {
