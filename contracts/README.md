@@ -1,4 +1,12 @@
-# QoreChain Hardhat starter
+# Halte contracts
+
+`contracts/Halte.sol` is the passport contract; `test/Halte.ts` holds its 21 tests (`npx hardhat test`); `contracts/mocks/MockQorePQC.sol` stands in for the two PQC precompiles in tests only. Live on Diana at `0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4`. Scripts: `scripts/window.ts` (key registration, windows, funding), `scripts/deploy.ts`, `scripts/release-proof.ts` (the recorded run in `../evidence/release/`). Overview, proof and judge checks: [../README.md](../README.md).
+
+The rest of this file is the README of the `create-qorechain-dapp` Hardhat starter this folder was scaffolded from (it mentions the starter's `Counter` example, which Halte replaced).
+
+---
+
+## QoreChain Hardhat starter
 
 A [Hardhat 3](https://hardhat.org) project for the QoreChain EVM, using the
 viem toolbox: a `Counter` contract, tests on Hardhat's simulated network, an
