@@ -216,6 +216,125 @@ button:disabled { opacity: .45; cursor: default; }
   .foot-mark { font-size: min(24vw, 360px); margin-top: 80px; }
 }
 
+/* ---------- landing hero: framed catalogue plate (variant B, chosen 23 Nov) ---------- */
+.catalogue--hero-variant { --hero-gutter: 24px; }
+.catalogue--hero-variant .site-in { margin-inline: var(--hero-gutter); }
+.catalogue--hero-variant .sheet { padding-inline: var(--hero-gutter); }
+.catalogue--hero-variant .hero {
+  padding-inline: var(--hero-gutter);
+  isolation: isolate;
+}
+.catalogue--hero-variant .hero h1 {
+  font-size: clamp(2.4rem, 13.7vw, 5rem);
+  letter-spacing: -.04em;
+}
+.catalogue--hero-variant .hero-art { pointer-events: none; }
+.catalogue--hero-variant .hero .lede { font-size: 17px; }
+.catalogue--hero-variant .hero .cta { margin-top: 22px; }
+
+.hero.hero--b {
+  display: grid;
+  grid-template-areas: "title" "plate" "claim" "copy" "proof";
+  grid-template-columns: minmax(0, 1fr);
+}
+.hero--b h1 { grid-area: title; }
+.hero--b .hero-art {
+  position: relative;
+  grid-area: plate;
+  inset: auto;
+  width: auto;
+  height: 188px;
+  margin: 20px 0 0;
+  aspect-ratio: auto;
+  border: 1px solid var(--hair);
+  background: radial-gradient(ellipse at 35% 45%, var(--paper-hi), transparent 73%);
+}
+.hero--b .hero-art > .calibre { width: 60%; max-width: 188px; margin-left: 4%; }
+.hero--b .hero-seal { top: -14px; right: 8%; width: 72px; }
+.hero--b .fig-cap {
+  display: block;
+  position: relative;
+  z-index: 1;
+  grid-area: plate;
+  align-self: end;
+  justify-self: end;
+  inset: auto;
+  width: 35%;
+  margin: 0 5% 18px 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--hair);
+  background: none;
+  text-align: left;
+}
+.hero--b .fig-cap .mono { font-size: 9px; letter-spacing: .1em; }
+.hero--b .fig-cap p {
+  margin-top: 5px;
+  font: italic 400 18px / 1.12 var(--serif), Georgia, serif;
+}
+.hero--b .claim { grid-area: claim; }
+.hero--b .hero-copy { grid-area: copy; }
+.hero--b .proof-table { grid-area: proof; }
+
+@media (min-width: 600px) and (max-width: 1023px) {
+  .hero--b .hero-art { height: 250px; }
+  .hero--b .hero-art > .calibre { max-width: 250px; margin-left: 12%; }
+  .hero--b .fig-cap { margin-bottom: 34px; }
+}
+
+@media (min-width: 1024px) {
+  .catalogue--hero-variant { --hero-gutter: 48px; }
+  .catalogue--hero-variant .hero { padding-top: 72px; min-height: 0; }
+  .catalogue--hero-variant .hero::before { inset-inline: var(--hero-gutter); }
+  .catalogue--hero-variant .hero h1 { font-size: clamp(4rem, 8vw, 7rem); }
+  .catalogue--hero-variant .hero-copy { margin-top: 18px; }
+  .catalogue--hero-variant .hero .lede { font-size: 18px; }
+
+  .hero.hero--b {
+    grid-template-areas: "title plate" "claim plate" "copy plate" "proof plate";
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: clamp(36px, 5vw, 80px);
+    align-items: start;
+  }
+  .catalogue--hero-variant .hero--b h1 { font-size: clamp(4rem, 6.2vw, 6rem); }
+  .hero--b h1 em { margin-left: .3em; }
+  .hero--b .hero-art {
+    height: auto;
+    aspect-ratio: 1;
+    margin: 0;
+  }
+  .hero--b .hero-art > .calibre { width: 100%; height: 88%; max-width: none; margin: 0; }
+  .hero--b .hero-seal { top: -3%; right: 8%; width: 22%; }
+  .hero--b .fig-cap {
+    align-self: start;
+    justify-self: stretch;
+    width: auto;
+    margin: 87% 6% 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .hero--b .fig-cap .mono { font-size: 10px; }
+  .hero--b .fig-cap p { margin: 0; font-size: 20px; }
+  .hero--b .proof-table { margin-top: 36px; }
+  .hero--b .rail {
+    position: relative;
+    grid-area: plate;
+    justify-self: end;
+    inset: auto;
+    margin: 32px 10px 0 0;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalogue--hero-variant .hero .live::before { animation: none; }
+  .catalogue--hero-variant .hero-art .lever { transform: none; }
+  .catalogue--hero-variant .hero-art .flash { opacity: 1; transition: none; }
+  .catalogue--hero-variant .hero-art .seal { opacity: 1; transform: rotate(-12deg); }
+}
+
 /* ================= CERTIFICAT (passport) ================= */
 .paper { position: relative; min-height: 100vh; overflow-x: clip; }
 .pp { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; padding: 30px 16px 80px; color: var(--blue); }

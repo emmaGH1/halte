@@ -20,7 +20,7 @@ const FIGS: { n: string; title: string; body: string; glyph: string }[] = [
 export default async function Home() {
   const live = await readLive();
   return (
-    <div className="catalogue" id="top">
+    <div className="catalogue catalogue--hero-variant" id="top">
       <div className="grain" aria-hidden />
       <SiteNav
         brand={<Wordmark />}
@@ -29,7 +29,7 @@ export default async function Home() {
         cta={{ href: "#top", label: "Issue a passport" }}
       />
 
-      <section className="hero">
+      <section className="hero hero--b">
         <HeroArt />
         <h1>
           <span className="sw">Stolen means</span>
