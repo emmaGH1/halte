@@ -1,7 +1,7 @@
 {
-  "at": "2026-11-22T19:51:24.148Z",
-  "deploy": "deploy 3df5f2a",
-  "clock": "Clock 1% elapsed · 25% sponsor milestone already green",
+  "at": "2026-11-23T08:21:09.234Z",
+  "deploy": "deploy ea3ecd9",
+  "clock": "Clock 6% elapsed · 25% sponsor milestone already green",
   "approval": "✓ checks match what you approved (22/11/2026, 20:18 WAT · approvals: 4)",
   "approved": true,
   "fingerprint": "90de267ffdffa2ff",
@@ -13,7 +13,7 @@
       "done": "the public link opens the app (not a landing page); one tap makes a new passport with a random ID, its owner, status \"active\" and a Diana tx link, read back from the contract",
       "sponsor": false,
       "state": "pass",
-      "saw": "fresh passport 0xf6c3d4cc… active on Diana (tx 628E84C5…)"
+      "saw": "fresh passport 0x15be1cec… active on Diana (tx 26701ED2…)"
     },
     {
       "id": "J2",
@@ -21,7 +21,7 @@
       "done": "the open offer is listed; \"report missing\" sends an ML-DSA-87-signed freeze; the app shows status \"frozen\", the Diana tx hash, and that `pqcVerify` passed, read back from the contract for this passport ID",
       "sponsor": true,
       "state": "pass",
-      "saw": "ML-DSA freeze landed (tx 193D0139…); chain status frozen"
+      "saw": "ML-DSA freeze landed (tx 1EFFC716…); chain status frozen"
     },
     {
       "id": "J3",
@@ -45,7 +45,7 @@
       "done": "status goes back to \"active\" with a new Diana tx; the pre-freeze offer still fails (the epoch was bumped)",
       "sponsor": true,
       "state": "pass",
-      "saw": "recovered (tx A9E1C673…); stale pre-freeze offer still refused"
+      "saw": "recovered (tx AE06CFA4…); stale pre-freeze offer still refused"
     }
   ],
   "passed": 5,

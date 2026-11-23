@@ -37,6 +37,7 @@
 
 - 22 nov 20:43 · dashboard QCAI auditor · the Confirm dialog shows "Audit Cost 150 QOR" on the day's free run; the wallet was not charged (99.82 QOR before and after) · scares users off the free run
 
+- 23 nov 09:15 · sandbox /data hit 100% during a Vercel CLI install (ENOSPC) · fix: deleted web/.next and the npm cache · keep an eye on disk before builds
 - 22 nov 20:05 · Vercel runtime + @cosmjs/crypto (pulled in by @qorechain/sdk) · saw ERR_REQUIRE_ESM on @noble/hashes/argon2.js when the SDK is a serverExternalPackage · fix: let Next bundle it · anyone deploying the SDK on Vercel hits this
 
 - 22 nov 19:3x · create-qorechain-dapp 0.14.0 + pnpm 12 · expected install · saw ERR_PNPM_IGNORED_BUILDS (esbuild) · fix: pnpm-workspace.yaml allowBuilds esbuild · the scaffold aborts for anyone on pnpm 12
