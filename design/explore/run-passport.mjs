@@ -1,0 +1,21 @@
+// drives one passport through the journey on a local build and screenshots each certificate state
+import { chromium } from "playwright";
+const [,, base, out] = process.argv;
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+const d = (k) => p.locator(`[data-demo=${k}]`).first();
+await p.goto(base, { waitUntil: "networkidle" });
+await d("mint").click(); await d("passport-id").waitFor({ timeout: 120000 });
+await p.waitForTimeout(1500); await p.screenshot({ path: `${out}/pp-1-active.png`, fullPage: true });
+await d("offer").click(); await d("offer-id").waitFor({ timeout: 120000 });
+await d("report-missing").click(); await d("pqc-verified").waitFor({ timeout: 120000 });
+await d("dealer-accept").click(); await d("refused").waitFor({ timeout: 120000 });
+await p.waitForTimeout(1500); await p.screenshot({ path: `${out}/pp-2-frozen.png`, fullPage: true });
+await p.setViewportSize({ width: 1440, height: 900 }); await p.waitForTimeout(800);
+await p.screenshot({ path: `${out}/pp-2-frozen-desktop.png`, fullPage: true });
+await p.setViewportSize({ width: 390, height: 844 });
+await d("recover").click();
+await p.waitForFunction(() => /active/i.test(document.querySelector("[data-demo=passport-status]")?.textContent ?? ""), null, { timeout: 120000 });
+await p.waitForTimeout(1500); await p.screenshot({ path: `${out}/pp-3-recovered.png`, fullPage: true });
+console.log(p.url());
+await b.close();

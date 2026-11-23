@@ -33,7 +33,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ action:
         const s = await signAction(action, body.id);
         const tx = await ownerWrite(action, [body.id, s.expiry, s.signature]);
         const p = await readPassport(body.id);
-        return NextResponse.json({ status: STATUS[p.status], epoch: p.epoch, signatureBytes: (s.signature.length - 2) / 2, digest: s.digest, tx });
+        return NextResponse.json({ status: STATUS[p.status], epoch: p.epoch, signatureBytes: (s.signature.length - 2) / 2, signature: s.signature, digest: s.digest, tx });
       }
       case "wrong-key-freeze": {
         if (!isId(body.id)) throw new Error("bad passport id");

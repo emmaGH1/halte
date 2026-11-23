@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { type Hex } from "viem";
 import { HALTE_ABI, STATUS, contract, pub, readPassport } from "@/lib/chain";
+import { keyBytesOf } from "@/lib/live";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,5 +16,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const o = (await pub.readContract({ address: contract(), abi: HALTE_ABI, functionName: "offers", args: [BigInt(offerId)] })) as any[];
     offer = { id: offerId, passportId: o[0], dealer: o[1], epoch: Number(o[2]), open: o[3], live: o[3] && Number(o[2]) === p.epoch && p.status === 1 };
   }
-  return NextResponse.json({ id, owner: p.owner, status: STATUS[p.status], epoch: p.epoch, nonce: p.nonce.toString(), offer, contract: contract() });
+  const keyBytes = await keyBytesOf(p.owner as Hex);
+  return NextResponse.json({ id, keyBytes, owner: p.owner, status: STATUS[p.status], epoch: p.epoch, nonce: p.nonce.toString(), offer, contract: contract() });
 }
