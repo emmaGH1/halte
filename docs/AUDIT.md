@@ -5,7 +5,7 @@ Two-stage audit as required by the Post-Quantum dApp track ([audit FAQ](https://
 | stage | date (UTC) | setting | source audited | score | report |
 |---|---|---|---|---|---|
 | 1 | 22 Nov 2026, 19:43 | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `27dd594` | 75/100, medium, 4 findings | [`docs/audit/2026-11-22-qcai-stage1.pdf`](audit/2026-11-22-qcai-stage1.pdf) |
-| 2 | after the fixes below, same setting | Ethereum (EVM/Solidity) | | | _pending_ |
+| 2 | 23 Nov 2026, 12:03 (dashboard time) | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `3df5f2a` (the source of the live Diana contract) | 85/100, medium, 4 findings | [`docs/audit/2026-11-23-qcai-stage2.pdf`](audit/2026-11-23-qcai-stage2.pdf) |
 
 QCAI reviews pasted source only. Quantum readiness is "not scored for this setting" (the FAQ says a setting aware of QoreChain's PQ precompiles is planned). The PQ path is covered by the tests and the live Diana runs below.
 
@@ -43,6 +43,31 @@ Offers made dead by a freeze (their epoch is old) are still never executable (`S
 ### Info · Replay protection via nonce: kept
 
 The nonce is in every signed digest, along with the chain id, the contract address, an expiry and a per-action domain (`HALTE_FREEZE_V1` / `HALTE_RECOVER_V1`).
+
+## Stage 2 findings
+
+Stage 2 ran on the source after the stage 1 changes. The score went from 75 to 85. Every stage 2 finding is either a repeat of a stage 1 finding or a reaction to the stage 1 fix itself. None calls for a code change, so the audited source is still the one deployed at `0x1e2bacc937a116a281e13e2932f227e0048e91c5`.
+
+### H · Missing access control on `freeze()` and `recover()`: by design, unchanged
+
+This is the stage 1 finding again. This time QCAI suggests gating the calls on "a minimum balance or other conditions". A balance check measures what an account holds, not whether its holder may act on a passport, and it would lock out a phone app or recovery service relaying the owner's signed report. The only authority is an ML-DSA-87 signature by the owner's registered key, checked by `pqcVerify` (see stage 1 H). The stage 1 NatSpec block and its four tests still apply.
+
+### M · Potential overflow in offer ID management: false positive, unchanged
+
+This is the stage 1 finding again. `++offerCount` is checked arithmetic in Solidity 0.8.28 on a `uint256`, so an overflow reverts and can't wrap. Capping it would add a limit nobody can reach.
+
+### M · Unbounded storage deletion in `cancelOffer()` / `acceptOffer()`: no change, explained
+
+These deletions came from the stage 1 L fix. Each call clears exactly one `offers` slot: constant gas, no loop, and the gas refund goes to the caller. Only the passport owner can cancel (`NotOwner`), and only the named dealer can accept (`NotDealer`), so nobody else can delete another user's offers. Each deletion is a separate transaction that its caller pays for, so there is nothing for rate limiting to protect.
+
+- **Test:** `lets only the owner cancel an offer, and frees closed offers' storage`.
+
+### L · Potential replay in `_checkPq()`: kept, already covered
+
+Every signed digest binds a per-action domain (`HALTE_FREEZE_V1` / `HALTE_RECOVER_V1`), `block.chainid`, the contract address, the passport id, its nonce and an expiry. The nonce is bumped on every PQ-authorised action and on every transfer.
+
+- **Test:** `cannot replay a freeze signature, or use a freeze signature to recover`.
+- **On chain:** the live journey checks (`J3!`, `J4`) re-run a wrong-key freeze and a stale-offer accept on every status run.
 
 ## Tests
 

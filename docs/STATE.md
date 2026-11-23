@@ -27,7 +27,7 @@
 - done 22 nov: 10 Hardhat tests (mock PQC precompile) · evidence/tests/halte-tests.txt
 
 - decode the custom error names in the revert evidence (BadPqcSignature vs PassportFrozen)
-- QCAI stage 2: on 23 nov UTC (after 01:00 WAT), same Ethereum setting, on the current Halte.sol; then fill the stage 2 row in docs/AUDIT.md
+- QCAI stage 2 done 23 nov: 85/100 (from 75), 4 findings, all repeats or reactions to the stage 1 fix, no code change · docs/audit/2026-11-23-qcai-stage2.pdf · responses in docs/AUDIT.md
 
 ## proposed plan changes (waiting for the human's yes)
 
