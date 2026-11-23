@@ -1,4 +1,4 @@
 {
-  "id": "0x15be1cecf65ee0c294420b36d1667f34f2a1f40eca68f4120747738e4b852cc6",
+  "id": "0x7817401974039845af6acf5136b35408d13bc999bbd02f610dfef70eb036aa8f",
   "text": "01\nDealer tries to buy it: refused (PassportFrozen)\nchecked against Diana live state (eth_call, not broadcast)"
 }
