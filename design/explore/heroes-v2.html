@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Halte hero directions v2</title>
+<link href="fontshare.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400;1,6..96,500&family=Geist+Mono:wght@400;500&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#777;font-family:Switzer,sans-serif}
+  .hero{width:1440px;height:900px;position:relative;overflow:hidden;margin:0 auto 40px}
+  .mono{font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  svg.full{position:absolute;inset:0}
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- 1 · CATALOGUE (bone & ink) ---------- */
+  #c1{background:#EEEAE2;color:#11110F}
+  #c1 .bar{position:absolute;left:48px;right:48px;top:0;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(17,17,15,.16)}
+  #c1 .bar nav{display:flex;gap:36px}
+  #c1 .bar nav b{font-weight:500;opacity:.45;margin-right:8px}
+  #c1 h1{position:absolute;left:44px;top:104px;font-weight:300;font-size:140px;line-height:.9;letter-spacing:-.055em}
+  #c1 h1 em{display:block;font-family:Boska,serif;font-style:italic;font-weight:400;font-size:168px;letter-spacing:-.03em;margin-left:120px;margin-top:6px}
+  #c1 h1 em i{color:#C8281C;font-style:normal}
+  #c1 .lede{position:absolute;left:48px;top:488px;width:400px;font-size:18px;line-height:1.5;color:#2c2b28}
+  #c1 .cta{position:absolute;left:48px;top:618px;display:flex;align-items:center;gap:26px}
+  #c1 .btn{background:#11110F;color:#EEEAE2;padding:17px 26px;font-size:14px;font-weight:500;letter-spacing:.01em;display:flex;gap:14px;align-items:center}
+  #c1 .link{font-size:14px;border-bottom:1px solid currentColor;padding-bottom:3px}
+  #c1 .table{position:absolute;left:48px;bottom:40px;width:560px;border-top:1px solid #11110F}
+  #c1 .row{display:grid;grid-template-columns:150px 1fr;padding:9px 0;border-bottom:1px solid rgba(17,17,15,.16);font-size:14px}
+  #c1 .row .mono{font-size:10px;padding-top:3px;opacity:.6}
+  #c1 .fig{position:absolute;left:540px;top:470px;width:190px;text-align:right}
+  #c1 .fig p{font-family:Boska,serif;font-style:italic;font-size:19px;line-height:1.2;margin-top:8px}
+  #c1 .rail{position:absolute;right:20px;top:120px;transform-origin:right top;transform:rotate(-90deg) translateX(0);white-space:nowrap;opacity:.5}
+
+  /* ---------- 2 · GRAND FEU (enamel night) ---------- */
+  #c2{background:radial-gradient(900px 700px at 50% 55%,#16294A 0%,#0C172B 55%,#070D19 100%);color:#ECE4D2}
+  #c2 .corner{position:absolute;color:#ECE4D2;opacity:.6}
+  #c2 .kick{position:absolute;left:0;right:0;top:332px;text-align:center;font-weight:500;font-size:15px;letter-spacing:.62em;padding-left:.62em}
+  #c2 h1{position:absolute;left:0;right:0;top:356px;text-align:center;font-family:"Bodoni Moda",serif;font-style:italic;font-weight:400;font-size:212px;line-height:1;letter-spacing:-.02em}
+  #c2 h1 i{color:#E0402F;font-style:normal}
+  #c2 .lede{position:absolute;left:50%;top:612px;width:470px;transform:translateX(-50%);text-align:center;font-size:17px;line-height:1.55;color:rgba(236,228,210,.72)}
+  #c2 .cta{position:absolute;left:50%;top:722px;transform:translateX(-50%);display:flex;gap:12px;align-items:center}
+  #c2 .btn{border:1px solid #B89B5E;color:#ECE4D2;padding:15px 28px;border-radius:999px;font-size:14px;font-weight:500;background:rgba(184,155,94,.12)}
+  #c2 .side{position:absolute;top:470px;font-size:12px}
+
+  /* ---------- 3 · CERTIFICAT (paper & ink-blue) ---------- */
+  #c3{background:#F2EEE6;color:#18233F}
+  #c3 .bar{position:absolute;left:72px;right:72px;top:34px;display:flex;justify-content:space-between;align-items:center}
+  #c3 .bar nav{display:flex;gap:34px;font-size:14px}
+  #c3 .kick{position:absolute;left:72px;top:170px;opacity:.65}
+  #c3 h1{position:absolute;left:68px;top:198px;font-family:Boska,serif;font-weight:400;font-size:112px;line-height:.98;letter-spacing:-.025em}
+  #c3 h1 em{font-style:italic;font-weight:300}
+  #c3 .lede{position:absolute;left:72px;top:450px;width:460px;font-size:18px;line-height:1.55;color:#3a4360}
+  #c3 .cta{position:absolute;left:72px;top:574px;display:flex;gap:24px;align-items:center}
+  #c3 .btn{background:#18233F;color:#F2EEE6;padding:17px 26px;font-size:14px;font-weight:500}
+  #c3 .link{font-size:14px;border-bottom:1px solid currentColor;padding-bottom:3px}
+  #c3 .steps{position:absolute;left:72px;bottom:56px;width:600px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  #c3 .steps div{border-top:1px solid #18233F;padding-top:12px;font-size:14px;line-height:1.45}
+  #c3 .steps span{display:block;font-family:Boska,serif;font-size:26px;margin-bottom:6px}
+  #c3 .cert{position:absolute;left:752px;top:96px;width:616px;height:740px;background:#FBF9F4;box-shadow:0 1px 0 rgba(0,0,0,.04),0 30px 60px -30px rgba(24,35,63,.35);}
+  #c3 .cert .inner{position:absolute;inset:16px;border:1px solid rgba(24,35,63,.35)}
+  #c3 .cert .inner:after{content:"";position:absolute;inset:4px;border:1px solid rgba(24,35,63,.18)}
+  #c3 .ctitle{position:absolute;left:0;right:0;top:132px;text-align:center}
+  #c3 .ctitle h2{font-family:Boska,serif;font-weight:400;font-size:34px;letter-spacing:.01em}
+  #c3 .ctitle p{margin-top:6px;opacity:.6}
+  #c3 .fields{position:absolute;left:56px;right:56px;top:236px;display:grid;grid-template-columns:1fr 1fr;column-gap:36px}
+  #c3 .f{padding:11px 0;border-bottom:1px solid rgba(24,35,63,.15)}
+  #c3 .f .mono{font-size:9.5px;opacity:.55;display:block;margin-bottom:5px}
+  #c3 .f b{font-weight:500;font-size:15px}
+  #c3 .f s{opacity:.45}
+  #c3 .f .red{color:#B3261E}
+  #c3 .sig{position:absolute;left:56px;bottom:62px;width:240px;border-top:1px solid rgba(24,35,63,.4);padding-top:8px}
+  #c3 .sig .hand{position:absolute;bottom:22px;left:6px;font-family:"Mrs Saint Delafield",cursive;font-size:52px;color:#24356a;transform:rotate(-4deg)}
+</style>
+</head>
+<body>
+
+<!-- ======================= 1 · CATALOGUE ======================= -->
+<div class="hero" id="c1">
+  <svg class="full" id="c1art" viewBox="0 0 1440 900"></svg>
+  <div class="bar">
+    <div class="logo" data-c="#11110F" data-a="#C8281C"></div>
+    <span class="mono" style="opacity:.55">Ref. H-01 · Calibre Diana</span>
+    <nav class="mono"><span><b>01</b>Method</span><span><b>02</b>Dealers</span><span><b>03</b>Proof</span><span style="color:#C8281C">Issue a passport ↗</span></nav>
+  </div>
+  <h1>Stolen means<em>unsellable<i>.</i></em></h1>
+  <p class="lede">A digital passport for fine watches. Report one missing and it freezes in a single block. Every open sale dies with it, and only the owner's quantum-safe key can lift it.</p>
+  <div class="cta"><a class="btn">Issue a passport <span>→</span></a><a class="link">Watch a dealer get refused</a></div>
+  <div class="fig"><span class="mono" style="color:#C8281C">Fig. 5 · Stop lever</span><p>One signed report halts every sale.</p></div>
+  <div class="table">
+    <div class="row"><span class="mono">Signature</span><span>ML-DSA-87, NIST FIPS 204</span></div>
+    <div class="row"><span class="mono">Verified by</span><span>pqcVerify precompile, on chain</span></div>
+    <div class="row"><span class="mono">Freeze time</span><span>One block</span></div>
+    <div class="row"><span class="mono">Network</span><span>QoreChain Diana testnet</span></div>
+  </div>
+  <div class="rail mono">Fig. 1 · Calibre H-01 with the stop lever engaged · drawn to scale 1:0.1</div>
+</div>
+
+<!-- ======================= 2 · GRAND FEU ======================= -->
+<div class="hero" id="c2">
+  <svg class="full" id="c2art" viewBox="0 0 1440 900"></svg>
+  <div class="logo" style="position:absolute;left:50%;top:40px;transform:translateX(-50%)" data-c="#ECE4D2" data-a="#E0402F"></div>
+  <span class="corner mono" style="left:48px;top:48px">Ref. H-01</span>
+  <span class="corner mono" style="right:48px;top:48px">Diana · block 10,572,301</span>
+  <span class="corner mono" style="left:48px;bottom:44px">ML-DSA-87 · FIPS 204</span>
+  <span class="corner mono" style="right:48px;bottom:44px">pqcVerify · on chain</span>
+  <span class="side mono" style="left:150px">IX · Method</span>
+  <span class="side mono" style="right:150px">Proof · III</span>
+  <div class="kick">STOLEN MEANS</div>
+  <h1>unsellable<i>.</i></h1>
+  <p class="lede">Report a watch missing and its passport freezes in one block. Every open sale dies with it. Only the owner's quantum-safe key can lift it.</p>
+  <div class="cta"><a class="btn">Issue a passport</a></div>
+</div>
+
+<!-- ======================= 3 · CERTIFICAT ======================= -->
+<div class="hero" id="c3">
+  <div class="bar">
+    <div class="logo" data-c="#18233F" data-a="#B3261E"></div>
+    <nav><span>Method</span><span>For dealers</span><span>Proof on chain</span></nav>
+  </div>
+  <span class="kick mono">Digital provenance for fine watches</span>
+  <h1>Stolen means<br><em>unsellable.</em></h1>
+  <p class="lede">Every watch gets a passport, bound to its owner's quantum-safe key. Report it missing and it freezes in one block. No dealer can buy it until the owner lifts the freeze.</p>
+  <div class="cta"><a class="btn">Issue a passport →</a><a class="link">See a sale refused</a></div>
+  <div class="steps">
+    <div><span>I.</span>Issue a passport for the watch, bound to your ML-DSA-87 key.</div>
+    <div><span>II.</span>Report it missing. One signature freezes it, verified on chain.</div>
+    <div><span>III.</span>Any dealer who tries to buy it is refused, block by block.</div>
+  </div>
+  <div class="cert">
+    <svg class="full" id="c3cert" viewBox="0 0 616 740"></svg>
+    <div class="inner"></div>
+    <div class="ctitle"><h2>Certificat de provenance</h2><p class="mono" style="font-size:10px">Certificate of provenance · Nº HLT-7F3A-09C2</p></div>
+    <div class="fields">
+      <div class="f"><span class="mono">Calibre</span><b>Automatic, 40 mm</b></div>
+      <div class="f"><span class="mono">Issued</span><b>22 Nov 2026 · block 10,572,087</b></div>
+      <div class="f"><span class="mono">Holder key</span><b>ML-DSA-87 · 2,592 bytes</b></div>
+      <div class="f"><span class="mono">Verifier</span><b>pqcVerify · 0x…0a01</b></div>
+      <div class="f"><span class="mono">Open offers</span><b><s>1 dealer offer</s> · void</b></div>
+      <div class="f"><span class="mono">Status</span><b><s>Active</s> <span class="red">Frozen</span></b></div>
+    </div>
+    <div class="sig"><span class="hand">E. Halte</span><span class="mono" style="font-size:9.5px;opacity:.6">Owner signature · ML-DSA-87</span></div>
+  </div>
+</div>
+
+<script>window.MONO='"Geist Mono",monospace'</script>
+<script src="movement.js"></script>
+<script>
+/* ---- mark 06 "held time": dial + red sector of held time + stopped hand ---- */
+function held({size=40,c="#111",a="#C8281C",ticks=60,stop=84,ring=true,bg="none"}={}){
+  const pt=(r,d)=>{const t=(d-90)*Math.PI/180;return [ (r*Math.cos(t)).toFixed(2),(r*Math.sin(t)).toFixed(2)]};
+  const [sx,sy]=pt(80,stop),[hx,hy]=pt(70,stop);
+  let t="";for(let i=0;i<ticks;i++){const d=i*360/ticks;const major=ticks===60?i%5===0:true;const [x1,y1]=pt(84,d),[x2,y2]=pt(major?95:91,d);t+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${major?(ticks===60?3.4:6):1.7}"/>`}
+  return `<svg viewBox="-100 -100 200 200" width="${size}" height="${size}" style="display:block">${bg!=="none"?`<circle r="100" fill="${bg}"/>`:""}
+    <path d="M0 0 L0 -80 A80 80 0 0 1 ${sx} ${sy} Z" fill="${a}"/>${t}
+    <line x1="0" y1="0" x2="${hx}" y2="${hy}" stroke="${c}" stroke-width="${ticks===60?5:9}"/><circle r="${ticks===60?7:11}" fill="${c}"/></svg>`;
+}
+document.querySelectorAll(".logo").forEach(l=>{
+  const c=l.dataset.c,a=l.dataset.a;
+  l.innerHTML=`<div style="display:flex;align-items:center;gap:12px">${held({size:30,c,a,ticks:12})}<span style="font-family:Switzer;font-weight:600;font-size:17px;letter-spacing:.34em;color:${c}">HALTE</span></div>`;
+});
+
+/* ---- seal: mark 06 with circular legend ---- */
+function seal(svg,cx,cy,r,color,text,rot=-12,bg="none"){
+  const g=el("g",{transform:`translate(${cx} ${cy}) rotate(${rot})`},svg);
+  const id="s"+Math.random().toString(36).slice(2,7);
+  el("circle",{r,fill:bg,stroke:color,"stroke-width":2},g);
+  el("circle",{r:r-6,fill:"none",stroke:color,"stroke-width":.8},g);
+  el("circle",{r:r*0.58,fill:"none",stroke:color,"stroke-width":.8},g);
+  const defs=el("defs",{},g);el("path",{id,d:`M ${-(r*0.79)} 0 A ${r*0.79} ${r*0.79} 0 1 1 ${r*0.79} 0 A ${r*0.79} ${r*0.79} 0 1 1 ${-(r*0.79)} 0`},defs);
+  const tx=el("text",{fill:color,style:`font-family:"Geist Mono";font-size:${r*0.135}px;letter-spacing:${r*0.035}px;font-weight:500`},g);
+  const tp=el("textPath",{href:"#"+id},tx);tp.textContent=text;
+  const inner=el("g",{transform:`scale(${r*0.5/100})`},g);inner.innerHTML=held({c:color,a:color,ticks:12}).replace(/^<svg[^>]*>|<\/svg>$/g,"");
+}
+
+/* ================= 1 · catalogue art ================= */
+(function(){
+  const s=document.getElementById("c1art");
+  for(let i=0;i<=12;i++){const x=48+i*1344/12;el("line",{x1:x,y1:64,x2:x,y2:900,stroke:"#11110F","stroke-opacity":.05,"stroke-width":1},s)}
+  movement(s,{cx:1132,cy:604,R:404,labels:false,ink:"#1d1c19",faint:"#a39d90",accent:"#C8281C",bg:"#EEEAE2"});
+  // leader from the lever tip to the Fig. 5 caption
+  const R=404,cx=1132,cy=604,lx=cx-R*0.36,ly=cy+R*0.42,lr=R*0.22,tx=lx+lr*0.72,ty=ly-lr*0.72;
+  el("path",{d:`M${tx} ${ty} L${760} ${487} L${736} ${487}`,fill:"none",stroke:"#C8281C","stroke-width":1},s);
+  el("circle",{cx:tx,cy:ty,r:9,fill:"none",stroke:"#C8281C","stroke-width":1},s);
+  seal(s,1290,250,82,"#C8281C","PASSPORT FROZEN · BLOCK 10,572,301 · ",-14,"#EEEAE2");
+})();
+
+/* ================= 2 · grand feu art ================= */
+(function(){
+  const s=document.getElementById("c2art");const cx=720,cy=500,R=388,cream="#ECE4D2",red="#E0402F",gold="#B89B5E";
+  // guilloché sunburst
+  for(let i=0;i<360;i++){const a=i*Math.PI/180;el("line",{x1:cx,y1:cy,x2:cx+Math.cos(a)*(R-48),y2:cy+Math.sin(a)*(R-48),stroke:cream,"stroke-opacity":.035,"stroke-width":1},s)}
+  // faint movement ghost
+  const ghost=el("g",{opacity:.10},s);movement(ghost,{cx,cy,R:R-70,labels:false,ink:cream,faint:cream,accent:cream,bg:"transparent"});
+  [R,R-10,R-48].forEach((r,i)=>el("circle",{cx,cy,r,fill:"none",stroke:i===1?gold:cream,"stroke-opacity":i===1?.7:.45,"stroke-width":i===0?1.4:.8},s));
+  for(let i=0;i<60;i++){const a=(i*6-90)*Math.PI/180,maj=i%5===0;const r1=R-14,r2=maj?R-40:R-24;el("line",{x1:cx+Math.cos(a)*r1,y1:cy+Math.sin(a)*r1,x2:cx+Math.cos(a)*r2,y2:cy+Math.sin(a)*r2,stroke:cream,"stroke-opacity":maj?.9:.45,"stroke-width":maj?2.4:1},s)}
+  // held-time arc: red band from 12 to the stopped hand
+  const stop=132,a0=-90*Math.PI/180,a1=(stop-90)*Math.PI/180,rr=R-5;
+  el("path",{d:`M${cx+Math.cos(a0)*rr} ${cy+Math.sin(a0)*rr} A${rr} ${rr} 0 0 1 ${cx+Math.cos(a1)*rr} ${cy+Math.sin(a1)*rr}`,fill:"none",stroke:red,"stroke-width":10},s);
+  // stopped seconds hand
+  el("line",{x1:cx-Math.cos(a1)*70,y1:cy-Math.sin(a1)*70,x2:cx+Math.cos(a1)*(R-20),y2:cy+Math.sin(a1)*(R-20),stroke:red,"stroke-width":2},s);
+  el("circle",{cx:cx-Math.cos(a1)*58,cy:cy-Math.sin(a1)*58,r:9,fill:"none",stroke:red,"stroke-width":2},s);
+  el("circle",{cx,cy,r:6,fill:red},s);
+})();
+
+/* ================= 3 · certificate art ================= */
+(function(){
+  const s=document.getElementById("c3cert");const ink="#18233F",line="#9DA8BC";
+  // guilloché band across the top
+  for(let k=0;k<22;k++){let d="";for(let x=16;x<=600;x+=3){const y=64+Math.sin(x/22+k*0.29)*26*Math.cos(x/97+k*.05)+Math.sin(x/9+k)*2;d+=(x===16?"M":"L")+x+" "+y.toFixed(2)}el("path",{d,fill:"none",stroke:line,"stroke-width":.55,opacity:.85},s)}
+  // rosette behind the seal
+  const rx=488,ry=612;
+  for(let k=0;k<36;k++){let d="";for(let t=0;t<=360;t+=2){const a=t*Math.PI/180;const r=58+9*Math.sin(12*a+k*0.175);const x=rx+r*Math.cos(a+k*0.02),y=ry+r*Math.sin(a+k*0.02);d+=(t?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}el("path",{d:d+"Z",fill:"none",stroke:line,"stroke-width":.4,opacity:.8},s)}
+  // small movement figure
+  const fig=el("g",{},s);movement(fig,{cx:300,cy:500,R:68,labels:false,ink,faint:line,accent:"#B3261E",bg:"#FBF9F4"});
+  const t=el("text",{x:300,y:596,"text-anchor":"middle",fill:ink,opacity:.6,style:'font-family:"Geist Mono";font-size:9px;letter-spacing:1.3px'},s);t.textContent="FIG. 1 · CALIBRE, STOP LEVER ENGAGED";
+  seal(s,488,612,74,"#B3261E","GELÉ · FROZEN · BLOCK 10,572,301 · ",-10,"rgba(251,249,244,.85)");
+})();
+</script>
+</body>
+</html>
