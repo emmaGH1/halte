@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/img/register.jpg" alt="A passport's register on the live site: the dealer could buy it, a thief with the classical key is refused, the owner reports it missing, then the same dealer is refused with PassportFrozen." width="820">
+  <img src="docs/img/register.jpg" alt="A passport's register on the live site: the owner signs an offer, the dealer could buy it, the owner reports it missing, then the same dealer and offer are refused with PassportFrozen." width="640">
   <br><em>Try it: issue a passport, have the dealer check the offer (it would go through), report the watch missing, then ask again. Same dealer, same offer: refused.</em>
 </p>
 
