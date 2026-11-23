@@ -89,8 +89,11 @@ button:disabled { opacity: .45; cursor: default; }
 .fig-cap { display: none; }
 .proof-table { order: 4; position: relative; z-index: 3; margin-top: 40px; border-top: 1px solid var(--ink); max-width: 560px; }
 .proof-table .th { display: flex; justify-content: space-between; font-size: 10px; padding: 11px 0 5px; }
-.proof-table .tr { display: grid; grid-template-columns: 112px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--hair); font-size: 14px; line-height: 1.4; }
-.proof-table .tr .mono { font-size: 9.5px; padding-top: 3px; opacity: .6; }
+.proof-table .tr { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--hair); line-height: 1.35; }
+.proof-table .tr > .mono { font-size: 9.5px; padding-top: 4px; opacity: .6; }
+.proof-table .v { display: grid; gap: 3px; min-width: 0; }
+.proof-table .v b { font-weight: 500; font-size: 15px; font-variant-numeric: tabular-nums; }
+.proof-table .v small { font-size: 13px; color: var(--muted); }
 .proof-table a { text-decoration: none; border-bottom: 1px solid rgba(17,17,15,.35); }
 .live { display: inline-flex; align-items: center; gap: 9px; }
 .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 4px rgba(200,40,28,.15); animation: pulse 2s ease-in-out infinite; }
@@ -111,9 +114,12 @@ button:disabled { opacity: .45; cursor: default; }
 .figs p { font-size: 15px; line-height: 1.5; color: var(--ink2); margin-top: 8px; }
 .vgrid { display: grid; gap: 0; }
 .vgrid > div { border-top: 1px solid var(--hair); padding: 18px 0 22px; }
+.vgrid > div { display: flex; flex-direction: column; align-items: flex-start; }
 .vgrid .mono { font-size: 10px; opacity: .6; }
-.vgrid p { font-size: 15px; line-height: 1.5; margin: 8px 0 10px; word-break: break-all; }
-.vgrid a { font-size: 14px; text-decoration: none; border-bottom: 1px solid currentColor; }
+.vgrid .big { font-weight: 400; font-size: 21px; line-height: 1.2; letter-spacing: -.01em; margin-top: 12px; }
+.vgrid .big.m { font-family: var(--mono), monospace; font-size: 17px; letter-spacing: 0; }
+.vgrid p { font-size: 15px; line-height: 1.5; color: var(--ink2); margin: 8px 0 14px; max-width: 34ch; }
+.vgrid a { margin-top: auto; font-size: 14px; text-decoration: none; border-bottom: 1px solid currentColor; }
 .foot { display: flex; flex-direction: column; gap: 8px; margin: 0 16px; padding: 26px 0 40px; border-top: 1px solid var(--ink); font-size: 10px; opacity: .7; }
 
 @media (min-width: 1024px) {

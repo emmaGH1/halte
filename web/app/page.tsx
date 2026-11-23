@@ -61,15 +61,15 @@ export default async function Home() {
             <span className={live.ok ? "live" : "live off"}>{live.ok ? "Live from QoreChain Diana" : "Diana unreachable right now"}</span>
             <span className="dim">{live.ok ? `block ${n(live.block)}` : ""}</span>
           </div>
-          <div className="tr"><span className="mono">Owner key</span><span>ML-DSA-87 (FIPS 204) · {live.keyBytes ? `${live.keyBytes.toLocaleString("en-US")}-byte` : "registered"} public key</span></div>
+          <div className="tr"><span className="mono">Owner key</span><span className="v"><b>ML-DSA-87 · {live.keyBytes ? `${live.keyBytes.toLocaleString("en-US")} bytes` : "registered"}</b><small>FIPS 204 public key, registered on chain</small></span></div>
           <div className="tr">
             <span className="mono">Last freeze</span>
-            <span>
-              {live.lastFreeze ? <><a href={live.lastFreeze.url} target="_blank" rel="noreferrer">tx {short(live.lastFreeze.hash, 10, 4)}</a> · block {n(live.lastFreeze.block)}</> : "none yet"} · verified by pqcVerify
+            <span className="v">
+              {live.lastFreeze ? <><b><a href={live.lastFreeze.url} target="_blank" rel="noreferrer">tx {short(live.lastFreeze.hash, 10, 4)}</a></b><small>block {n(live.lastFreeze.block)} · verified by pqcVerify</small></> : <><b>none yet</b><small>verified by pqcVerify</small></>}
             </span>
           </div>
-          <div className="tr"><span className="mono">Passports</span><span>{live.minted ?? "—"} issued · {live.frozen ?? "—"} {live.frozen === 1 ? "freeze" : "freezes"} signed on chain</span></div>
-          <div className="tr"><span className="mono">Contract</span><span><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">{short(live.contract)}</a> · reached only through a scoped EVM window</span></div>
+          <div className="tr"><span className="mono">Passports</span><span className="v"><b>{live.minted ?? "—"} issued · {live.frozen ?? "—"} frozen</b><small>each freeze signed by the owner&apos;s own key</small></span></div>
+          <div className="tr"><span className="mono">Contract</span><span className="v"><b><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">{short(live.contract)}</a></b><small>reached only through a scoped EVM window</small></span></div>
         </div>
         <div className="rail mono">Fig. 1 · Calibre H-01 with the stop lever engaged</div>
       </section>
@@ -97,10 +97,10 @@ export default async function Home() {
           <h2>Don&apos;t trust the page. <em>Check the chain.</em></h2>
         </div>
         <div className="vgrid">
-          <div><span className="mono">Contract</span><p>{live.contract}</p><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">Deploy transaction ↗</a></div>
-          <div><span className="mono">Precompiles</span><p>pqcVerify at 0x…0a01 checks every freeze and recovery. pqcKeyStatus at 0x…0a02 supplies the owner&apos;s registered key.</p></div>
-          <div><span className="mono">Audit</span><p>Two-stage QCAI audit with every finding answered in the repository.</p><a href="https://github.com/emmaGH1/halte/blob/main/docs/AUDIT.md">docs/AUDIT.md ↗</a></div>
-          <div><span className="mono">Tests</span><p>Hardhat tests cover wrong keys, replay, expiry, stale offers and transfers.</p><a href="https://github.com/emmaGH1/halte">github.com/emmaGH1/halte ↗</a></div>
+          <div><span className="mono">Contract</span><b className="big m">{short(live.contract)}</b><p>Halte.sol on QoreChain Diana testnet.</p><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">Deploy transaction ↗</a></div>
+          <div><span className="mono">Precompiles</span><b className="big m">0x…0a01 · 0x…0a02</b><p>pqcVerify checks every freeze and recovery. pqcKeyStatus supplies the owner&apos;s registered key.</p></div>
+          <div><span className="mono">Audit</span><b className="big">QCAI, two stages</b><p>Every finding answered in the repository.</p><a href="https://github.com/emmaGH1/halte/blob/main/docs/AUDIT.md">docs/AUDIT.md ↗</a></div>
+          <div><span className="mono">Tests</span><b className="big">Hardhat</b><p>Wrong keys, replay, expiry, stale offers and transfers.</p><a href="https://github.com/emmaGH1/halte">github.com/emmaGH1/halte ↗</a></div>
         </div>
       </section>
 
