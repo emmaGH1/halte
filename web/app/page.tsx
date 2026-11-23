@@ -2,7 +2,7 @@ import deployment from "@/lib/deployment.json";
 import { txUrl } from "@/lib/chain";
 import { readLive } from "@/lib/live";
 import { MintButton } from "./mint";
-import { HeroArt, Wordmark } from "./ui";
+import { HeroArt, SiteFooter, SiteNav, Wordmark } from "./ui";
 
 export const revalidate = 30;
 
@@ -20,17 +20,14 @@ const FIGS: { n: string; title: string; body: string; glyph: string }[] = [
 export default async function Home() {
   const live = await readLive();
   return (
-    <div className="catalogue">
+    <div className="catalogue" id="top">
       <div className="grain" aria-hidden />
-      <header className="bar">
-        <Wordmark />
-        <span className="mono ref">Ref. H-01 · QoreChain Diana</span>
-        <nav className="mono">
-          <a href="#method"><b>01</b>Method</a>
-          <a href="#proof"><b>02</b>Proof</a>
-          <a href="https://github.com/emmaGH1/halte"><b>03</b>Source</a>
-        </nav>
-      </header>
+      <SiteNav
+        brand={<Wordmark />}
+        refText="Ref. H-01 · QoreChain Diana"
+        links={[{ href: "#method", label: "Method" }, { href: "#proof", label: "Proof" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
+        cta={{ href: "#top", label: "Issue a passport" }}
+      />
 
       <section className="hero">
         <HeroArt />
@@ -91,6 +88,7 @@ export default async function Home() {
         </ol>
       </section>
 
+      <div className="night">
       <section className="verify" id="proof">
         <div className="sec-head">
           <span className="mono">Proof</span>
@@ -104,10 +102,8 @@ export default async function Home() {
         </div>
       </section>
 
-      <footer className="foot mono">
-        <span>Halte · Stolen means unsellable</span>
-        <span>Built for Build Before Q-Day · QoreChain Diana testnet · Apache-2.0</span>
-      </footer>
+      <SiteFooter deployTx={deployment.deployTx} block={live.ok ? live.block : undefined} />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 import { use, useEffect, useState } from "react";
 import { guillocheBand, rosette } from "@/lib/art";
-import { Calibre, Seal, Wordmark } from "../../ui";
+import deployment from "@/lib/deployment.json";
+import { Calibre, Seal, SiteFooter, SiteNav, Wordmark } from "../../ui";
 
 type Step = { kind: "ok" | "no" | "info"; text: string; tx?: string; small?: string; demo?: string };
 type P = { id: string; owner: string; status: string; epoch: number; nonce: string; keyBytes?: number; offer: null | { id: string; open: boolean; live: boolean; dealer: string }; contract: string };
@@ -98,13 +99,14 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
   const sealText = frozen ? `GELÉ · FROZEN · ${sig?.kind === "freeze" && sig.block ? `BLOCK ${Number(sig.block).toLocaleString("en-US")}` : "ON CHAIN"} · ` : "RESTITUÉ · RECOVERED · OWNER SIGNED · ";
 
   return (
-    <div className="paper">
+    <div className="paper" id="top">
       <div className="grain" aria-hidden />
-      <header className="bar slim">
-        <Wordmark mode={frozen ? "frozen" : "ticking"} />
-        <span className="mono ref">Passport {no}</span>
-        <nav className="mono"><a href="/#method">Method</a><a href="/#proof">Proof</a></nav>
-      </header>
+      <SiteNav
+        brand={<Wordmark mode={frozen ? "frozen" : "ticking"} />}
+        refText={`Passport ${no}`}
+        links={[{ href: "/#method", label: "Method" }, { href: "/#proof", label: "Proof" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
+        cta={{ href: "/", label: "New passport" }}
+      />
 
       <main className="pp">
         <div className="pp-head">
@@ -198,6 +200,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
           &ldquo;Refused&rdquo; results are live checks against Diana (eth_call), not broadcast.
         </p>
       </main>
+      <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   title: "Halte · Stolen means unsellable",
   description: "A digital passport for fine watches. Report one missing and it freezes in a single block; only the owner's quantum-safe ML-DSA-87 key can lift it. On QoreChain.",
 };
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#EEEAE2" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#ECE6DA" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

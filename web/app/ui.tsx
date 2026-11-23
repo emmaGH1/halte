@@ -70,3 +70,77 @@ export function HeroArt() {
     </div>
   );
 }
+
+type NavLink = { href: string; label: string; ext?: boolean };
+
+/** Sticky site header. Desktop: numbered links + CTA. Mobile: a menu button that opens a full-screen sheet. */
+export function SiteNav({ brand, refText, links, cta }: { brand: React.ReactNode; refText?: string; links: NavLink[]; cta?: NavLink }) {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 8);
+    on(); window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
+  useEffect(() => {
+    document.documentElement.classList.toggle("menu-open", open);
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [open]);
+  const ext = (l: NavLink) => (l.ext ? { target: "_blank", rel: "noreferrer" } : {});
+  return (
+    <header className={`site${scrolled ? " scrolled" : ""}${open ? " open" : ""}`}>
+      <div className="site-in">
+        {brand}
+        {refText && <span className="mono ref">{refText}</span>}
+        <nav className="desk mono" aria-label="Primary">
+          {links.map((l, i) => <a key={l.href} href={l.href} {...ext(l)}><b>{String(i + 1).padStart(2, "0")}</b>{l.label}</a>)}
+          {cta && <a className="nav-cta" href={cta.href}>{cta.label} <span aria-hidden>→</span></a>}
+        </nav>
+        <button className="burger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(!open)}>
+          <span /><span />
+        </button>
+      </div>
+      <div id="site-menu" className="sheet" hidden={!open}>
+        <nav aria-label="Menu">
+          {links.map((l, i) => (
+            <a key={l.href} href={l.href} onClick={() => setOpen(false)} {...ext(l)}>
+              <span className="mono">{String(i + 1).padStart(2, "0")}</span><em>{l.label}</em>{l.ext && <i aria-hidden>↗</i>}
+            </a>
+          ))}
+        </nav>
+        {cta && <a className="sheet-cta" href={cta.href} onClick={() => setOpen(false)}>{cta.label} <span aria-hidden>→</span></a>}
+        <p className="mono sheet-foot"><span className="live">QoreChain Diana testnet</span></p>
+      </div>
+    </header>
+  );
+}
+
+/** Dark caseback footer: brand, three columns, a large engraved wordmark, base line. */
+export function SiteFooter({ deployTx, block }: { deployTx: string; block?: string }) {
+  const tx = `https://explore.qore.network/tx/${deployTx.replace(/^0x/, "").toUpperCase()}`;
+  const gh = "https://github.com/emmaGH1/halte";
+  return (
+    <footer className="foot">
+      <div className="foot-top">
+        <div className="foot-brand">
+          <a href="/" className="wordmark" aria-label="Halte home"><HeldLogo mode="frozen" size={30} /><span>HALTE</span></a>
+          <p className="foot-tag">Stolen means <em>unsellable.</em></p>
+          <p className="foot-note">A digital passport for fine watches. One signed report freezes it; only the owner&apos;s quantum-safe key lifts it.</p>
+        </div>
+        <div className="foot-cols">
+          <div><span className="mono">Navigate</span><a href="/#method">Method</a><a href="/#proof">Proof</a><a href="/">Issue a passport</a></div>
+          <div><span className="mono">On chain</span><a href={tx} target="_blank" rel="noreferrer">Deploy transaction ↗</a><span>Diana testnet</span>{block && <span className="num">Block {Number(block).toLocaleString("en-US")}</span>}</div>
+          <div><span className="mono">Project</span><a href={gh} target="_blank" rel="noreferrer">Source ↗</a><a href={`${gh}/blob/main/docs/AUDIT.md`} target="_blank" rel="noreferrer">QCAI audit ↗</a><span>Apache-2.0</span></div>
+        </div>
+      </div>
+      <div className="foot-mark" aria-hidden>HALTE</div>
+      <div className="foot-base mono">
+        <span>Built for Build Before Q-Day · 2026</span>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </footer>
+  );
+}
