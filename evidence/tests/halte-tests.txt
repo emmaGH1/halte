@@ -1,8 +1,11 @@
+$ npx hardhat test nodejs   # 2026-11-23T11:26:02Z, source d374a16
+No contracts to compile
+
 Running node:test tests
 
   Halte
     key admission
-      ✔ mints only for an account with a registered, PoP-proven ML-DSA-87 key (143ms)
+      ✔ mints only for an account with a registered, PoP-proven ML-DSA-87 key (173ms)
       ✔ refuses a second mint of the same id
       ✔ fails closed when a PQC precompile is missing or malformed
     transfer offers
@@ -28,6 +31,6 @@ Running node:test tests
       ✔ a key rotation voids unsubmitted signatures; an offer already issued lives until its epoch moves
 
 
-  21 passing (2049ms)
+  21 passing (2106ms)
 
 

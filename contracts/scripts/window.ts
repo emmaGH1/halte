@@ -156,9 +156,10 @@ async function open(): Promise<void> {
   // (tools commonly set the cap near twice the 100 gwei base fee).
   const perTx = evmWindowCost({ gas: 3_000_000n, maxFeePerGas: 250_000_000_000n });
   const maxValue = BigInt(process.env.QORE_WINDOW_MAX_UQOR ?? (perTx * maxTxs).toString());
-  const msg = openEvmWindowMsg({ sender: acc.cosmos, blocks, maxTxs, maxValue });
+  const target = process.env.QORE_WINDOW_TARGET?.trim();
+  const msg = openEvmWindowMsg({ sender: acc.cosmos, blocks, maxTxs, maxValue, ...(target ? { allowedTargets: [target] } : {}) });
   console.log(`opened: ${await broadcast(acc, "hybrid", [msg])}`);
-  console.log(`window: ${blocks} blocks, ${maxTxs} txs, ${maxValue} uqor (value plus fees)`);
+  console.log(`window: ${blocks} blocks, ${maxTxs} txs, ${maxValue} uqor (value plus fees)${target ? `, scoped to ${target}` : ""}`);
   console.log("Opening advanced the account's nonce; deploy now.");
 }
 
