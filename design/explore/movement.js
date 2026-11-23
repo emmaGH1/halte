@@ -36,6 +36,9 @@ function movement(svg,{cx,cy,R,ink="#1b1b1b",faint="#9a958a",accent=RED,labels=t
   for(let i=-30;i<30;i++)el("line",{x1:cx-R+i*9,y1:cy-R,x2:cx-R+i*9+R*0.9,y2:cy+R,stroke:faint,"stroke-width":sw(.5)},stripes);
   el("path",{d:bridgeD,fill:"none",stroke:ink,"stroke-width":sw(1.5)},g);
   const bridge2=`M${cx+R*0.12} ${cy+R*0.08} L ${cx+R*0.62} ${cy-R*0.18} C ${cx+R*0.78} ${cy+R*0.05}, ${cx+R*0.7} ${cy+R*0.45}, ${cx+R*0.45} ${cy+R*0.5} L ${cx+R*0.1} ${cy+R*0.35} Z`;
+  const id2=id+"b";const clip2=el("clipPath",{id:id2},defs);el("path",{d:bridge2},clip2);
+  const st2=el("g",{"clip-path":`url(#${id2})`},g);
+  for(let i=-40;i<40;i++)el("line",{x1:cx-R+i*7,y1:cy+R,x2:cx-R+i*7+R*0.7,y2:cy-R,stroke:faint,"stroke-width":sw(.45)},st2);
   el("path",{d:bridge2,fill:"none",stroke:ink,"stroke-width":sw(1.5)},g);
   // barrel (mainspring) upper-left
   const bx=cx-R*0.42,by=cy-R*0.36,br=R*0.26;
