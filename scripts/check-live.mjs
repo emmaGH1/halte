@@ -24,7 +24,7 @@ async function rpc(method, params) {
   if (j.error && method !== "eth_call") throw new Error(`${method}: ${j.error.message}`);
   return j;
 }
-const call = (from, to, data) => rpc("eth_call", [{ from, to, data }, "latest"]);
+const call = (from, to, data, block = "latest") => rpc("eth_call", [{ from, to, data }, typeof block === "bigint" ? `0x${block.toString(16)}` : block]);
 const revertName = (res) => {
   const d = res.error?.data;
   const sel = typeof d === "string" ? d.slice(0, 10) : typeof d?.data === "string" ? d.data.slice(0, 10) : null;
@@ -111,6 +111,20 @@ const checks = [
       const txs = release.steps.filter((s) => s.kind === "tx");
       for (const s of txs) if ((await receipt(s.hash)).status !== "0x1") throw new Error(`${s.step} failed: ${s.hash}`);
       return `${txs.length} of ${txs.length} successful`;
+    },
+  },
+  {
+    claim: "Replayed on Diana: the same dealer accepting the same offer would succeed before the report, is refused while reported missing, and stays refused after recovery",
+    run: async () => {
+      const calls = release.steps.filter((s) => s.kind === "eth_call" && s.functionName === "acceptOffer");
+      if (calls.length !== 3) throw new Error(`expected 3 recorded acceptOffer checks, found ${calls.length}`);
+      const seen = [];
+      for (const c of calls) {
+        const got = revertName(await call(c.from, CONTRACT, `0x${SEL.acceptOffer}${num(c.args[0])}`, BigInt(c.block)));
+        if (got !== c.expected) throw new Error(`block ${c.block}: expected ${c.expected}, Diana says ${got}`);
+        seen.push(`block ${c.block} → ${got}`);
+      }
+      return `acceptOffer(${calls[0].args[0]}) from ${calls[0].from.slice(0, 8)}…: ${seen.join(" · ")}`;
     },
   },
   {

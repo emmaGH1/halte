@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { type Hex } from "viem";
-import { STATUS, contract, readOffer, readPassport } from "@/lib/chain";
+import { STATUS, contract, readOffer, readPassport, simulate } from "@/lib/chain";
 import { isHolder } from "@/lib/guard";
 import { history } from "@/lib/history";
-import { keyBytesOf } from "@/lib/live";
+import { keyStatusOf } from "@/lib/live";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,23 +32,27 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       const o = await readOffer(BigInt(offerId));
       const made = h.entries.find((e) => e.event === "OfferMade" && e.args.offerId === offerId);
       if (made) {
+        // the offer's state is the contract's own answer for its named dealer, not a guess from the fields
+        const check = await simulate(made.args.dealer as Hex, "acceptOffer", [BigInt(offerId)]).catch(() => null);
         offer = {
           id: offerId,
           dealer: made.args.dealer,
           epoch: Number(made.args.epoch),
           open: o.open,
-          live: o.open && o.epoch === p.epoch && p.status === 1 && o.expiry * 1000 > Date.now(),
+          live: check?.outcome === "would succeed",
+          reason: check?.outcome ?? "unavailable",
+          checkedAt: check?.block,
         };
       }
     }
-    const keyBytes = await keyBytesOf(p.owner as Hex);
+    const key = await keyStatusOf(p.owner as Hex);
     return NextResponse.json({
       id,
       owner: p.owner,
       status: STATUS[p.status],
       epoch: p.epoch,
       nonce: p.nonce.toString(),
-      keyBytes,
+      key,
       offer,
       history: h.entries,
       block: h.block,

@@ -2,6 +2,7 @@ import deployment from "@/lib/deployment.json";
 import { txUrl } from "@/lib/chain";
 import { readLive } from "@/lib/live";
 import { MintButton } from "./mint";
+import { Replay } from "./replay";
 import { HeroArt, SiteFooter, SiteNav, Wordmark } from "./ui";
 
 export const revalidate = 30;
@@ -44,7 +45,7 @@ export default async function Home() {
           </p>
           <div className="cta">
             <MintButton />
-            <a className="link" href="#method">How it stops a sale</a>
+            <a className="link" href="#replay">Replay the proof on Diana</a>
           </div>
           <p className="fine">
             Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server.
@@ -60,7 +61,7 @@ export default async function Home() {
             <span className={live.ok ? "live" : "live off"}>{live.ok ? "Live from QoreChain Diana" : "Diana unreachable right now"}</span>
             <span className="dim">{live.ok ? `block ${n(live.block)}` : ""}</span>
           </div>
-          <div className="tr"><span className="mono">Owner key</span><span className="v"><b>ML-DSA-87 · {live.keyBytes ? `${live.keyBytes.toLocaleString("en-US")} bytes` : "registered"}</b><small>FIPS 204 public key, registered on chain</small></span></div>
+          <div className="tr"><span className="mono">Owner key</span><span className="v"><b>{live.keyBytes ? `ML-DSA-87 · ${live.keyBytes.toLocaleString("en-US")} bytes` : "Key status unavailable"}</b><small>FIPS 204 public key, registered on chain</small></span></div>
           <div className="tr">
             <span className="mono">Last freeze</span>
             <span className="v">
@@ -71,6 +72,15 @@ export default async function Home() {
           <div className="tr"><span className="mono">Contract</span><span className="v"><b><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">{short(live.contract)}</a></b><small>reached only through a scoped EVM window</small></span></div>
         </div>
         <div className="rail mono">Fig. 1 · Calibre H-01 with the stop lever engaged</div>
+      </section>
+
+      <section className="replay-sec" id="replay">
+        <div className="sec-head">
+          <span className="mono">Replay</span>
+          <h2>Same dealer, same offer, three answers. <em>Ask the chain yourself.</em></h2>
+          <p className="sec-sub">A recorded run on QoreChain Diana. Before the report the dealer could accept offer #2. While the watch was missing, the same call was refused. After it was found, the offer stayed dead. Each question is pinned to the block where it was first asked, so Diana gives the same answer today.</p>
+        </div>
+        <Replay />
       </section>
 
       <section className="method" id="method">

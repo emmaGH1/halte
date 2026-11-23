@@ -25,10 +25,18 @@ async function events(name: "Minted" | "Frozen", latest: bigint) {
   return parts.flat();
 }
 
-/** Byte length of the ML-DSA key an address registered with QoreChain (0 if none). */
-export async function keyBytesOf(address: Hex) {
-  const k = await pub.readContract({ address: PQC_KEY_STATUS, abi: keyAbi, functionName: "pqcKeyStatus", args: [address] }).catch(() => null);
-  return k && k[0] ? (k[2].length - 2) / 2 : 0;
+export type KeyStatus = { state: "ok" | "unusable" | "unavailable"; bytes?: number; algorithm?: number; pop?: boolean };
+
+/** The holder's key as QoreChain's pqcKeyStatus reports it, validated the way Halte.sol validates it. */
+export async function keyStatusOf(address: Hex): Promise<KeyStatus> {
+  try {
+    const k = await pub.readContract({ address: PQC_KEY_STATUS, abi: keyAbi, functionName: "pqcKeyStatus", args: [address] });
+    const bytes = (k[2].length - 2) / 2;
+    const ok = k[0] && k[1] === 1 && k[3] && bytes === 2592;
+    return { state: ok ? "ok" : "unusable", bytes, algorithm: k[1], pop: k[3] };
+  } catch {
+    return { state: "unavailable" }; // never default to "registered" when the registry can't be read
+  }
 }
 
 /** Read the live proof shown on the landing page straight from Diana. Never throws. */
@@ -50,7 +58,7 @@ export async function readLive(): Promise<Live> {
       minted: minted?.length,
       frozen: frozen?.length,
       lastFreeze: last ? { hash: last.transactionHash, url: txUrl(last.transactionHash), block: last.blockNumber.toString() } : null,
-      keyBytes: key ? (key[2].length - 2) / 2 : undefined,
+      keyBytes: key && key[0] && key[1] === 1 && key[3] ? (key[2].length - 2) / 2 : undefined,
     };
   } catch {
     return base;

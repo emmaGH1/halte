@@ -85,7 +85,9 @@ export type WindowInfo = { openedTx?: string; remainingTxs?: string; remainingBl
 export async function ensureWindow(acc: UnifiedAccount): Promise<WindowInfo> {
   const target = contract();
   const w: any = await fetchEvmWindow({ rest: REST, address: acc.cosmos });
-  const scoped = (w.allowedTargets ?? []).map((t: string) => t.toLowerCase()).includes(target.toLowerCase());
+  // reuse only a window scoped to exactly one target, Halte: a wider window would admit calls elsewhere
+  const targets: string[] = (w.allowedTargets ?? []).map((t: string) => t.toLowerCase());
+  const scoped = targets.length === 1 && targets[0] === target.toLowerCase();
   if (w.found && w.live && scoped && BigInt(w.remainingTxs ?? 0) > 1n && BigInt(w.remainingBlocks ?? 0) > 20n) {
     return { remainingTxs: String(w.remainingTxs), remainingBlocks: String(w.remainingBlocks), scopedTo: target };
   }
@@ -141,10 +143,10 @@ export type Check = { outcome: string; block: string };
  * eth_call against live Diana state, never broadcast. Returns "would succeed" or the contract's
  * exact custom error name. Anything that isn't a decoded contract answer throws TransportError.
  */
-export async function simulate(from: Hex, functionName: string, args: unknown[]): Promise<Check> {
+export async function simulate(from: Hex, functionName: string, args: unknown[], at?: bigint): Promise<Check> {
   let block: bigint;
   try {
-    block = await pub.getBlockNumber();
+    block = at ?? (await pub.getBlockNumber());
   } catch (e) {
     throw new TransportError(`Diana RPC unreachable: ${(e as Error).message.split("\n")[0]}`);
   }

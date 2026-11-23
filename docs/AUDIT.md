@@ -5,9 +5,22 @@ Two-stage audit as required by the Post-Quantum dApp track ([audit FAQ](https://
 | stage | date (UTC) | setting | source audited | score | report |
 |---|---|---|---|---|---|
 | 1 | 22 Nov 2026, 19:43 | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `27dd594` | 75/100, medium, 4 findings | [`docs/audit/2026-11-22-qcai-stage1.pdf`](audit/2026-11-22-qcai-stage1.pdf) |
-| 2 | 23 Nov 2026, 12:03 (dashboard time) | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `3df5f2a` (the source of the live Diana contract) | 85/100, medium, 4 findings | [`docs/audit/2026-11-23-qcai-stage2.pdf`](audit/2026-11-23-qcai-stage2.pdf) |
+| 2 | 23 Nov 2026, 12:03 (dashboard time) | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `3df5f2a` (the source of the earlier Diana contract `0x1e2bacc…`, since replaced) | 85/100, medium, 4 findings | [`docs/audit/2026-11-23-qcai-stage2.pdf`](audit/2026-11-23-qcai-stage2.pdf) |
 
 QCAI reviews pasted source only. Quantum readiness is "not scored for this setting" (the FAQ says a setting aware of QoreChain's PQ precompiles is planned). The PQ path is covered by the tests and the live Diana runs below.
+
+## Release (live): `0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4`, source `d374a16`, not yet audited by QCAI
+
+Deployed 23 Nov 2026 at block 10,611,612 (deploy tx `0xb57871e8…`). A QCAI run on this exact source is pending; its report will be filed here as stage 3. Changes since the stage 2 source, each with its test in `contracts/test/Halte.ts`:
+
+| change | why | test |
+|---|---|---|
+| `makeOffer` needs the holder's ML-DSA-87 signature over `offerDigest` (domain `HALTE_OFFER_V1`, binds dealer, epoch, offer nonce, expiry) | a stolen classical key could otherwise offer the passport to the thief's own registered address and accept | "needs the holder's PQ signature…", "binds the signed offer to its dealer, and refuses a replay", "binds the offer digest to…" |
+| `acceptOffer` bumps the epoch and nonce on transfer | the previous holder's other offers survived a handoff (found in the Codex review) | "a handoff kills every other offer the previous holder issued" |
+| offers carry an expiry | an offer could live forever | "offers expire: valid at the expiry second, refused one second later" |
+| key admission requires ML-DSA-87, a 2,592-byte key and proof of possession; the registry answer is bounds-checked before decoding | the fourth `pqcKeyStatus` value was ignored; a malformed answer could panic instead of failing closed | "mints only for an account with a registered, PoP-proven ML-DSA-87 key", "fails closed when a PQC precompile is missing or malformed" |
+| zero or self dealer refused (`InvalidDealer`) | stage 1 L, extended | "refuses an empty or self-addressed dealer" |
+| separate `offerNonce` | issuing an offer must not void a pending freeze | the four "Ordering" tests |
 
 ## Stage 1 findings
 
@@ -46,7 +59,7 @@ The nonce is in every signed digest, along with the chain id, the contract addre
 
 ## Stage 2 findings
 
-Stage 2 ran on the source after the stage 1 changes. The score went from 75 to 85. Every stage 2 finding is either a repeat of a stage 1 finding or a reaction to the stage 1 fix itself. None calls for a code change, so the audited source is still the one deployed at `0x1e2bacc937a116a281e13e2932f227e0048e91c5`.
+Stage 2 ran on the source after the stage 1 changes. The score went from 75 to 85. Every stage 2 finding is either a repeat of a stage 1 finding or a reaction to the stage 1 fix itself. None called for a code change. The release contract that replaced it is described under "Release" below.
 
 ### H · Missing access control on `freeze()` and `recover()`: by design, unchanged
 
@@ -71,4 +84,4 @@ Every signed digest binds a per-action domain (`HALTE_FREEZE_V1` / `HALTE_RECOVE
 
 ## Tests
 
-`cd contracts && pnpm build && npx hardhat test nodejs` → 11 passing ([`evidence/tests/halte-tests.txt`](../evidence/tests/halte-tests.txt)). The tests run on Hardhat's simulated network with a mock of the PQC precompiles (`contracts/mocks/MockQorePQC.sol`), because the simulator has no ML-DSA. The real precompiles are exercised on Diana by `contracts/scripts/spike-onchain.ts` and by the live journey checks (`checks/journey.mjs`).
+`cd contracts && npx hardhat test` → 21 passing on the release source ([`evidence/tests/halte-tests.txt`](../evidence/tests/halte-tests.txt)). The tests run on Hardhat's simulated network with a mock of the PQC precompiles (`contracts/mocks/MockQorePQC.sol`), because the simulator has no ML-DSA. The real precompiles are exercised on Diana by the recorded release run (`contracts/scripts/release-proof.ts`, [`evidence/release/`](../evidence/release/)), by the live journey checks (`checks/journey.mjs`) and by `scripts/check-live.mjs`.

@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/img/banner.jpg" alt="Halte: stolen means unsellable. A frozen watch passport on QoreChain Diana." width="100%"></p>
 
-<h3 align="center">Report a watch missing, and nobody can buy it: every open offer dies on chain, and only the owner's quantum-safe key can lift the report.</h3>
+<h3 align="center">Report a watch missing and every open offer on its passport dies on chain. A dealer's offer from before the report stays dead even after the watch is found.</h3>
 
 <p align="center">
   <a href="https://halte-roan.vercel.app"><b>▶ Issue a demo passport</b></a> ·
@@ -13,18 +13,18 @@
   <br><em>Try it: issue a passport, have the dealer check the offer (it would go through), report the watch missing, then ask again. Same dealer, same offer: refused.</em>
 </p>
 
-Halte is a transfer passport for fine watches on QoreChain. Every action that changes who may hold the watch (offering it to a dealer, reporting it missing, lifting the report) needs the owner's ML-DSA-87 signature, and the contract checks it on chain with QoreChain's `pqcVerify` precompile against the key the owner registered with QoreChain. So a thief who steals the owner's ordinary wallet key, the kind a quantum computer is expected to break, can neither sell the watch nor undo the report.
+Halte is a transfer passport for fine watches on QoreChain. Every action that changes who may hold the watch (offering it to a dealer, reporting it missing, lifting the report) needs the owner's ML-DSA-87 signature, and the contract checks it on chain with QoreChain's `pqcVerify` precompile against the key the owner registered with QoreChain. So a thief who steals the owner's ordinary wallet key, the kind a quantum computer is expected to break, can neither transfer the passport nor undo the report. (In the hosted demo, Halte holds the owner's key for you; see [Scope](#scope).)
 
 The one deliberate decision: a report doesn't pause offers, it kills them. Each report moves the passport to a new epoch, so an offer arranged while the watch was missing stays dead after it's found. No sale can be "revived" once the dust settles.
 
-No wallet, no account: the demo owner's and dealer's keys live on the Halte server so anyone can try it in a minute (see [Scope](#scope)). Every result on the page links to the transaction on QoreChain's explorer, and a shared passport link rebuilds its whole history from the chain in any browser.
+No wallet, no account: the demo owner's and dealer's keys live on the Halte server so anyone can try it in a minute (see [Scope](#scope)). Every result on the page links to the transaction on QoreChain's explorer, and a shared passport link rebuilds its confirmed history from the chain in any browser.
 
 ## Judges start here
 
 About 90 seconds, no login, works on a phone:
 
 1. Open **[halte-roan.vercel.app](https://halte-roan.vercel.app)** and press **Issue a demo passport** → a passport is issued on QoreChain Diana and its first register line links to the transaction.
-2. **The owner offers it to a dealer**, then **The dealer tries to buy it** → green: the dealer could buy it right now. This is the control: the offer really is live.
+2. **The owner offers it to a dealer**, then **The dealer tries to buy it** → green: the contract would let this dealer accept now. This is the control: the offer really is live.
 3. **A thief with the classical key tries to sell it** → refused, `BadPqcSignature`.
 4. **Report missing** → the owner's 4,627-byte ML-DSA-87 signature is verified on chain; the receipt shows it was sent by the dealer's account, not the holder's.
 5. **The dealer tries to buy it** again → same dealer, same offer: refused, `PassportFrozen`. **The owner recovers the watch**, try once more → `StaleOffer`: the old offer stays dead.
@@ -61,7 +61,7 @@ What we added: the passport contract and its epoch rule, the signed-offer flow w
 | claim | evidence |
 |---|---|
 | The contract is live on Diana | [`0x900db566…`](https://explore.qore.network/tx/B57871E8C1DF92AC1091D3C8BAF38EBB5A51D27D2850424C2A714DEBA8F38FDC) (deploy tx, block 10,611,612) · source commit `d374a16` |
-| The window is hybrid-signed and scoped to Halte only | [window tx `F44B0993…`](https://explore.qore.network/tx/F44B099360B5112ED61485A4ED76B6D776B7E55B90DB6E1CD850B497A4913B64): `pqc_hybrid_verify status=verified`, `allowed_targets=0x900db566…` |
+| The app's runtime window is hybrid-signed and scoped to Halte only | [window tx `F44B0993…`](https://explore.qore.network/tx/F44B099360B5112ED61485A4ED76B6D776B7E55B90DB6E1CD850B497A4913B64): `pqc_hybrid_verify status=verified`, `allowed_targets=0x900db566…` |
 | Before the report, the dealer could buy; during it, refused; after recovery, still refused | recorded release run on the same passport and offer: [evidence/release/0x900db566….json](evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json) (would succeed → `PassportFrozen` → `StaleOffer`) |
 | The report is the owner's ML-DSA-87 signature, relayed by someone else | [freeze tx `0x3f8961…`](https://explore.qore.network/tx/3F89617ECBFC169BC416AD098439F23C7824184C9E68819C5B29AE541D53AAC9): 4,627-byte signature in the call, sender is the dealer account |
 | A stolen classical key can't list the watch | `makeOffer` from the holder's own address with no ML-DSA-87 signature → `BadPqcSignature` (re-checked live by `check-live.mjs`) |

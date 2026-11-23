@@ -1,0 +1,60 @@
+{
+ "passport": "0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd",
+ "offerId": "2",
+ "dealer": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414",
+ "owner": "0xB047D9D582ed279bb73791164D6527E477Cc33f9",
+ "steps": [
+  {
+   "kind": "tx",
+   "label": "mint (owner)",
+   "hash": "0x46366b703f31b8ecd4db92f8ad0c960a52c6a97c1fbdfd23b18a5a47a465b970",
+   "block": "10611666",
+   "sender": "0xB047D9D582ed279bb73791164D6527E477Cc33f9"
+  },
+  {
+   "kind": "tx",
+   "label": "PQ-signed offer to the dealer, relayed by the dealer",
+   "hash": "0xc4623cbc6ec5638e3ab6c50b8b9f830ea8724a215cdd7d9786336a753dd94188",
+   "block": "10611668",
+   "sender": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414"
+  },
+  {
+   "kind": "check",
+   "label": "positive control: the dealer could accept this offer now",
+   "from": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414",
+   "offerId": "2",
+   "block": "10611671",
+   "expected": "would succeed"
+  },
+  {
+   "kind": "tx",
+   "label": "owner's ML-DSA-87 report (freeze), relayed by the dealer",
+   "hash": "0x3f89617ecbfc169bc416ad098439f23c7824184c9e68819c5b29ae541d53aac9",
+   "block": "10611674",
+   "sender": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414"
+  },
+  {
+   "kind": "check",
+   "label": "same dealer, same offer, while reported missing",
+   "from": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414",
+   "offerId": "2",
+   "block": "10611677",
+   "expected": "PassportFrozen"
+  },
+  {
+   "kind": "tx",
+   "label": "owner's ML-DSA-87 recovery, relayed by the dealer",
+   "hash": "0xb98c397bcb39449d180b6d3436e0660bae33621e83468b94f0f81f43f640c69a",
+   "block": "10611679",
+   "sender": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414"
+  },
+  {
+   "kind": "check",
+   "label": "same dealer, same offer, after recovery",
+   "from": "0xAa5D98cB68a67AA47c3F858B054919EbE6070414",
+   "offerId": "2",
+   "block": "10611679",
+   "expected": "StaleOffer"
+  }
+ ]
+}

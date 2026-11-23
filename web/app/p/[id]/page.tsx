@@ -6,8 +6,8 @@ import { Calibre, Seal, SiteFooter, SiteNav, Wordmark } from "../../ui";
 
 type Entry = { event: string; block: string; hash: string; url: string; sender: string; args: Record<string, string>; pq?: { signatureBytes: number; signature: string } };
 type P = {
-  id: string; owner: string; status: string; epoch: number; nonce: string; keyBytes?: number; contract: string; block: string; yours: boolean;
-  offer: null | { id: string; open: boolean; live: boolean; dealer: string; epoch: number };
+  id: string; owner: string; status: string; epoch: number; nonce: string; key: { state: "ok" | "unusable" | "unavailable"; bytes?: number }; contract: string; block: string; yours: boolean;
+  offer: null | { id: string; open: boolean; live: boolean; dealer: string; epoch: number; reason: string; checkedAt?: string };
   history: Entry[];
 };
 type Check = { kind: "no" | "yes"; text: string; small: string; block: string; demo: string };
@@ -17,6 +17,15 @@ const short = (s: string) => `${s.slice(0, 10)}…${s.slice(-6)}`;
 const n = (s: string | number) => Number(s).toLocaleString("en-US");
 const BAND = guillocheBand(640, 70);
 const ROSE = rosette(150, 9, 18, 22);
+const OFFER_STATE: Record<string, string> = {
+  "would succeed": "live: its dealer could accept now",
+  PassportFrozen: "blocked: reported missing",
+  StaleOffer: "dead: a report or transfer moved the epoch on",
+  Expired: "expired",
+  OfferClosed: "closed",
+  NoPqcKey: "dealer has no usable PQ key",
+  unavailable: "state unavailable right now",
+};
 const RECORDED = "https://github.com/emmaGH1/halte/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json";
 
 function rowsOf(p: P | null, checks: Check[]): Row[] {
@@ -112,7 +121,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
     const r = await act("accept", { offerId: p.offer.id }, "accept", "Asking Diana whether the dealer could buy it");
     if (!r) return;
     check(r.outcome === "would succeed"
-      ? { kind: "yes", demo: "accept-would-succeed", text: "The dealer could buy it right now: the offer is live", small: `checked against ${r.checkedAgainst} · block ${n(r.block)}`, block: r.block }
+      ? { kind: "yes", demo: "accept-would-succeed", text: "The contract would let this dealer accept the offer now", small: `checked against ${r.checkedAgainst} · block ${n(r.block)}`, block: r.block }
       : { kind: "no", demo: "refused", text: `The dealer tries to buy it: refused (${r.outcome})`, small: `same dealer, same offer · checked against ${r.checkedAgainst} · block ${n(r.block)}`, block: r.block });
   }
   async function thief(action: "thief-sell" | "thief-unfreeze" | "wrong-key-freeze") {
@@ -176,7 +185,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
         <div className="pp-head">
           <span className="mono">Demo transfer passport · QoreChain Diana</span>
           <h1>
-            {!p ? <>Reading the passport…</> : frozen ? <>Reported missing. <em>Unsellable.</em></> : transferred ? <>Sold by its owner. <em>New holder on chain.</em></> : recovered ? <>Recovered. <em>Back with its owner.</em></> : <>In its owner&apos;s hands. <em>For sale only by them.</em></>}
+            {!p ? <>Reading the passport…</> : frozen ? <>Reported missing. <em>Unsellable.</em></> : transferred ? <>Passport transferred. <em>New holder on chain.</em></> : recovered ? <>Recovered. <em>Back with its owner.</em></> : <>In its owner&apos;s hands. <em>For sale only by them.</em></>}
           </h1>
         </div>
 
@@ -205,14 +214,14 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
                 </b>
               </div>
               <div className="f"><span className="mono">Holder</span><b className="m">{short(p.owner)}</b></div>
-              <div className="f"><span className="mono">Holder key</span><b>ML-DSA-87 · {p.keyBytes ? `${n(p.keyBytes)} bytes` : "registered"} · PoP</b></div>
+              <div className="f"><span className="mono">Holder key</span><b>{p.key.state === "ok" ? `ML-DSA-87 · ${n(p.key.bytes ?? 0)} bytes · PoP` : p.key.state === "unusable" ? "No usable ML-DSA-87 key" : "Key status unavailable"}</b></div>
               <div className="f"><span className="mono">Verifier</span><b>pqcVerify · 0x…0a01</b></div>
               <div className="f"><span className="mono">Epoch · nonce</span><b>{p.epoch} · {p.nonce}</b></div>
               {offer && (
                 <div className="f wide">
                   <span className="mono">Dealer offer</span>
                   <b data-demo="offer-id" data-live={offer.live ? "1" : "0"} className={offer.live ? "" : "dead"}>
-                    #{offer.id} · {offer.live ? "live" : frozen ? "blocked: reported missing" : !offer.open ? "closed" : "dead: the epoch moved on"}
+                    #{offer.id} · {OFFER_STATE[offer.reason] ?? offer.reason}{offer.checkedAt ? <small className="mono"> contract answer for its dealer · block {n(offer.checkedAt)}</small> : null}
                   </b>
                 </div>
               )}
@@ -281,6 +290,15 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
             <button data-demo="thief-unfreeze" className="ghost" onClick={() => thief("thief-unfreeze")} disabled={!!busy}>{busy === "thief-unfreeze" ? "Trying…" : "A thief tries to lift the report"}</button>
           )}
         </div>
+        {p && (
+          <p className="fine">
+            <button className="linkish" data-demo="copy-public-link" onClick={() => {
+              const u = `${location.origin}/p/${id}${offer ? `?offer=${offer.id}` : ""}`;
+              navigator.clipboard?.writeText(u).then(() => setSay("Public read-only link copied"), () => setSay(u));
+            }}>Copy public read-only link</button>
+            {yours && <> · the address bar holds this passport&apos;s private control key; share the public link instead.</>}
+          </p>
+        )}
         {p && !yours && (
           <p className="fine" data-demo="read-only">
             Read-only here: this passport was issued in another browser, so only live checks run. <a href="/">Issue your own →</a>
