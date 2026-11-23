@@ -1,4 +1,4 @@
 {
-  "id": "0x7817401974039845af6acf5136b35408d13bc999bbd02f610dfef70eb036aa8f",
-  "text": "01\nDealer tries to buy it: refused (PassportFrozen)\nchecked against Diana live state (eth_call, not broadcast)"
+  "id": "0x1e45e9992455a7cf829ac99b43b71307f66b996063d18d1bdffc926d2c8e9d34",
+  "text": "04\nThe dealer tries to buy it: refused (PassportFrozen) · LIVE CHECK, NOT SENT\nsame dealer, same offer · checked against Diana live state (eth_call at the block shown, not broadcast) · block 10,627,991"
 }
