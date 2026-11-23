@@ -11,10 +11,10 @@ const n = (s?: string) => (s ? Number(s).toLocaleString("en-US") : "—");
 
 const FIGS: { n: string; title: string; body: string; glyph: string }[] = [
   { n: "01", title: "Issue", body: "The owner issues a passport for the watch. Halte refuses unless the owner already holds a registered ML-DSA-87 key on QoreChain, so every passport can be frozen later.", glyph: `<rect x="14" y="8" width="36" height="48" class="g"/><path d="M20 18h24M20 26h24M20 34h14" class="g"/><circle cx="40" cy="46" r="6" class="g acc"/>` },
-  { n: "02", title: "Offer", body: "A dealer receives a transfer offer, stamped with the passport's current epoch. While the watch is with its owner, the offer is live.", glyph: `<path d="M8 24h40l-8-8M56 40H16l8 8" class="g"/>` },
+  { n: "02", title: "Offer", body: "The owner signs a transfer offer to one named dealer with their ML-DSA-87 key, stamped with the passport's epoch. A stolen classical key alone can't list the watch: BadPqcSignature.", glyph: `<path d="M8 24h40l-8-8M56 40H16l8 8" class="g"/>` },
   { n: "03", title: "Report", body: "The watch goes missing. The owner signs a report with their quantum-safe key. Anyone may relay it; the contract checks it with the pqcVerify precompile and freezes the passport.", glyph: `<path d="M6 40c6-14 10-14 14 0s8 14 12 0 8-14 12 0 8 10 14 0" class="g"/><path d="M6 50h52" class="g acc"/>` },
-  { n: "04", title: "Refuse", body: "The freeze bumped the epoch. Every outstanding offer is now stale, so a dealer's accept reverts: PassportFrozen. A thief holding the owner's classical key gets BadPqcSignature.", glyph: `<circle cx="32" cy="32" r="22" class="g acc"/><path d="M16 32h32" class="g acc"/>` },
-  { n: "05", title: "Recover", body: "The watch is found. Only the owner's registered ML-DSA-87 key can lift the freeze. Offers made before it stay dead, so the thief's sale can never be revived.", glyph: `<circle cx="22" cy="32" r="10" class="g"/><path d="M32 32h24M48 32v8M54 32v6" class="g"/>` },
+  { n: "04", title: "Refuse", body: "The same dealer who could buy a minute ago is now refused: PassportFrozen. The freeze bumped the epoch, so every outstanding offer is dead, not just paused.", glyph: `<circle cx="32" cy="32" r="22" class="g acc"/><path d="M16 32h32" class="g acc"/>` },
+  { n: "05", title: "Recover", body: "The watch is found. Only the owner's registered ML-DSA-87 key can lift the freeze. Offers made before it stay dead (StaleOffer), so a sale arranged during the theft can never be revived.", glyph: `<circle cx="22" cy="32" r="10" class="g"/><path d="M32 32h24M48 32v8M54 32v6" class="g"/>` },
 ];
 
 export default async function Home() {
@@ -35,17 +35,19 @@ export default async function Home() {
           <span className="sw">Stolen means</span>
           <em>unsellable<i>.</i></em>
         </h1>
+        <p className="claim" data-demo="claim">A missing-watch report blocks every transfer of its passport.</p>
         <div className="hero-copy">
           <p className="lede">
-            A digital passport for fine watches. Report one missing and it freezes in a single block. Every open sale dies with it,
-            and only the owner&apos;s quantum-safe key can lift it.
+            A demo transfer passport for fine watches on QoreChain. Every offer, report and recovery needs the owner&apos;s
+            ML-DSA-87 signature, checked on chain. Once a missing report confirms, every open offer dies with it, and a stolen
+            classical key can neither sell the watch nor lift the report.
           </p>
           <div className="cta">
             <MintButton />
             <a className="link" href="#method">How it stops a sale</a>
           </div>
           <p className="fine">
-            Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s ML-DSA-87 key is held by the Halte server.
+            Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server.
           </p>
         </div>
         <div className="fig-cap">
@@ -96,9 +98,9 @@ export default async function Home() {
         </div>
         <div className="vgrid">
           <div><span className="mono">Contract</span><b className="big m">{short(live.contract)}</b><p>Halte.sol on QoreChain Diana testnet.</p><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">Deploy transaction ↗</a></div>
-          <div><span className="mono">Precompiles</span><b className="big m">0x…0a01 · 0x…0a02</b><p>pqcVerify checks every freeze and recovery. pqcKeyStatus supplies the owner&apos;s registered key.</p></div>
+          <div><span className="mono">Precompiles</span><b className="big m">0x…0a01 · 0x…0a02</b><p>pqcVerify checks every offer, freeze and recovery. pqcKeyStatus supplies each holder&apos;s registered, PoP-proven key.</p></div>
           <div><span className="mono">Audit</span><b className="big">QCAI, two stages</b><p>Every finding answered in the repository.</p><a href="https://github.com/emmaGH1/halte/blob/main/docs/AUDIT.md">docs/AUDIT.md ↗</a></div>
-          <div><span className="mono">Tests</span><b className="big">Hardhat</b><p>Wrong keys, replay, expiry, stale offers and transfers.</p><a href="https://github.com/emmaGH1/halte">github.com/emmaGH1/halte ↗</a></div>
+          <div><span className="mono">Tests</span><b className="big">21 Hardhat tests</b><p>Wrong keys, replay, expiry, stale offers, ordering races, plus a release run on Diana with real ML-DSA-87.</p><a href="https://github.com/emmaGH1/halte/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json">Recorded release run ↗</a></div>
         </div>
       </section>
 

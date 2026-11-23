@@ -1,6 +1,7 @@
 {
-  "contract": "0x1e2bacc937a116a281e13e2932f227e0048e91c5",
-  "deployBlock": "10572087",
-  "deployTx": "0xf4d5b48bc14d8c0412c3b21c0d7bdaef2708d9eb5fb71021ab24cef3194f488e",
+  "contract": "0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4",
+  "deployBlock": "10611612",
+  "deployTx": "0xb57871e8c1df92ac1091d3c8baf38ebb5a51d27d2850424c2a714deba8f38fdc",
+  "sourceCommit": "d374a16",
   "network": "qorechain-diana"
 }

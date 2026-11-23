@@ -3,7 +3,7 @@ import { parseAbi, type Hex } from "viem";
 import { HALTE_ABI, contract, deployBlock, ownerAccount, pub, txUrl } from "./chain";
 
 const PQC_KEY_STATUS = "0x0000000000000000000000000000000000000a02";
-const keyAbi = parseAbi(["function pqcKeyStatus(address) view returns (bool registered, uint8 algorithmId, bytes pubkey)"]);
+const keyAbi = parseAbi(["function pqcKeyStatus(address) view returns (bool registered, uint8 algorithmId, bytes pubkey, bool possessionProven)"]);
 
 export type Live = {
   ok: boolean;

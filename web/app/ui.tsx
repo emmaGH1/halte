@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { heldMark, movement, type Geometry } from "@/lib/art";
 
 /** The Halte mark. "ticking": the hand sweeps; "frozen": it stops and the red wedge shows the held time. */
@@ -82,12 +82,28 @@ export function SiteNav({ brand, refText, links, cta }: { brand: React.ReactNode
     on(); window.addEventListener("scroll", on, { passive: true });
     return () => window.removeEventListener("scroll", on);
   }, []);
+  const burger = useRef<HTMLButtonElement>(null);
+  const sheet = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
   useEffect(() => {
     document.documentElement.classList.toggle("menu-open", open);
-    if (!open) return;
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", esc);
-    return () => window.removeEventListener("keydown", esc);
+    if (!open) {
+      if (wasOpen.current) burger.current?.focus(); // hand focus back to the button that opened the menu
+      wasOpen.current = false;
+      return;
+    }
+    wasOpen.current = true;
+    const items = () => [burger.current, ...Array.from(sheet.current?.querySelectorAll<HTMLElement>("a") ?? [])].filter(Boolean) as HTMLElement[];
+    items()[1]?.focus();
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") return setOpen(false);
+      if (e.key !== "Tab") return;
+      const all = items(), first = all[0], last = all[all.length - 1]; // keep Tab inside the open menu
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
   }, [open]);
   const ext = (l: NavLink) => (l.ext ? { target: "_blank", rel: "noreferrer" } : {});
   return (
@@ -99,11 +115,11 @@ export function SiteNav({ brand, refText, links, cta }: { brand: React.ReactNode
           {links.map((l, i) => <a key={l.href} href={l.href} {...ext(l)}><b>{String(i + 1).padStart(2, "0")}</b>{l.label}</a>)}
           {cta && <a className="nav-cta" href={cta.href}>{cta.label} <span aria-hidden>→</span></a>}
         </nav>
-        <button className="burger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(!open)}>
+        <button ref={burger} className="burger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} aria-controls="site-menu" onClick={() => setOpen(!open)}>
           <span /><span />
         </button>
       </div>
-      <div id="site-menu" className="sheet" hidden={!open}>
+      <div id="site-menu" ref={sheet} className="sheet" hidden={!open} role="dialog" aria-modal="true" aria-label="Menu">
         <nav aria-label="Menu">
           {links.map((l, i) => (
             <a key={l.href} href={l.href} onClick={() => setOpen(false)} {...ext(l)}>
@@ -128,7 +144,7 @@ export function SiteFooter({ deployTx, block }: { deployTx: string; block?: stri
         <div className="foot-brand">
           <a href="/" className="wordmark" aria-label="Halte home"><HeldLogo mode="frozen" size={30} /><span>HALTE</span></a>
           <p className="foot-tag">Stolen means <em>unsellable.</em></p>
-          <p className="foot-note">A digital passport for fine watches. One signed report freezes it; only the owner&apos;s quantum-safe key lifts it.</p>
+          <p className="foot-note">A digital passport for fine watches. Every offer, report and recovery is signed with the owner&apos;s ML-DSA-87 key and checked on chain.</p>
         </div>
         <div className="foot-cols">
           <div><span className="mono">Navigate</span><a href="/#method">Method</a><a href="/#proof">Proof</a><a href="/">Issue a passport</a></div>
