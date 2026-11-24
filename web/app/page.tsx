@@ -26,7 +26,7 @@ export default async function Home() {
       <SiteNav
         brand={<Wordmark />}
         refText="Ref. H-01 · QoreChain Diana"
-        links={[{ href: "#method", label: "Method" }, { href: "#proof", label: "Proof" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
+        links={[{ href: "#method", label: "Method" }, { href: "#proof", label: "Proof" }, { href: "/check", label: "Check a passport" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
         cta={{ href: "#top", label: "Issue a passport" }}
       />
 
@@ -46,6 +46,7 @@ export default async function Home() {
           <div className="cta">
             <MintButton />
             <a className="link" href="#replay">Replay the proof on Diana</a>
+            <a className="link" href="/check" data-demo="check-link">Check a passport at the counter</a>
           </div>
           <p className="fine">
             Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server.

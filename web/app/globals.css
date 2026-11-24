@@ -431,3 +431,56 @@ button:disabled { opacity: .45; cursor: default; }
   .rp-steps li { grid-template-columns: 130px 1fr auto; align-items: baseline; gap: 18px; }
 }
 @media (min-width: 1024px) { .replay-sec { padding-top: 96px; } }
+
+/* ---------- dealer's counter ---------- */
+.counter .kicker { display: block; opacity: .6; font-size: 10px; }
+.verdict { margin: 14px 0 0; padding: 22px 20px 20px; background: var(--card); border-left: 6px solid var(--muted); box-shadow: 0 24px 50px -34px rgba(24,35,63,.45); }
+.verdict h1 { font-family: var(--serif), Georgia, serif; font-weight: 400; font-size: clamp(38px, 11vw, 64px); line-height: .98; letter-spacing: -.02em; }
+.verdict h1 em { display: block; font-style: italic; font-size: .62em; margin-top: 8px; }
+.verdict p { margin-top: 14px; font-size: 16px; line-height: 1.45; color: var(--ink2); }
+.verdict .at { display: block; margin-top: 14px; font-size: 10px; opacity: .65; letter-spacing: .08em; }
+.verdict.go { border-left-color: #3d6b45; } .verdict.go h1 { color: #2f5a37; }
+.verdict.stop { border-left-color: var(--red); background: #fbf3f1; } .verdict.stop h1 { color: var(--red); }
+.verdict.wait h1 { color: var(--blue); }
+.counter .again { width: 100%; margin-top: 14px; }
+.facts { margin-top: 26px; border-top: 1px solid var(--blue); }
+.facts > div { display: grid; gap: 4px; padding: 12px 0; border-bottom: 1px solid var(--blue-hair); }
+.facts dt { font-size: 9.5px; opacity: .55; }
+.facts dd { font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+.facts dd.m { font-family: var(--mono), monospace; font-size: 13px; }
+.facts dd.stopc { color: var(--red); }
+.facts a, .counter .fine a { text-decoration: none; border-bottom: 1px solid currentColor; }
+.counter .rp-verify pre { color: var(--ink2); }
+.paste { display: grid; gap: 10px; margin-top: 22px; }
+.paste label { font-size: 10px; opacity: .6; }
+.paste input { font: inherit; font-size: 16px; padding: 15px 14px; border: 1px solid var(--blue); background: var(--card); color: var(--blue); border-radius: 0; min-width: 0; }
+@media (min-width: 720px) {
+  .facts > div { grid-template-columns: 150px 1fr; align-items: baseline; }
+  .counter .again { width: auto; }
+  .paste { grid-template-columns: 1fr auto; } .paste label { grid-column: 1 / -1; }
+}
+
+/* ---------- printable passport card ---------- */
+.card-page { max-width: 560px; margin: 0 auto; padding: 32px 16px 64px; color: var(--blue); }
+.pcard { background: var(--card); border: 1px solid rgba(24,35,63,.4); outline: 1px solid var(--blue-hair); outline-offset: -6px; padding: 18px 20px 14px; aspect-ratio: 85.6 / 54; display: flex; flex-direction: column; box-shadow: 0 24px 50px -30px rgba(24,35,63,.45); }
+.pcard header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.pcard header .mono { font-size: 8.5px; opacity: .7; }
+.pcard header b { font-weight: 500; letter-spacing: .34em; font-size: 13px; }
+.pcard-body { flex: 1; display: grid; grid-template-columns: 38% 1fr; gap: 18px; align-items: center; margin-top: 10px; }
+.pcard-qr svg { display: block; width: 100%; height: auto; }
+.pcard dl > div { padding: 5px 0; border-bottom: 1px solid var(--blue-hair); }
+.pcard dt { font-size: 7.5px; opacity: .55; }
+.pcard dd { font-size: 13px; font-weight: 500; }
+.pcard footer { font-size: 7.5px; opacity: .6; text-align: center; margin-top: 8px; }
+.card-url { margin-top: 12px; font-family: var(--mono), monospace; font-size: 11px; word-break: break-all; opacity: .6; }
+.card-act { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; margin-top: 18px; }
+.card-act a { font-size: 14px; text-decoration: none; border-bottom: 1px solid currentColor; }
+.card-note { margin-top: 18px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+@media (max-width: 420px) { .pcard { padding: 14px 14px 10px; } .pcard dd { font-size: 11.5px; } .pcard-body { gap: 12px; } }
+@media print {
+  html, body { background: #fff !important; } body::before { display: none; }
+  .card-page { padding: 0; margin: 12mm; max-width: 85.6mm; }
+  .pcard { width: 85.6mm; box-shadow: none; } .pcard dd { font-size: 9pt; }
+  .card-act, .card-note, .card-url { display: none; }
+}
+.fine.custody { margin-top: 10px; font-size: 12.5px; }

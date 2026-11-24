@@ -278,6 +278,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
             <button data-demo="report-missing" className="red" onClick={() => write("freeze", "freeze", "Reported missing. The passport is frozen.")} disabled={!!busy}>{busy === "freeze" ? "Signing with ML-DSA-87…" : "Report missing"}</button>
           )}
         </div>
+        {yours && <p className="fine custody" data-demo="custody-note">Hosted demo: Halte holds this demo holder&apos;s ML-DSA-87 key and signs when you press. The contract still verifies each signature against the holder&apos;s registered key.</p>}
         <div className="actions attacks" aria-label="Try to break it">
           <span className="mono">Try to break it</span>
           {status === "active" && !transferred && (
@@ -296,6 +297,8 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
               const u = `${location.origin}/p/${id}${offer ? `?offer=${offer.id}` : ""}`;
               navigator.clipboard?.writeText(u).then(() => setSay("Public read-only link copied"), () => setSay(u));
             }}>Copy public read-only link</button>
+            {" · "}<a data-demo="counter-link" href={`/check/${id}${offer ? `?offer=${offer.id}` : ""}`}>Dealer&apos;s counter check</a>
+            {" · "}<a data-demo="card-link" href={`/card/${id}${offer ? `?offer=${offer.id}` : ""}`}>Print a demo passport card (QR)</a>
             {yours && <> · the address bar holds this passport&apos;s private control key; share the public link instead.</>}
           </p>
         )}
