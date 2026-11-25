@@ -141,7 +141,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
 
   async function accept() {
     if (!p?.offer) return;
-    const r = await act("accept", { offerId: p.offer.id }, "accept", "Asking Diana whether the dealer could buy it");
+    const r = await act("accept", { offerId: p.offer.id, min: p.block }, "accept", "Asking Diana whether the dealer could buy it");
     if (!r) return;
     check(r.outcome === "would succeed"
       ? { kind: "yes", demo: "accept-would-succeed", text: "The contract would let this dealer accept the offer now", small: `checked against ${r.checkedAgainst} · block ${n(r.block)}`, block: r.block }

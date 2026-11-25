@@ -3,6 +3,7 @@ import { parseEventLogs, toHex, type Hex } from "viem";
 import {
   ContractRefusal, HALTE_ABI, STATUS, TransportError, dealerAccount, ownerAccount, pub, readOffer, readPassport, send, signAction, signOffer, simulate,
 } from "@/lib/chain";
+import { atLeast } from "@/lib/history";
 import { Refusal, clientIp, holderKey, idempotent, rateLimit, readSession, requireHolder, sessionCookie, withSignerLock } from "@/lib/guard";
 
 export const runtime = "nodejs";
@@ -71,11 +72,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ action:
         const { id } = await existing(body.id);
         if (!/^\d{1,12}$/.test(String(body.offerId ?? ""))) throw new Refusal(400, "That is not an offer id.", "bad-offer");
         const offerId = BigInt(body.offerId);
-        const o = await readOffer(offerId);
+        // RPC nodes lag each other: never answer from a node that hasn't reached the state this page already showed
+        const floor = /^\d{1,12}$/.test(String(body.min ?? "")) ? await atLeast(BigInt(body.min)) : undefined;
+        // a pinned read can land on a node that hasn't got that block yet: retry briefly instead of answering wrong
+        const again = async <T,>(fn: () => Promise<T>) => { for (let i = 0; ; i++) { try { return await fn(); } catch (e) { if (i >= 3 || e instanceof ContractRefusal) throw e; await new Promise((r) => setTimeout(r, 1200)); } } };
+        const o = await again(() => readOffer(offerId, floor));
         // a closed offer was deleted, so its passport id reads as zero; only an open one must match
         if (o.open && o.passportId.toLowerCase() !== id) throw new Refusal(400, "That offer is for a different passport.", "offer-mismatch");
         const dealer = await dealerAccount();
-        const r = await simulate(dealer.evm as Hex, "acceptOffer", [offerId]);
+        const r = await again(() => simulate(dealer.evm as Hex, "acceptOffer", [offerId], floor));
         return NextResponse.json({ ...r, dealer: dealer.evm, checkedAgainst: CHECKED });
       }
       case "thief-sell": {

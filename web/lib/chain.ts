@@ -165,8 +165,8 @@ export async function readPassport(id: Hex) {
   return { owner: p[0] as string, status: Number(p[1]), epoch: Number(p[2]), nonce: BigInt(p[3]), offerNonce: BigInt(p[4]) };
 }
 
-export async function readOffer(offerId: bigint) {
-  const o = (await pub.readContract({ address: contract(), abi: HALTE_ABI, functionName: "offers", args: [offerId] })) as any[];
+export async function readOffer(offerId: bigint, at?: bigint) {
+  const o = (await pub.readContract({ address: contract(), abi: HALTE_ABI, functionName: "offers", args: [offerId], ...(at ? { blockNumber: at } : {}) })) as any[];
   return { passportId: o[0] as Hex, dealer: o[1] as string, epoch: Number(o[2]), expiry: Number(o[3]), open: o[4] as boolean };
 }
 
