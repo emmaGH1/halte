@@ -4,6 +4,7 @@ import { guillocheBand, rosette } from "@/lib/art";
 import deployment from "@/lib/deployment.json";
 import replay from "@/lib/replay.json";
 import { Calibre, Seal, SiteFooter, SiteNav, Wordmark } from "../../ui";
+import { Tour } from "./tour";
 
 type Entry = { event: string; block: string; hash: string; url: string; sender: string; args: Record<string, string>; pq?: { signatureBytes: number; signature: string } };
 type P = {
@@ -316,7 +317,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
         )}
         {mine && <p className="fine custody" data-demo="own-custody">Your key: generated in this browser and never sent anywhere. Each button signs here with your ML-DSA-87 key; Halte&apos;s dealer account only relays the signature. <a href="/own">Your key →</a></p>}
         {yours && <p className="fine custody" data-demo="custody-note">Hosted demo: Halte holds this demo holder&apos;s ML-DSA-87 key and signs when you press. The contract still verifies each signature against the holder&apos;s registered key.</p>}
-        <div className="actions attacks" aria-label="Try to break it">
+        <div className="actions attacks" id="break" aria-label="Try to break it">
           <span className="mono">Try to break it</span>
           {status === "active" && !transferred && !mine && (
             <button data-demo="thief-sell" className="ghost" onClick={() => thief("thief-sell")} disabled={!!busy}>{busy === "thief-sell" ? "Trying…" : "A thief with the classical key tries to sell it"}</button>
@@ -358,6 +359,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
           The holder signs every offer, report and recovery; the dealer&apos;s account relays them,
           so each receipt shows a sender who is not the holder. &ldquo;Live check&rdquo; rows are eth_calls against Diana, not broadcast.
         </p>
+        {p && <Tour id={id} yours={yours} status={status} offerLive={!!offer?.live} checks={checks} history={p.history} busy={busy} />}
       </main>
       <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
     </div>

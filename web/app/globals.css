@@ -511,3 +511,21 @@ button:disabled { opacity: .45; cursor: default; }
 .btn.ghost-btn { background: transparent; color: var(--ink); border-color: rgba(17,17,15,.35); }
 .cta-note { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--ink2); max-width: 520px; }
 .cta-note a { white-space: nowrap; }
+
+/* ---------- guided tour over the real passport page ---------- */
+body.touring { padding-bottom: 210px; }
+.tour { position: fixed; z-index: 50; left: 12px; right: 12px; bottom: 12px; max-width: 520px; margin: 0 auto; padding: 14px 16px 16px;
+  background: var(--night); color: var(--bone); box-shadow: 0 20px 50px -10px rgba(0,0,0,.55); animation: tour-in .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes tour-in { from { opacity: 0; transform: translateY(16px); } }
+.tour-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.tour-top .mono { font-size: 10px; color: var(--gold); }
+.tour .linkish { color: var(--pale); font-size: 13px; }
+.tour-bar { height: 3px; background: rgba(236,230,218,.15); margin: 10px 0 12px; }
+.tour-bar i { display: block; height: 100%; background: var(--red); transition: width .4s; }
+.tour h3 { font-weight: 500; font-size: 20px; letter-spacing: -.01em; }
+.tour p { margin-top: 6px; font-size: 15px; line-height: 1.45; color: #d9d2c4; }
+.tour-act { margin-top: 12px; }
+.tour-act .btn { background: var(--bone); color: var(--ink); border-color: var(--bone); padding: 12px 18px; }
+.tour-target { position: relative; z-index: 4; outline: 3px solid var(--red); outline-offset: 4px; animation: tour-pulse 1.4s ease-in-out infinite; }
+@keyframes tour-pulse { 50% { outline-offset: 9px; outline-color: rgba(200,40,28,.45); } }
+@media (prefers-reduced-motion: reduce) { .tour, .tour-target { animation: none; } }

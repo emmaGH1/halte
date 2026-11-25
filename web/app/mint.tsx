@@ -5,7 +5,7 @@ import { useState } from "react";
 const COUNTER = "/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2";
 const RECORDED = "https://github.com/emmaGH1/halte/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json";
 
-export function MintButton({ variant = "btn" }: { variant?: string }) {
+export function MintButton({ variant = "btn", tour = false }: { variant?: string; tour?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<{ text: string; recorded: boolean } | null>(null);
@@ -14,12 +14,12 @@ export function MintButton({ variant = "btn" }: { variant?: string }) {
     const res = await fetch("/api/mint", { method: "POST", headers: { "idempotency-key": crypto.randomUUID() } }).catch(() => null);
     const r = res ? await res.json().catch(() => ({ error: "Unreadable answer from the server." })) : { error: "Network error: the request never reached Halte." };
     if (r.error) { setErr({ text: r.error, recorded: ["read-only", "rate-limited", "daily-cap", "transport"].includes(r.code) }); setBusy(false); return; }
-    router.push(`/p/${r.id}?min=${r.tx.block}#k=${r.key}`);
+    router.push(`/p/${r.id}?min=${r.tx.block}${tour ? "&tour=1" : ""}#k=${r.key}`);
   }
   return (
     <>
-      <button className={variant} data-demo="mint" onClick={mint} disabled={busy}>
-        {busy ? "Issuing on Diana…" : "Issue a demo passport"} <span aria-hidden>→</span>
+      <button className={variant} data-demo={tour ? "tour" : "mint"} onClick={mint} disabled={busy}>
+        {busy ? (tour ? "Issuing your passport…" : "Issuing on Diana…") : tour ? "Take the guided tour" : "Issue a demo passport"} <span aria-hidden>→</span>
       </button>
       <span className="sr-only" role="status" aria-live="polite">{busy ? "Issuing a passport on QoreChain Diana" : ""}</span>
       {err && (
