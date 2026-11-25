@@ -44,10 +44,13 @@ export default async function Home() {
             classical key can neither sell the watch nor lift the report.
           </p>
           <div className="cta">
-            <MintButton />
-            <a className="link" href="#replay">Replay the proof on Diana</a>
-            <a className="link" href="/check" data-demo="check-link">Check a passport at the counter</a>
+            <a className="btn" href="/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2" data-demo="check-link">Check offer #2 at the counter <span aria-hidden>→</span></a>
+            <MintButton variant="btn ghost-btn" />
           </div>
+          <p className="cta-note">
+            Offer #2: the same dealer could accept it, then was refused while the watch was missing, and is still refused after it was found,
+            with 59 min 44 s left on the offer. <a href="#replay">Replay the three blocks on Diana</a>
+          </p>
           <p className="fine">
             Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server. Or <a href="/own" data-demo="own-link">hold your own key</a>: generated in your browser, never sent to Halte.
           </p>

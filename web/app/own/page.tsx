@@ -77,7 +77,7 @@ export default function Own() {
             </button>
           </div>
         )}
-        {err && <p className="err" role="alert">{err} {started && "Press the button again to carry on; finished steps are skipped."}</p>}
+        {err && <p className="err" role="alert">{err} {started && "Press the button again to carry on; finished steps are skipped."} <a href="/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2">Check offer #2 at the counter</a></p>}
 
         {saved && (
           <section className="own-key">

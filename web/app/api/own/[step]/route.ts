@@ -60,7 +60,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ step: s
     switch (step) {
       case "fund": {
         if (!isQor(body.address)) throw new Refusal(400, "That is not a qor1 address.", "bad-address");
-        await rateLimit("mint", clientIp(req));
+        await rateLimit("fund", clientIp(req));
         const treasury = await ownerAccount();
         return NextResponse.json(await idempotent(idem, () => withSignerLock(treasury.evm, async () => {
           // only brand-new accounts: the faucet tops up nobody twice

@@ -1,6 +1,7 @@
 "use client";
 import { use, useEffect, useState } from "react";
 import deployment from "@/lib/deployment.json";
+import replay from "@/lib/replay.json";
 import { SiteFooter, SiteNav, Wordmark } from "../../ui";
 
 type R = {
@@ -87,6 +88,12 @@ export default function Counter({ params }: { params: Promise<{ id: string }> })
           <div className={`verdict ${w.tone}`} data-demo="counter-verdict" data-verdict={r.verdict}>
             <h1>{w.head} <em>{w.em}</em></h1>
             <p>{w.line}</p>
+            {r.verdict === "offer-dead" && r.offer?.expiry && r.offer.expiry * 1000 > Date.now() && (
+              <p className="why" data-demo="not-expiry">Not an expiry: this offer is still signed for another {Math.round((r.offer.expiry * 1000 - Date.now()) / 60000)} min. The contract refuses it because the passport moved to a new epoch.</p>
+            )}
+            {r.verdict === "offer-dead" && r.passport.id === replay.passport && r.offer?.id === replay.offerId && (
+              <p className="why" data-demo="not-expiry">Not an expiry: when the watch was recovered (block 10,611,679, 23 Nov 11:27 UTC) this offer still had <b>59 min 44 s</b> left, and the same dealer was refused anyway. <a href="/#replay">Replay the three blocks →</a></p>
+            )}
             <span className="mono at">Contract answer at block {n(r.block)} · {new Date(r.askedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
           </div>
         )}

@@ -4,6 +4,10 @@ Live app: https://halte-roan.vercel.app · contract `0x900db566e46b6a68a7fd2f721
 
 **Re-check everything live, from the chain, with nothing installed:** `node scripts/check-live.mjs` (Node 20+). It reads Diana's EVM JSON-RPC and Cosmos REST directly and never trusts the app.
 
+**QCAI's High ("missing access control on `freeze()` and `recover()`") is by design.** The access control is the holder's ML-DSA-87 signature, checked on chain by `pqcVerify` against the key they registered with QoreChain. A `msg.sender` check would put back the classical key that Q-Day breaks. Anyone may relay a signed report; nobody can forge one. On Diana: the [confirmed report](https://explore.qore.network/tx/3F89617ECBFC169BC416AD098439F23C7824184C9E68819C5B29AE541D53AAC9) was sent by the dealer account with the holder's 4,627-byte signature, and a full-length report signed by any other key reverts with `BadPqcSignature` (try "Someone forges a missing report" on any passport). Full response: [docs/AUDIT.md](docs/AUDIT.md).
+
+**The old offer didn't just expire.** At the recovery (block 10,611,679, 23 Nov 11:27:53 UTC) offer #2 still had **59 min 44 s** left on its signed expiry. The same dealer was refused anyway, with `StaleOffer`: the report moved the passport to a new epoch. `check-live.mjs` re-derives both numbers from Diana.
+
 ## Accounts
 
 | role | EVM | QoreChain |

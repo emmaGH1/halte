@@ -2,9 +2,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const COUNTER = "/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2";
 const RECORDED = "https://github.com/emmaGH1/halte/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json";
 
-export function MintButton() {
+export function MintButton({ variant = "btn" }: { variant?: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<{ text: string; recorded: boolean } | null>(null);
@@ -17,13 +18,13 @@ export function MintButton() {
   }
   return (
     <>
-      <button className="btn" data-demo="mint" onClick={mint} disabled={busy}>
+      <button className={variant} data-demo="mint" onClick={mint} disabled={busy}>
         {busy ? "Issuing on Diana…" : "Issue a demo passport"} <span aria-hidden>→</span>
       </button>
       <span className="sr-only" role="status" aria-live="polite">{busy ? "Issuing a passport on QoreChain Diana" : ""}</span>
       {err && (
         <p className="err" role="alert">
-          {err.text} {err.recorded && <a href={RECORDED} target="_blank" rel="noreferrer">See the recorded run ↗</a>}
+          {err.text} {err.recorded && <><a href={COUNTER}>Check offer #2 at the counter</a> · <a href={RECORDED} target="_blank" rel="noreferrer">the recorded run ↗</a></>}
         </p>
       )}
     </>

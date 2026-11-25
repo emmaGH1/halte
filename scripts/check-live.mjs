@@ -14,7 +14,7 @@ const deploy = JSON.parse(readFileSync(new URL(`../evidence/deploy/${CONTRACT}.j
 const release = JSON.parse(readFileSync(new URL(`../evidence/release/${CONTRACT}.json`, import.meta.url), "utf8"));
 
 // selectors (keccak256 of the signature, first 4 bytes), precomputed so this file needs no packages
-const SEL = { pqcKeyStatus: "850dfe51", acceptOffer: "c815729d", makeOffer: "86695a73", statusOf: "c7df14e2" };
+const SEL = { pqcKeyStatus: "850dfe51", acceptOffer: "c815729d", makeOffer: "86695a73", statusOf: "c7df14e2", offers: "8a72ea6a" };
 const ERR = { "0xef8d77e3": "StaleOffer", "0xf35e1976": "BadPqcSignature", "0xdd656228": "PassportFrozen" };
 
 const word = (hex) => hex.replace(/^0x/, "").toLowerCase().padStart(64, "0");
@@ -141,6 +141,18 @@ const checks = [
         seen.push(`block ${c.block} → ${got}`);
       }
       return `acceptOffer(${calls[0].args[0]}) from ${calls[0].from.slice(0, 8)}…: ${seen.join(" · ")}`;
+    },
+  },
+  {
+    claim: "That refusal after recovery wasn't an expiry: the signed offer still had time left when the same dealer was refused with StaleOffer",
+    run: async () => {
+      const last = release.steps.filter((s) => s.kind === "eth_call" && s.functionName === "acceptOffer").at(-1);
+      const block = (await rpc("eth_getBlockByNumber", [`0x${BigInt(last.block).toString(16)}`, false])).result;
+      const o = (await call(DEALER, CONTRACT, `0x${SEL.offers}${num(release.offerId)}`, BigInt(last.block))).result;
+      const expiry = BigInt(`0x${o.slice(2 + 3 * 64, 2 + 4 * 64)}`);
+      const left = expiry - BigInt(block.timestamp);
+      if (left <= 0n) throw new Error(`offer had expired ${-left}s before block ${last.block}`);
+      return `block ${last.block} at ${new Date(Number(block.timestamp) * 1000).toISOString()} · offer expiry ${expiry} · ${left / 60n} min ${left % 60n} s left · refused: ${last.expected}`;
     },
   },
   {

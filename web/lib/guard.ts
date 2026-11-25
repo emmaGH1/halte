@@ -62,10 +62,11 @@ export async function withSignerLock<T>(signer: string, fn: () => Promise<T>): P
 const LIMITS = {
   mint: { perIp: Number(process.env.HALTE_MINTS_PER_IP ?? 3), windowSec: 600 },
   write: { perIp: 20, windowSec: 600 },
+  fund: { perIp: 2, windowSec: 600 }, // "hold your own key": its own budget, so it doesn't eat the hosted demo's
   daily: 400,
 };
 
-export async function rateLimit(kind: "mint" | "write", ip: string) {
+export async function rateLimit(kind: "mint" | "write" | "fund", ip: string) {
   const l = LIMITS[kind];
   const bucket = Math.floor(Date.now() / 1000 / l.windowSec);
   const ipKey = `halte:rl:${kind}:${createHash("sha256").update(ip).digest("hex").slice(0, 16)}:${bucket}`;
@@ -77,7 +78,7 @@ export async function rateLimit(kind: "mint" | "write", ip: string) {
     const out = (await p.exec()) as number[];
     return [out[0], out[2]];
   });
-  if (n > l.perIp) throw new Refusal(429, kind === "mint" ? "Three demo passports per visitor every ten minutes. The recorded run is linked below." : "Too many demo writes from this visitor. Try again in a few minutes.", "rate-limited");
+  if (n > l.perIp) throw new Refusal(429, kind === "mint" ? "Three demo passports per visitor every ten minutes. Meanwhile, the counter check and the replay need no passport." : kind === "fund" ? "Two new keys per visitor every ten minutes. Meanwhile, the counter check and the replay need no passport." : "Too many demo writes from this visitor. Try again in a few minutes.", "rate-limited");
   if (day > LIMITS.daily) throw new Refusal(429, "Today's demo budget on Diana is spent. The recorded run and every past transaction stay verifiable.", "daily-cap");
 }
 

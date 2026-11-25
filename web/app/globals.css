@@ -506,3 +506,8 @@ button:disabled { opacity: .45; cursor: default; }
 .own-key .linkish { justify-self: start; font-size: 13px; color: var(--muted); }
 .own-actions { margin-top: 18px; }
 @media (min-width: 720px) { .own-act { justify-content: start; } }
+.verdict .why { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(200,40,28,.2); font-size: 15px; }
+.verdict .why a { text-decoration: none; border-bottom: 1px solid currentColor; white-space: nowrap; }
+.btn.ghost-btn { background: transparent; color: var(--ink); border-color: rgba(17,17,15,.35); }
+.cta-note { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--ink2); max-width: 520px; }
+.cta-note a { white-space: nowrap; }
