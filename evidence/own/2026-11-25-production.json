@@ -1,0 +1,8 @@
+{
+  "what": "Hold your own key, run on the production site (https://halte-roan.vercel.app/own) in a headless phone-sized browser, deploy c77a90f",
+  "holder": "0xcfD193c0383E46F2fC3A6dA41Ac9076a76507c05",
+  "passport": "0xe1fc13b1a7bc6d1401e5def4d7dd285c820b57c43dbfe421f333f3801c2c1455",
+  "keys": "generated in the browser; the recovery phrase never appeared in any request body (checked on the local run)",
+  "timeline_seconds": { "onboarded": 17.9, "offer_live": 22.8, "dealer_could_accept": 24.1, "frozen": 27.5, "dealer_refused_PassportFrozen": 30.8, "recovered": 34.6, "old_offer_StaleOffer": 36.9 },
+  "verify": "https://halte-roan.vercel.app/p/0xe1fc13b1a7bc6d1401e5def4d7dd285c820b57c43dbfe421f333f3801c2c1455"
+}
