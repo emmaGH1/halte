@@ -3,7 +3,8 @@ import { txUrl } from "@/lib/chain";
 import { readLive } from "@/lib/live";
 import { MintButton } from "./mint";
 import { Replay } from "./replay";
-import { HeroArt, SiteFooter, SiteNav, Wordmark } from "./ui";
+import { Story } from "./story";
+import { SiteFooter, SiteNav, Wordmark } from "./ui";
 
 export const revalidate = 30;
 
@@ -25,39 +26,28 @@ export default async function Home() {
       <div className="grain" aria-hidden />
       <SiteNav
         brand={<Wordmark />}
-        refText="Ref. H-01 · QoreChain Diana"
+        refText="QoreChain testnet"
         links={[{ href: "#method", label: "Method" }, { href: "#proof", label: "Proof" }, { href: "/check", label: "Check a passport" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
-        cta={{ href: "#top", label: "Issue a passport" }}
+        cta={{ href: "#try", label: "Try it" }}
       />
 
-      <section className="hero hero--b">
-        <HeroArt />
+      <section className="hero hero--story">
         <h1>
           <span className="sw">Stolen means</span>
           <em>unsellable<i>.</i></em>
         </h1>
-        <p className="claim" data-demo="claim">A missing-watch report blocks every transfer of its passport.</p>
-        <div className="hero-copy">
-          <p className="lede">
-            A demo transfer passport for fine watches on QoreChain. Every offer, report and recovery needs the owner&apos;s
-            ML-DSA-87 signature, checked on chain. Once a missing report confirms, every open offer dies with it, and a stolen
-            classical key can neither sell the watch nor lift the report.
-          </p>
+        <p className="claim" data-demo="claim">Halte is a digital passport for a luxury watch. If it&apos;s stolen, the owner reports it, and no shop can buy it.</p>
+        <Story />
+        <div className="hero-copy try" id="try">
+          <h2>Try it yourself</h2>
+          <p>Issue a passport for a demo watch, offer it to a shop, report it stolen and watch the shop get refused. About a minute, on QoreChain&apos;s test network.</p>
           <div className="cta">
-            <a className="btn" href="/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2" data-demo="check-link">Check offer #2 at the counter <span aria-hidden>→</span></a>
-            <MintButton variant="btn ghost-btn" />
+            <MintButton />
+            <a className="btn ghost-btn" href="/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2" data-demo="check-link">Check a passport like a shop <span aria-hidden>→</span></a>
           </div>
-          <p className="cta-note">
-            Offer #2: the same dealer could accept it, then was refused while the watch was missing, and is still refused after it was found,
-            with 59 min 44 s left on the offer. <a href="#replay">Replay the three blocks on Diana</a>
-          </p>
           <p className="fine">
-            Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server. Or <a href="/own" data-demo="own-link">hold your own key</a>: generated in your browser, never sent to Halte.
+            No wallet needed: for this demo Halte&apos;s server holds the owner&apos;s and the shop&apos;s keys. Or <a href="/own" data-demo="own-link">hold your own key</a>: generated in your browser, never sent to Halte.
           </p>
-        </div>
-        <div className="fig-cap">
-          <span className="mono red">Fig. 5 · Stop lever</span>
-          <p>One signed report halts every sale.</p>
         </div>
 
         <div className="proof-table" id="live">
@@ -75,7 +65,6 @@ export default async function Home() {
           <div className="tr"><span className="mono">Passports</span><span className="v"><b>{live.minted ?? "—"} issued · {live.frozen ?? "—"} frozen</b><small>each freeze signed by the owner&apos;s own key</small></span></div>
           <div className="tr"><span className="mono">Contract</span><span className="v"><b><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">{short(live.contract)}</a></b><small>reached only through a scoped EVM window</small></span></div>
         </div>
-        <div className="rail mono">Fig. 1 · Calibre H-01 with the stop lever engaged</div>
       </section>
 
       <section className="replay-sec" id="replay">
@@ -113,7 +102,7 @@ export default async function Home() {
         <div className="vgrid">
           <div><span className="mono">Contract</span><b className="big m">{short(live.contract)}</b><p>Halte.sol on QoreChain Diana testnet.</p><a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer">Deploy transaction ↗</a></div>
           <div><span className="mono">Precompiles</span><b className="big m">0x…0a01 · 0x…0a02</b><p>pqcVerify checks every offer, freeze and recovery. pqcKeyStatus supplies each holder&apos;s registered, PoP-proven key.</p></div>
-          <div><span className="mono">Audit</span><b className="big">QCAI, two stages</b><p>Every finding answered in the repository.</p><a href="https://github.com/emmaGH1/halte/blob/main/docs/AUDIT.md">docs/AUDIT.md ↗</a></div>
+          <div><span className="mono">Audit</span><b className="big">QCAI, 85 / 100</b><p>Three stages, every finding answered in the repository.</p><a href="https://github.com/emmaGH1/halte/blob/main/docs/AUDIT.md">docs/AUDIT.md ↗</a></div>
           <div><span className="mono">Tests</span><b className="big">21 Hardhat tests</b><p>Wrong keys, replay, expiry, stale offers, ordering races, plus a release run on Diana with real ML-DSA-87.</p><a href="https://github.com/emmaGH1/halte/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json">Recorded release run ↗</a></div>
         </div>
       </section>
