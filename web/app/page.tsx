@@ -49,7 +49,7 @@ export default async function Home() {
             <a className="link" href="/check" data-demo="check-link">Check a passport at the counter</a>
           </div>
           <p className="fine">
-            Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server.
+            Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server. Or <a href="/own" data-demo="own-link">hold your own key</a>: generated in your browser, never sent to Halte.
           </p>
         </div>
         <div className="fig-cap">

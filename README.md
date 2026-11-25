@@ -13,7 +13,7 @@
   <br><em>Try it: issue a passport, have the dealer check the offer (it would go through), report the watch missing, then ask again. Same dealer, same offer: refused.</em>
 </p>
 
-Halte is a transfer passport for fine watches on QoreChain. Every action that changes who may hold the watch (offering it to a dealer, reporting it missing, lifting the report) needs the owner's ML-DSA-87 signature, and the contract checks it on chain with QoreChain's `pqcVerify` precompile against the key the owner registered with QoreChain. So a thief who steals the owner's ordinary wallet key, the kind a quantum computer is expected to break, can neither transfer the passport nor undo the report. (In the hosted demo, Halte holds the owner's key for you; see [Scope](#scope).)
+Halte is a transfer passport for fine watches on QoreChain. Every action that changes who may hold the watch (offering it to a dealer, reporting it missing, lifting the report) needs the owner's ML-DSA-87 signature, and the contract checks it on chain with QoreChain's `pqcVerify` precompile against the key the owner registered with QoreChain. So a thief who steals the owner's ordinary wallet key, the kind a quantum computer is expected to break, can neither transfer the passport nor undo the report. (In the hosted demo, Halte holds the owner's key for you; or [hold your own key](https://halte-roan.vercel.app/own): your browser generates it and Halte never sees it. See [Scope](#scope).)
 
 The one deliberate decision: a report doesn't pause offers, it kills them. Each report moves the passport to a new epoch, so an offer arranged while the watch was missing stays dead after it's found. No sale can be "revived" once the dust settles.
 
@@ -30,6 +30,10 @@ About 90 seconds, no login, works on a phone:
 5. **The dealer tries to buy it** again → same dealer, same offer: refused, `PassportFrozen`. **The owner recovers the watch**, try once more → `StaleOffer`: the old offer stays dead.
 
 Rows marked "live check" are read-only calls against Diana's current state (nothing is sent); every other row is a real transaction.
+
+Two more things to try:
+- **[Check a passport at the counter](https://halte-roan.vercel.app/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2)**: the buyer's side. One verdict for one offer, read at one block, no wallet. Each passport page can also print a demo passport card whose QR opens this check.
+- **[Hold your own key](https://halte-roan.vercel.app/own)** (about 30 seconds): your browser generates the keys, registers its ML-DSA-87 key on QoreChain with proof of possession, opens a Halte-only window and mints from your own address. After that, every offer, report and recovery is signed on your device. Halte only funds the new account with 1 test QOR and relays what you signed.
 
 Re-check the live claims yourself, straight from the chain: `node scripts/check-live.mjs` (Node 20+, nothing to install). Every claim with its code, test and command: [JUDGES.md](JUDGES.md).
 
@@ -109,7 +113,7 @@ npm run build && npm start
 ## Scope
 
 - **Testnet only.** Everything runs on QoreChain Diana (chain 9800). No real watches or money.
-- **Demo custody.** The owner's and dealer's ML-DSA-87 keys are held by the Halte server so judges need no wallet. The dealer's account also relays the owner's signed messages, which is why receipts show a sender who isn't the holder. A passport can only be changed from the browser that issued it (a key in its link); anyone else sees it read-only.
+- **Demo custody.** In the hosted demo, the owner's and dealer's ML-DSA-87 keys are held by the Halte server so judges need no wallet. With **Hold your own key**, the holder's keys are generated and kept in the browser (its recovery phrase sits in local storage until you save it). Halte still serves the page's code and relays the signatures; it can refuse to relay but can't change one. The dealer's key stays hosted in both modes. The dealer's account also relays the owner's signed messages, which is why receipts show a sender who isn't the holder. A passport can only be changed from the browser that issued it (a key in its link); anyone else sees it read-only.
 - **Limits.** Three demo passports per visitor every ten minutes and a daily cap, so the shared signer can't be drained. If the signing lock is unreachable, the site goes read-only and points to the recorded run.
 - **What a report can't do.** It stops transfers of the passport; it doesn't track the watch, and the demo has no way to prove who really owns a physical watch at issue time.
 - **Audit.** QCAI scored the earlier revisions 75 and 85 out of 100. The release follow-up scored 85 out of 100 and raised five findings. The EVM/Solidity setting leaves quantum readiness unscored. [Reports, responses and bytecode verification](docs/AUDIT.md).

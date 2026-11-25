@@ -2,6 +2,7 @@
 import { use, useEffect, useState } from "react";
 import { guillocheBand, rosette } from "@/lib/art";
 import deployment from "@/lib/deployment.json";
+import replay from "@/lib/replay.json";
 import { Calibre, Seal, SiteFooter, SiteNav, Wordmark } from "../../ui";
 
 type Entry = { event: string; block: string; hash: string; url: string; sender: string; args: Record<string, string>; pq?: { signatureBytes: number; signature: string } };
@@ -59,6 +60,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
   const [busy, setBusy] = useState("");
   const [say, setSay] = useState("");
   const [err, setErr] = useState<{ text: string; recorded?: boolean } | null>(null);
+  const [mine, setMine] = useState(false); // the holder's key lives in this browser ("Hold your own key")
 
   useEffect(() => {
     try { setChecks(JSON.parse(sessionStorage.getItem(`halte:checks:${id}`) ?? "[]")); } catch {}
@@ -78,6 +80,10 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
     const r = res ? await res.json().catch(() => ({ code: "transport" })) : { code: "transport" };
     if (r.error || !res?.ok) { if (!p) setMissing(r.code === "bad-id" || r.code === "unknown" ? r.code : "transport"); return; }
     setMissing(""); setP(r);
+    try {
+      const saved = JSON.parse(localStorage.getItem("halte:own:v1") ?? "null");
+      setMine(!!saved?.evm && saved.evm.toLowerCase() === String(r.owner).toLowerCase());
+    } catch {}
   }
   useEffect(() => { refresh(); }, [id]); // eslint-disable-line
 
@@ -114,6 +120,23 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
     if (action === "offer") history.replaceState(null, "", `/p/${id}?offer=${r.offerId}&min=${r.tx.block}${location.hash}`);
     await refresh(r.tx.block);
     setSay(done);
+  }
+
+  // sign with the ML-DSA-87 key held in this browser; only the signature leaves the device
+  async function ownWrite(kind: "offer" | "freeze" | "recover", done: string) {
+    setBusy(`own-${kind}`); setErr(null); setSay("Signing with your ML-DSA-87 key in this browser");
+    try {
+      const r = await (await import("@/lib/own")).signAndRelay(kind, id as `0x${string}`);
+      if (kind === "offer") history.replaceState(null, "", `/p/${id}?offer=${r.offerId}&min=${r.tx.block}`);
+      await refresh(r.tx.block);
+      setSay(done);
+    } catch (e) {
+      const m = (e as Error & { code?: string });
+      setErr({ text: m.code === "contract-refused" ? `Halte refused before sending: ${m.message}` : m.message, recorded: ["read-only", "rate-limited", "daily-cap", "transport"].includes(m.code ?? "") });
+      setSay(m.message);
+    } finally {
+      setBusy("");
+    }
   }
 
   async function accept() {
@@ -278,10 +301,24 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
             <button data-demo="report-missing" className="red" onClick={() => write("freeze", "freeze", "Reported missing. The passport is frozen.")} disabled={!!busy}>{busy === "freeze" ? "Signing with ML-DSA-87…" : "Report missing"}</button>
           )}
         </div>
+        {mine && (
+          <div className="actions own-actions" data-demo="own-actions">
+            {status === "active" && !offer?.live && !transferred && (
+              <button data-demo="own-offer" className="ghost" onClick={() => ownWrite("offer", "Offer opened, signed in this browser")} disabled={!!busy}>{busy === "own-offer" ? "Signing in this browser…" : "Offer it to the dealer (sign here)"}</button>
+            )}
+            {frozen && (
+              <button data-demo="own-recover" className="ink" onClick={() => ownWrite("recover", "Recovered with your key")} disabled={!!busy}>{busy === "own-recover" ? "Signing in this browser…" : "Recover it (sign here)"}</button>
+            )}
+            {status === "active" && !transferred && (
+              <button data-demo="own-report" className="red" onClick={() => ownWrite("freeze", "Reported missing with your key")} disabled={!!busy}>{busy === "own-report" ? "Signing in this browser…" : "Report missing (sign here)"}</button>
+            )}
+          </div>
+        )}
+        {mine && <p className="fine custody" data-demo="own-custody">Your key: generated in this browser and never sent anywhere. Each button signs here with your ML-DSA-87 key; Halte&apos;s dealer account only relays the signature. <a href="/own">Your key →</a></p>}
         {yours && <p className="fine custody" data-demo="custody-note">Hosted demo: Halte holds this demo holder&apos;s ML-DSA-87 key and signs when you press. The contract still verifies each signature against the holder&apos;s registered key.</p>}
         <div className="actions attacks" aria-label="Try to break it">
           <span className="mono">Try to break it</span>
-          {status === "active" && !transferred && (
+          {status === "active" && !transferred && !mine && (
             <button data-demo="thief-sell" className="ghost" onClick={() => thief("thief-sell")} disabled={!!busy}>{busy === "thief-sell" ? "Trying…" : "A thief with the classical key tries to sell it"}</button>
           )}
           {status === "active" && !transferred && (
@@ -299,10 +336,10 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
             }}>Copy public read-only link</button>
             {" · "}<a data-demo="counter-link" href={`/check/${id}${offer ? `?offer=${offer.id}` : ""}`}>Dealer&apos;s counter check</a>
             {" · "}<a data-demo="card-link" href={`/card/${id}${offer ? `?offer=${offer.id}` : ""}`}>Print a demo passport card (QR)</a>
-            {yours && <> · the address bar holds this passport&apos;s private control key; share the public link instead.</>}
+            {yours && !mine && <> · the address bar holds this passport&apos;s private control key; share the public link instead.</>}
           </p>
         )}
-        {p && !yours && (
+        {p && !yours && !mine && (
           <p className="fine" data-demo="read-only">
             Read-only here: this passport was issued in another browser, so only live checks run. <a href="/">Issue your own →</a>
           </p>
@@ -314,8 +351,11 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
           </p>
         )}
         <p className="fine">
-          Contract {short(p?.contract ?? deployment.contract)} on QoreChain Diana testnet. Demo custody: the owner&apos;s and the dealer&apos;s
-          ML-DSA-87 keys are held by the Halte server. The owner signs every offer, report and recovery; the dealer&apos;s account relays them,
+          Contract {short(p?.contract ?? deployment.contract)} on QoreChain Diana testnet.{" "}
+          {mine || (p && ![replay.owner, replay.dealer].some((a) => a.toLowerCase() === p.owner.toLowerCase()))
+            ? <>Self-custody: this holder&apos;s keys are not Halte&apos;s{mine ? "; they were generated in this browser" : ""}. The demo dealer&apos;s key is held by the Halte server.</>
+            : <>Demo custody: the owner&apos;s and the dealer&apos;s ML-DSA-87 keys are held by the Halte server.</>}{" "}
+          The holder signs every offer, report and recovery; the dealer&apos;s account relays them,
           so each receipt shows a sender who is not the holder. &ldquo;Live check&rdquo; rows are eth_calls against Diana, not broadcast.
         </p>
       </main>

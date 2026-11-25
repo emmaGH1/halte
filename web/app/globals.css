@@ -484,3 +484,25 @@ button:disabled { opacity: .45; cursor: default; }
   .card-act, .card-note, .card-url { display: none; }
 }
 .fine.custody { margin-top: 10px; font-size: 12.5px; }
+
+/* ---------- hold your own key ---------- */
+.own-steps { list-style: none; margin-top: 24px; border-top: 1px solid var(--blue); }
+.own-steps li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; padding: 13px 0; border-bottom: 1px solid var(--blue-hair); font-size: 15px; line-height: 1.4; }
+.own-steps .idx { font-size: 11px; padding-top: 3px; opacity: .55; }
+.own-steps li.doing { color: var(--ink); } .own-steps li.doing .idx { animation: pulse 1s infinite alternate; opacity: 1; }
+.own-steps li.done .idx { color: #3d6b45; opacity: 1; }
+.own-steps li.failed, .own-steps li.failed .idx { color: var(--red); opacity: 1; }
+.own-steps li.todo { opacity: .6; }
+.own-steps small { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; overflow-wrap: anywhere; font-family: var(--mono), monospace; }
+.own-steps a { text-decoration: none; border-bottom: 1px solid currentColor; }
+@keyframes pulse { to { opacity: .2; } }
+.own-act { margin-top: 18px; display: grid; }
+.own-act .btn { background: var(--blue); border-color: var(--blue); color: var(--card); }
+.own-key { margin-top: 30px; padding-top: 14px; border-top: 1px dashed var(--hair); display: grid; gap: 10px; font-size: 14px; line-height: 1.5; }
+.own-key h2 { font-size: 10px; opacity: .6; font-weight: 500; }
+.own-key .m, .phrase.m { font-family: var(--mono), monospace; font-size: 12.5px; overflow-wrap: anywhere; }
+.own-key button.ghost { justify-self: start; padding: 12px 18px; font-size: 14px; }
+.phrase { padding: 12px; background: var(--card); border: 1px solid var(--blue-hair); }
+.own-key .linkish { justify-self: start; font-size: 13px; color: var(--muted); }
+.own-actions { margin-top: 18px; }
+@media (min-width: 720px) { .own-act { justify-content: start; } }
