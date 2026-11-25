@@ -6,12 +6,38 @@ Two-stage audit as required by the Post-Quantum dApp track ([audit FAQ](https://
 |---|---|---|---|---|---|
 | 1 | 22 Nov 2026, 19:43 | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `27dd594` | 75/100, medium, 4 findings | [`docs/audit/2026-11-22-qcai-stage1.pdf`](audit/2026-11-22-qcai-stage1.pdf) |
 | 2 | 23 Nov 2026, 12:03 (dashboard time) | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` at commit `3df5f2a` (the source of the earlier Diana contract `0x1e2bacc…`, since replaced) | 85/100, medium, 4 findings | [`docs/audit/2026-11-23-qcai-stage2.pdf`](audit/2026-11-23-qcai-stage2.pdf) |
+| 3 (release follow-up) | 24 Nov 2026, 23:16:57 | Ethereum (EVM/Solidity) | `contracts/contracts/Halte.sol` from `main`, identical to the release source at `d374a16` | 85/100, medium, 5 findings | [`docs/audit/2026-11-24-qcai-stage3.pdf`](audit/2026-11-24-qcai-stage3.pdf) |
 
 QCAI reviews pasted source only. Quantum readiness is "not scored for this setting" (the FAQ says a setting aware of QoreChain's PQ precompiles is planned). The PQ path is covered by the tests and the live Diana runs below.
 
-## Release (live): `0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4`, source `d374a16`, not yet audited by QCAI
+## Diana release and source verification
 
-Deployed 23 Nov 2026 at block 10,611,612 (deploy tx `0xb57871e8…`). A QCAI run on this exact source is pending; its report will be filed here as stage 3. Changes since the stage 2 source, each with its test in `contracts/test/Halte.ts`:
+The stage 3 PDF displays 25 Nov at 00:16:57. Its creation metadata gives UTC+01:00, which puts the export on 24 Nov UTC. The builder supplied the PDF for the requested run on `main`. QCAI's export omits the submitted source and its hash, so the source attribution comes from that submission context.
+
+| release evidence | value |
+|---|---|
+| Diana contract (chain 9800) | `0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4` |
+| Deployment | 23 Nov 2026, block 10,611,612, [recorded deployment](../evidence/deploy/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json) |
+| Source commit | `d374a16f73c9fc473bd632db88a260c4054afaef` |
+| Source SHA-256 | `84eb5b6c546a7b5506e9894c64f18423aa7117a1e7c93cf891285946751ccbfe` |
+| Compiler | Solidity `0.8.28+commit.7893614a`, Hardhat `default`, Cancun EVM target, optimizer disabled |
+| Runtime SHA-256 (decoded bytes) | `8fb03d1437ae156e5d16568f69969d53db38d00a22d28977fd5d87229dc960c6` |
+| Stage 3 PDF SHA-256 | `4ba5b1bd566b2a4eece0cd727a32cd8b10cc07ca92dedaab4b0a09ae22fe38ab` |
+
+The compiler input matched the release commit byte for byte, and the build artifact's runtime matched Diana at the deployment block and at the latest block checked. From the repository root, run `node scripts/check-live.mjs` to recheck both chain reads. With the contract dependencies installed, rebuild and compare the hashes above from the `contracts/` directory.
+
+```sh
+npx hardhat build --build-profile default
+sha256sum contracts/Halte.sol
+node --input-type=commonjs <<'JS'
+const { createHash } = require("node:crypto");
+const { deployedBytecode } = require("./artifacts/contracts/Halte.sol/Halte.json");
+const runtime = Buffer.from(deployedBytecode.slice(2), "hex");
+console.log(createHash("sha256").update(runtime).digest("hex"));
+JS
+```
+
+The table below lists the changes since stage 2 and their tests in [`contracts/test/Halte.ts`](../contracts/test/Halte.ts).
 
 | change | why | test |
 |---|---|---|
@@ -59,7 +85,7 @@ The nonce is in every signed digest, along with the chain id, the contract addre
 
 ## Stage 2 findings
 
-Stage 2 ran on the source after the stage 1 changes. The score went from 75 to 85. Every stage 2 finding is either a repeat of a stage 1 finding or a reaction to the stage 1 fix itself. None called for a code change. The release contract that replaced it is described under "Release" below.
+Stage 2 ran on the source after the stage 1 changes. The score went from 75 to 85. Every stage 2 finding is either a repeat of a stage 1 finding or a reaction to the stage 1 fix itself. None called for a code change. The release table above identifies the contract that replaced it.
 
 ### H · Missing access control on `freeze()` and `recover()`: by design, unchanged
 
@@ -71,7 +97,7 @@ This is the stage 1 finding again. `++offerCount` is checked arithmetic in Solid
 
 ### M · Unbounded storage deletion in `cancelOffer()` / `acceptOffer()`: no change, explained
 
-These deletions came from the stage 1 L fix. Each call clears exactly one `offers` slot: constant gas, no loop, and the gas refund goes to the caller. Only the passport owner can cancel (`NotOwner`), and only the named dealer can accept (`NotDealer`), so nobody else can delete another user's offers. Each deletion is a separate transaction that its caller pays for, so there is nothing for rate limiting to protect.
+These deletions came from the stage 1 L fix. Each call clears one fixed-size `Offer` record without iterating over other offers. Only the passport owner can cancel (`NotOwner`), and only the named dealer can accept (`NotDealer`). Each deletion runs as part of a transaction paid for by its caller.
 
 - **Test:** `lets only the owner cancel an offer, and frees closed offers' storage`.
 
@@ -81,6 +107,28 @@ Every signed digest binds a per-action domain (`HALTE_FREEZE_V1` / `HALTE_RECOVE
 
 - **Test:** `cannot replay a freeze signature, or use a freeze signature to recover`.
 - **On chain:** the live journey checks (`J3!`, `J4`) re-run a wrong-key freeze and a stale-offer accept on every status run.
+
+## Stage 3 findings
+
+### H · Missing access control on `freeze()` and `recover()`
+
+The current holder authorizes both actions with an ML-DSA-87 signature verified against their registered key. Separate action domains, the chain ID, contract address, passport ID, lifecycle nonce and expiry bind that authorization. The caller pays to relay it. The release tests exercise a valid report from a separate relayer and reject freeze and recovery signatures from the wrong key. The recorded Diana receipt independently shows the dealer relaying the holder's signed report.
+
+### M · Potential offer ID overflow
+
+`makeOffer` increments the `uint256` counter with Solidity's checked arithmetic. Exhausting the counter would revert before the offer is written, preserving the uniqueness of previously issued IDs.
+
+### M · Unchecked precompile return values
+
+`_checkPq` requires a successful call and exactly 32 return bytes. It rejects noncanonical boolean values and only accepts a returned value of `1`. `_requirePqcKey` checks call success, static field bounds, the public-key offset and the length of the padded payload before decoding. It then requires registration, ML-DSA-87, proof of possession and a 2,592-byte key. The test “fails closed when a PQC precompile is missing or malformed” covers an empty verifier response, a noncanonical verifier result and a truncated registry response. These checks rely on Diana's precompiles for the actual cryptographic verdict.
+
+### L · Unbounded offer storage
+
+An accepted or cancelled offer is deleted. Expired offers and offers invalidated by an epoch change remain in storage until the current holder explicitly cancels them. This leaves residual storage growth. Each offer requires the holder's signature and a paid transaction, and contract operations address individual records directly without scanning the mapping. Cleanup is holder-driven in this release.
+
+### Info · Clarify the nonce fields
+
+The `Passport` field comments document both counters. `nonce` is bound to freeze and recovery authorizations and advances on freeze, recovery and transfer. `offerNonce` advances on successful offer creation and is bound to the signed offer alongside `epoch`. The separate counters let an offer land without voiding a pending report. An epoch change invalidates earlier offers and their unsubmitted authorizations. The replay, handoff and ordering tests exercise these rules.
 
 ## Tests
 

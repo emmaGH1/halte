@@ -8,5 +8,6 @@
   "runtimeWindowScope": [
     "0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4"
   ],
-  "sourceCommit": "d374a16"
+  "sourceCommit": "d374a16",
+  "runtimeSha256": "8fb03d1437ae156e5d16568f69969d53db38d00a22d28977fd5d87229dc960c6"
 }

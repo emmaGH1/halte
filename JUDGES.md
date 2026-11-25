@@ -20,7 +20,7 @@ Both keys are held by the Halte server for the demo (disclosed in the README's S
 | EVM dApp guarding sensitive actions | `contracts/contracts/Halte.sol`: offer, freeze and recover all need the holder's ML-DSA-87 signature |
 | `pqcVerify` | `Halte._checkPq` calls `0x…0a01` on every offer, freeze and recovery; live freeze tx [`0x3f8961…`](https://explore.qore.network/tx/3F89617ECBFC169BC416AD098439F23C7824184C9E68819C5B29AE541D53AAC9) |
 | Scoped EVM window | window tx [`F44B0993…`](https://explore.qore.network/tx/F44B099360B5112ED61485A4ED76B6D776B7E55B90DB6E1CD850B497A4913B64): `pqc_hybrid_verify status=verified`, `allowed_targets` = the Halte contract only; opened in `web/lib/chain.ts` `ensureWindow` and `contracts/scripts/window.ts` |
-| Two-stage QCAI audit + `docs/AUDIT.md` | `docs/audit/*.pdf`, every finding answered in `docs/AUDIT.md` (a run on the release source is pending) |
+| Two-stage QCAI audit and release follow-up | [All three PDFs and finding responses](docs/AUDIT.md). `node scripts/check-live.mjs` checks the release build's runtime hash against Diana. |
 | Hardhat tests | `contracts/test/Halte.ts`, 21 passing: `evidence/tests/halte-tests.txt` · run `cd contracts && npx hardhat test` |
 
 ## Claims

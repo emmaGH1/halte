@@ -51,7 +51,7 @@ Re-check the live claims yourself, straight from the chain: `node scripts/check-
 | `pqcKeyStatus` precompile (`0x…0a02`) | supplies each holder's registered key; Halte requires ML-DSA-87, 2,592 bytes and proof of possession, and fails closed on a malformed answer |
 | ML-DSA-87 key registration (`@qorechain/sdk`) | the owner and dealer each registered a key with proof of possession |
 | Scoped EVM windows (`pqc_hybrid_verify`) | every EVM write runs inside a window opened by a hybrid-signed (secp256k1 + ML-DSA-87) native transaction and limited to the Halte contract |
-| QCAI audit | two stages so far, every finding answered in [docs/AUDIT.md](docs/AUDIT.md) |
+| QCAI audit | two-stage audit plus a release follow-up, with all reports and responses in [docs/AUDIT.md](docs/AUDIT.md) |
 | `create-qorechain-dapp` (Hardhat 3), `@qorechain/evm` | contract scaffold, window cost and status helpers |
 
 What we added: the passport contract and its epoch rule, the signed-offer flow with a separate relayer, fail-closed decoding of both precompiles, and a web app whose register is read back from the chain.
@@ -112,7 +112,7 @@ npm run build && npm start
 - **Demo custody.** The owner's and dealer's ML-DSA-87 keys are held by the Halte server so judges need no wallet. The dealer's account also relays the owner's signed messages, which is why receipts show a sender who isn't the holder. A passport can only be changed from the browser that issued it (a key in its link); anyone else sees it read-only.
 - **Limits.** Three demo passports per visitor every ten minutes and a daily cap, so the shared signer can't be drained. If the signing lock is unreachable, the site goes read-only and points to the recorded run.
 - **What a report can't do.** It stops transfers of the passport; it doesn't track the watch, and the demo has no way to prove who really owns a physical watch at issue time.
-- **Audit.** QCAI stages 1 and 2 scored 75 and 85 out of 100 on earlier source; the release contract adds signed offers and the epoch bump on transfer, and its own QCAI run is pending. Details in [docs/AUDIT.md](docs/AUDIT.md).
+- **Audit.** QCAI scored the earlier revisions 75 and 85 out of 100. The release follow-up scored 85 out of 100 and raised five findings. The EVM/Solidity setting leaves quantum readiness unscored. [Reports, responses and bytecode verification](docs/AUDIT.md).
 - **Tested on** Chrome desktop and Android Chrome.
 
 Built for **Build Before Q-Day, the QoreChain Developer Fest** · Post-Quantum dApp track · built with AI coding assistants (Claude Code, with Codex as a second reviewer) · contract scaffold from `create-qorechain-dapp`; fonts Switzer and Boska from Fontshare · [Apache-2.0](LICENSE)

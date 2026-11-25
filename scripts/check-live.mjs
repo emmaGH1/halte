@@ -1,6 +1,7 @@
 // scripts/check-live.mjs: for judges. Re-checks every live claim the README makes, straight from
 // QoreChain Diana (EVM JSON-RPC + Cosmos REST) and the live site. It never trusts the app.
 // Node 20+, nothing to install, no account, no money:  node scripts/check-live.mjs
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const LIVE = process.env.LIVE_URL ?? "https://halte-roan.vercel.app";
@@ -62,6 +63,21 @@ const checks = [
       if (r.status !== "0x1" || r.contractAddress?.toLowerCase() !== CONTRACT) throw new Error("deploy receipt does not create this contract");
       if (r.from.toLowerCase() !== OWNER.toLowerCase()) throw new Error(`deployed by ${r.from}`);
       return `deploy tx ${deploy.deployTx.slice(0, 12)}… at block ${BigInt(r.blockNumber)}`;
+    },
+  },
+  {
+    claim: "Diana's Halte runtime matches the bytecode built from the release source",
+    run: async () => {
+      const deploymentBlock = `0x${BigInt(deploy.block).toString(16)}`;
+      for (const block of [deploymentBlock, "latest"]) {
+        const { result: code } = await rpc("eth_getCode", [CONTRACT, block]);
+        if (typeof code !== "string" || !/^0x(?:[0-9a-f]{2})+$/i.test(code)) {
+          throw new Error(`missing or invalid bytecode at ${block}`);
+        }
+        const hash = createHash("sha256").update(Buffer.from(code.slice(2), "hex")).digest("hex");
+        if (hash !== deploy.runtimeSha256) throw new Error(`runtime SHA-256 mismatch at ${block}: ${hash}`);
+      }
+      return `source ${deploy.sourceCommit} · deployment block ${deploy.block} and latest · SHA-256 ${deploy.runtimeSha256}`;
     },
   },
   {
