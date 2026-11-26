@@ -143,11 +143,11 @@ export function SiteFooter({ deployTx, block }: { deployTx: string; block?: stri
       <div className="foot-top">
         <div className="foot-brand">
           <a href="/" className="wordmark" aria-label="Halte home"><HeldLogo mode="frozen" size={30} /><span>HALTE</span></a>
-          <p className="foot-tag">Stolen means <em>unsellable.</em></p>
-          <p className="foot-note">A digital passport for fine watches. Every offer, report and recovery is signed with the owner&apos;s ML-DSA-87 key and checked on chain.</p>
+          <p className="foot-tag">Stolen watches, <em>unsellable.</em></p>
+          <p className="foot-note">The stolen-watch check for dealers, marketplaces and insurers. Every offer, report and recovery is signed with the owner&apos;s ML-DSA-87 key and checked on chain.</p>
         </div>
         <div className="foot-cols">
-          <div><span className="mono">Navigate</span><a href="/#method">Method</a><a href="/#proof">Proof</a><a href="/">Issue a passport</a></div>
+          <div><span className="mono">Navigate</span><a href="/#how">How it works</a><a href="/#proof">Proof</a><a href="/">Issue a passport</a></div>
           <div><span className="mono">On chain</span><a href={tx} target="_blank" rel="noreferrer">Deploy transaction ↗</a><span>Diana testnet</span>{block && <span className="num">Block {Number(block).toLocaleString("en-US")}</span>}</div>
           <div><span className="mono">Project</span><a href={gh} target="_blank" rel="noreferrer">Source ↗</a><a href={`${gh}/blob/main/docs/AUDIT.md`} target="_blank" rel="noreferrer">QCAI audit ↗</a><span>Apache-2.0</span></div>
         </div>

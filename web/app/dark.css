@@ -1,0 +1,26 @@
+/* App pages (passport, dealer check, own key) in the home page's dark look: same tokens, flipped. */
+html:has(.paper) {
+  --bone: #07070A; --paper-hi: #141419; --paper-lo: #0B0B0F; --card: #111116; --night: #000; --night2: #0B0B0F;
+  --ink: #ECEAE4; --ink2: rgba(236,234,228,.78); --muted: rgba(236,234,228,.52); --faint: rgba(236,234,228,.32);
+  --hair: rgba(236,234,228,.12); --blue: #ECEAE4; --blue-hair: rgba(236,234,228,.14); --pale: rgba(236,234,228,.4);
+  --red: #FF4526; --gold: #C9B27F;
+  background: #07070A; color-scheme: dark;
+}
+html:has(.paper) body::before, html:has(.paper) .grain { display: none; }
+html:has(.paper) .site.scrolled { background: rgba(7,7,10,.78); box-shadow: 0 1px 0 var(--hair); }
+html:has(.paper) button.ghost, html:has(.paper) .btn.ghost-btn { color: var(--ink); border-color: rgba(236,234,228,.3); }
+html:has(.paper) .btn, html:has(.paper) button:not(.ghost):not(.red):not(.linkish):not(.burger) { border-radius: 999px; }
+html:has(.paper) .verdict { background: #111116; border-radius: 0 14px 14px 0; box-shadow: none; border: 1px solid var(--hair); border-left-width: 6px; }
+html:has(.paper) .verdict.stop { background: linear-gradient(160deg, rgba(255,69,38,.14), rgba(255,69,38,0) 70%), #111116; border-left-color: var(--red); }
+html:has(.paper) .verdict.go { background: linear-gradient(160deg, rgba(91,214,154,.12), rgba(91,214,154,0) 70%), #111116; border-left-color: #5BD69A; }
+html:has(.paper) .verdict.go h1 { color: #5BD69A; }
+html:has(.paper) .verdict .why { border-top-color: rgba(255,69,38,.3); }
+html:has(.paper) .verdict h1, html:has(.paper) .pp > h1, html:has(.paper) .pp-head h1 { font-family: var(--sans), sans-serif; font-weight: 500; letter-spacing: -.04em; }
+html:has(.paper) .verdict h1 em, html:has(.paper) .pp-head h1 em { font-style: normal; color: var(--muted); }
+html:has(.paper) .night, html:has(.paper) .sheet, html:has(.paper) .foot .wordmark, html:has(.paper) .foot .held,
+html:has(.paper) .site.open .burger, html:has(.paper) .site.open .wordmark, html:has(.paper) .site.open .wordmark .held { color: #ECEAE4; }
+html:has(.paper) .sheet-cta { background: #ECEAE4; color: #07070A; }
+html:has(.paper) .foot-tag em { font-family: var(--sans), sans-serif; font-style: normal; font-weight: 500; color: var(--red); }
+html:has(.paper) .tour { background: #16161B; color: #ECEAE4; border: 1px solid var(--hair); border-radius: 18px 18px 0 0; }
+html:has(.paper) .tour-act .btn { background: #ECEAE4; color: #07070A; border-color: #ECEAE4; }
+html:has(.paper) .nav-cta { color: #07070A; border-radius: 999px; }

@@ -175,7 +175,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
     <SiteNav
       brand={<Wordmark mode={frozen ? "frozen" : "ticking"} />}
       refText={`Passport ${no}`}
-      links={[{ href: "/#method", label: "Method" }, { href: "/#proof", label: "Proof" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
+      links={[{ href: "/#how", label: "How it works" }, { href: "/#proof", label: "Proof" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
       cta={{ href: "/", label: "New passport" }}
     />
   );

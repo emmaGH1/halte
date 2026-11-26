@@ -41,7 +41,7 @@ export default function Own() {
   return (
     <div className="paper" id="top">
       <div className="grain" aria-hidden />
-      <SiteNav brand={<Wordmark />} refText="Hold your own key" links={[{ href: "/#method", label: "Method" }, { href: "/check", label: "Check a passport" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]} cta={{ href: "/", label: "Hosted demo" }} />
+      <SiteNav brand={<Wordmark />} refText="Hold your own key" links={[{ href: "/#how", label: "How it works" }, { href: "/check", label: "Check a passport" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]} cta={{ href: "/", label: "Hosted demo" }} />
       <main className="pp counter own">
         <span className="mono kicker">Self-custody trial · QoreChain Diana testnet</span>
         <div className="verdict wait">

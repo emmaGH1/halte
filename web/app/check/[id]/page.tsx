@@ -69,7 +69,7 @@ export default function Counter({ params }: { params: Promise<{ id: string }> })
       <SiteNav
         brand={<Wordmark mode={frozen ? "frozen" : "static"} />}
         refText={`Counter check · ${no}`}
-        links={[{ href: "/#method", label: "Method" }, { href: "/#replay", label: "Replay" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
+        links={[{ href: "/#how", label: "How it works" }, { href: "/#quantum", label: "Quantum-safe" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
         cta={{ href: "/", label: "New passport" }}
       />
       <main className="pp counter">
@@ -92,7 +92,7 @@ export default function Counter({ params }: { params: Promise<{ id: string }> })
               <p className="why" data-demo="not-expiry">Not an expiry: this offer is still signed for another {Math.round((r.offer.expiry * 1000 - Date.now()) / 60000)} min. The contract refuses it because the passport moved to a new epoch.</p>
             )}
             {r.verdict === "offer-dead" && r.passport.id === replay.passport && r.offer?.id === replay.offerId && (
-              <p className="why" data-demo="not-expiry">Not an expiry: when the watch was recovered (block 10,611,679, 23 Nov 11:27 UTC) this offer still had <b>59 min 44 s</b> left, and the same dealer was refused anyway. <a href="/#replay">Replay the three blocks →</a></p>
+              <p className="why" data-demo="not-expiry">Not an expiry: when the watch was recovered (block 10,611,679, 23 Nov 11:27 UTC) this offer still had <b>59 min 44 s</b> left, and the same dealer was refused anyway. <a href="/#check">Ask the chain yourself →</a></p>
             )}
             <span className="mono at">Contract answer at block {n(r.block)} · {new Date(r.askedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
           </div>

@@ -17,7 +17,7 @@ export default function CheckIndex() {
   return (
     <div className="paper" id="top">
       <div className="grain" aria-hidden />
-      <SiteNav brand={<Wordmark />} refText="Counter check" links={[{ href: "/#method", label: "Method" }, { href: "/#replay", label: "Replay" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]} cta={{ href: "/", label: "New passport" }} />
+      <SiteNav brand={<Wordmark />} refText="Counter check" links={[{ href: "/#how", label: "How it works" }, { href: "/#quantum", label: "Quantum-safe" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]} cta={{ href: "/", label: "New passport" }} />
       <main className="pp counter">
         <span className="mono kicker">Dealer&apos;s counter · read-only check · QoreChain Diana</span>
         <div className="verdict wait"><h1>Check a passport <em>before you accept it.</em></h1><p>Scan the QR on a passport card with your phone camera, or paste its link here.</p></div>
