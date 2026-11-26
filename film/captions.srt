@@ -1,0 +1,55 @@
+1
+00:00:00,000 --> 00:00:12,000
+Stolen watches can be resold before a dealer knows. After Q-Day, even an ordinary wallet key could be forged.
+
+2
+00:00:12,000 --> 00:00:23,000
+Halte gives a watch a passport on QoreChain. Its owner can stop a sale with a quantum-safe signature.
+
+3
+00:00:23,000 --> 00:00:35,000
+Let’s take the guided tour. A real passport is issued on the Diana testnet. No wallet is needed for this hosted demo.
+
+4
+00:00:35,000 --> 00:00:47,000
+The owner signs an offer to a named dealer. The dealer checks it before paying: this sale would go through.
+
+5
+00:00:47,000 --> 00:00:59,000
+Now the watch goes missing. The owner signs a report, and QoreChain verifies it. The passport freezes.
+
+6
+00:00:59,000 --> 00:01:11,000
+The same dealer checks the same offer again. This time the contract refuses: PassportFrozen.
+
+7
+00:01:11,000 --> 00:01:23,000
+The owner recovers the watch. But the old offer still cannot be used: StaleOffer. A report kills older deals.
+
+8
+00:01:23,000 --> 00:01:36,000
+What if a thief has the classical wallet key? Halte refuses the attempted sale with BadPqcSignature.
+
+9
+00:01:36,000 --> 00:01:48,000
+That matters after Q-Day: a forged wallet key must not let someone pretend a stolen watch was found.
+
+10
+00:01:48,000 --> 00:02:01,000
+Every offer, report and recovery requires ML-DSA-87. QoreChain’s pqcVerify checks the owner’s signature on chain.
+
+11
+00:02:01,000 --> 00:02:13,000
+The contract is live on Diana. The repository includes the QCAI audit and 21 contract tests.
+
+12
+00:02:13,000 --> 00:02:25,000
+Dealers, marketplaces and insurers can check before paying. One live API call returns a verdict from the chain.
+
+13
+00:02:25,000 --> 00:02:37,000
+The counter page gives a buyer the same answer without a wallet. This is testnet: the passport cannot identify the physical watch.
+
+14
+00:02:37,000 --> 00:02:48,000
+Halte. Stolen watches, unsellable. Try the demo and inspect the code.

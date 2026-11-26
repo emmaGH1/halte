@@ -1,0 +1,28 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,37,&H00FFFFFF,&H000000FF,&H00070707,&HCC070707,0,0,0,0,100,100,0,0,3,12,0,2,180,180,45,1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:12.00,Default,,0,0,0,,Stolen watches can be resold before a dealer knows. After Q-Day, even an\Nordinary wallet key could be forged.
+Dialogue: 0,0:00:12.00,0:00:23.00,Default,,0,0,0,,Halte gives a watch a passport on QoreChain. Its owner can stop a sale with\Na quantum-safe signature.
+Dialogue: 0,0:00:23.00,0:00:35.00,Default,,0,0,0,,Let’s take the guided tour. A real passport is issued on the Diana testnet.\NNo wallet is needed for this hosted demo.
+Dialogue: 0,0:00:35.00,0:00:47.00,Default,,0,0,0,,The owner signs an offer to a named dealer. The dealer checks it before\Npaying: this sale would go through.
+Dialogue: 0,0:00:47.00,0:00:59.00,Default,,0,0,0,,Now the watch goes missing. The owner signs a report, and QoreChain\Nverifies it. The passport freezes.
+Dialogue: 0,0:00:59.00,0:01:11.00,Default,,0,0,0,,The same dealer checks the same offer again. This time the contract\Nrefuses: PassportFrozen.
+Dialogue: 0,0:01:11.00,0:01:23.00,Default,,0,0,0,,The owner recovers the watch. But the old offer still cannot be used:\NStaleOffer. A report kills older deals.
+Dialogue: 0,0:01:23.00,0:01:36.00,Default,,0,0,0,,What if a thief has the classical wallet key? Halte refuses the attempted\Nsale with BadPqcSignature.
+Dialogue: 0,0:01:36.00,0:01:48.00,Default,,0,0,0,,That matters after Q-Day: a forged wallet key must not let someone pretend\Na stolen watch was found.
+Dialogue: 0,0:01:48.00,0:02:01.00,Default,,0,0,0,,Every offer, report and recovery requires ML-DSA-87. QoreChain’s pqcVerify\Nchecks the owner’s signature on chain.
+Dialogue: 0,0:02:01.00,0:02:13.00,Default,,0,0,0,,The contract is live on Diana. The repository includes the QCAI audit and\N21 contract tests.
+Dialogue: 0,0:02:13.00,0:02:25.00,Default,,0,0,0,,Dealers, marketplaces and insurers can check before paying. One live API\Ncall returns a verdict from the chain.
+Dialogue: 0,0:02:25.00,0:02:37.00,Default,,0,0,0,,The counter page gives a buyer the same answer without a wallet. This is\Ntestnet: the passport cannot identify the physical watch.
+Dialogue: 0,0:02:37.00,0:02:48.00,Default,,0,0,0,,Halte. Stolen watches, unsellable. Try the demo and inspect the code.
+Dialogue: 1,0:00:00.00,0:00:12.00,Default,,0,0,0,,{\an7\pos(190,330)\fs90\b1}Halte\N{\fs32\c&H2645FF&}STOLEN WATCHES, UNSELLABLE.
+Dialogue: 1,0:02:37.00,0:02:48.00,Default,,0,0,0,,{\an7\pos(190,330)\fs65\b1}Stolen watches, unsellable.\N{\fs32\c&H2645FF&}halte-roan.vercel.app  |  github.com/emmaGH1/halte
+Dialogue: 1,0:01:48.00,0:02:01.00,Default,,0,0,0,,{\an7\pos(80,70)\fs26\c&H2645FF&}QORECHAIN DIANA  /  ML-DSA-87  /  pqcVerify
+Dialogue: 1,0:02:01.00,0:02:13.00,Default,,0,0,0,,{\an7\pos(80,70)\fs24\c&H2645FF&}CONTRACT  0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4\NQCAI AUDIT  /  21 HARDHAT TESTS
