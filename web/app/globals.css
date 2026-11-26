@@ -234,7 +234,7 @@ button:disabled { opacity: .45; cursor: default; }
 
 .hero.hero--b {
   display: grid;
-  grid-template-areas: "title" "plate" "claim" "copy" "proof";
+  grid-template-areas: "title" "claim" "plate" "copy" "proof";
   grid-template-columns: minmax(0, 1fr);
 }
 .hero--b h1 { grid-area: title; }
@@ -529,3 +529,37 @@ body.touring { padding-bottom: 210px; }
 .tour-target { position: relative; z-index: 4; outline: 3px solid var(--red); outline-offset: 4px; animation: tour-pulse 1.4s ease-in-out infinite; }
 @keyframes tour-pulse { 50% { outline-offset: 9px; outline-color: rgba(200,40,28,.45); } }
 @media (prefers-reduced-motion: reduce) { .tour, .tour-target { animation: none; } }
+
+/* ---------- B: infrastructure sections ---------- */
+.seats, .plug-sec { padding: 64px 16px; border-top: 1px solid var(--hair); position: relative; z-index: 3; }
+.seat-row { list-style: none; display: grid; gap: 0; counter-reset: s; }
+.seat-row li { border-top: 1px solid var(--ink); padding: 18px 0 24px; position: relative; }
+.seat-row li.mid { border-top-color: var(--red); }
+.seat-row li .mono { opacity: .6; font-size: 10px; }
+.seat-row li.mid .mono { color: var(--red); opacity: 1; }
+.seat-row h3 { font: italic 400 30px/1.05 var(--serif), Georgia, serif; margin-top: 8px; }
+.seat-row p { font-size: 15px; line-height: 1.5; color: var(--ink2); margin-top: 8px; max-width: 36ch; }
+.buyers { list-style: none; margin-top: 28px; display: grid; gap: 10px; }
+.buyers li { display: grid; gap: 4px; padding: 14px 16px; background: var(--card); border: 1px solid var(--hair); }
+.buyers b { font-weight: 500; font-size: 16px; }
+.buyers span { font-size: 14px; color: var(--muted); line-height: 1.45; }
+.sec-sub { font-size: 16px; line-height: 1.5; color: var(--ink2); max-width: 60ch; }
+.plug { background: var(--night); color: var(--bone); padding: 18px 16px 20px; display: grid; gap: 14px; max-width: 640px; }
+.plug-tabs { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 10px; }
+.plug .code { font: 13px/1.55 var(--mono), ui-monospace, monospace; white-space: pre-wrap; word-break: break-all; background: rgba(236,230,218,.06); border: 1px solid rgba(236,230,218,.14); padding: 12px; }
+.plug .code.res { color: #E6D9BF; }
+.plug .code.sol { opacity: .85; }
+.plug .btn { justify-self: start; background: var(--bone); color: var(--ink); }
+.plug .fine { color: rgba(236,230,218,.6); margin-top: 0; }
+.plug-out { display: grid; gap: 10px; }
+.plug-say { font-size: 18px; line-height: 1.35; font-weight: 500; padding: 12px 14px; border-left: 3px solid; }
+.plug-say.stop { border-color: var(--red); background: rgba(200,40,28,.16); }
+.plug-say.go { border-color: #7fb28a; background: rgba(127,178,138,.12); }
+.plug-say.wait { border-color: var(--gold); }
+.whyq { margin-top: 32px; max-width: 640px; padding-left: 14px; border-left: 2px solid var(--red); }
+.whyq p { margin-top: 8px; font-size: 16px; line-height: 1.55; color: var(--ink2); }
+@media (min-width: 1024px) {
+  .seats, .plug-sec { padding: 96px 48px; }
+  .seat-row { grid-template-columns: repeat(3, 1fr); column-gap: 32px; }
+  .buyers { grid-template-columns: repeat(3, 1fr); }
+}

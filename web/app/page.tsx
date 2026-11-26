@@ -2,6 +2,7 @@ import deployment from "@/lib/deployment.json";
 import { txUrl } from "@/lib/chain";
 import { readLive } from "@/lib/live";
 import { MintButton } from "./mint";
+import { Plug } from "./plug";
 import { Replay } from "./replay";
 import { HeroArt, SiteFooter, SiteNav, Wordmark } from "./ui";
 
@@ -26,7 +27,7 @@ export default async function Home() {
       <SiteNav
         brand={<Wordmark />}
         refText="Ref. H-01 · QoreChain Diana"
-        links={[{ href: "#method", label: "Method" }, { href: "#proof", label: "Proof" }, { href: "/check", label: "Check a passport" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
+        links={[{ href: "#plug", label: "Plug it in" }, { href: "#method", label: "Method" }, { href: "#proof", label: "Proof" }, { href: "/check", label: "Check a passport" }, { href: "https://github.com/emmaGH1/halte", label: "Source", ext: true }]}
         cta={{ href: "#top", label: "Issue a passport" }}
       />
 
@@ -36,26 +37,27 @@ export default async function Home() {
           <span className="sw">Stolen means</span>
           <em>unsellable<i>.</i></em>
         </h1>
-        <p className="claim" data-demo="claim">A missing-watch report blocks every transfer of its passport.</p>
+        <p className="claim" data-demo="claim">A stop button for stolen goods. One quantum-safe report, and every buyer who checks is told “do not buy”.</p>
         <div className="hero-copy">
           <p className="lede">
-            A digital passport for a luxury watch, on QoreChain. If the watch is stolen, the owner reports it with a
-            quantum-safe signature and no dealer can buy it. Even after it&apos;s found, any deal made around the theft stays dead.
+            Stolen watches, bikes, phones and art get resold because the buyer has no way to check. Halte gives each item a
+            passport on QoreChain. The owner presses stop with a quantum-safe signature, and any marketplace, dealer or insurer
+            asks one question before paying: is this sellable? Our first pilot is luxury watches.
           </p>
           <div className="cta">
             <MintButton tour />
             <MintButton variant="btn ghost-btn" />
           </div>
           <p className="cta-note">
-            New here? The tour issues you a real passport and walks you through it: sell it, report it stolen, watch the dealer get
-            refused. About two minutes. Or <a href="/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2" data-demo="check-link">check a passport like a dealer</a>.
+            The tour puts you in both seats, owner and dealer, on a real passport: sell, report stolen, watch the sale get refused.
+            About two minutes. Or <a href="/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2" data-demo="check-link">check a passport like a dealer</a>.
           </p>
           <p className="fine">
             Runs on QoreChain Diana testnet. No wallet needed: for this demo the owner&apos;s and dealer&apos;s ML-DSA-87 keys are held by the Halte server. Or <a href="/own" data-demo="own-link">hold your own key</a>: generated in your browser, never sent to Halte.
           </p>
         </div>
         <div className="fig-cap">
-          <span className="mono red">Fig. 5 · Stop lever</span>
+          <span className="mono red">Pilot 01 · Luxury watches</span>
           <p>One signed report halts every sale.</p>
         </div>
 
@@ -77,6 +79,36 @@ export default async function Home() {
         <div className="rail mono">Fig. 1 · Calibre H-01 with the stop lever engaged</div>
       </section>
 
+      <section className="seats" id="who">
+        <div className="sec-head">
+          <span className="mono">How it fits</span>
+          <h2>The owner presses stop. <em>Everyone about to pay can ask.</em></h2>
+        </div>
+        <ol className="seat-row">
+          <li><span className="mono">The owner</span><h3>Presses stop</h3><p>One signature from their quantum-safe key, on their phone. No police report, no call centre, no waiting.</p></li>
+          <li className="mid"><span className="mono">QoreChain</span><h3>Holds the answer</h3><p>The contract checks the signature with QoreChain&apos;s built-in post-quantum verifier and freezes the passport. Every pending deal dies.</p></li>
+          <li><span className="mono">Anyone about to pay</span><h3>Asks first</h3><p>Same answer for everyone, in a second, with no account and no fee.</p></li>
+        </ol>
+        <ul className="buyers">
+          <li><b>Marketplaces</b><span>Block the listing before it goes live.</span></li>
+          <li><b>Dealers and pawnshops</b><span>Check at the counter before handing over cash.</span></li>
+          <li><b>Insurers</b><span>Pay a theft claim once. The item stays flagged wherever it surfaces.</span></li>
+        </ul>
+      </section>
+
+      <section className="plug-sec" id="plug">
+        <div className="sec-head">
+          <span className="mono">Plug it in</span>
+          <h2>One question before you pay. <em>Ask it now.</em></h2>
+          <p className="sec-sub">This is the whole integration. Tap to ask QoreChain about a real passport.</p>
+        </div>
+        <Plug />
+        <div className="whyq">
+          <span className="mono red">Why quantum-safe</span>
+          <p>A stop button is only worth something if a thief can&apos;t un-press it. Ordinary wallet keys are expected to fall to quantum computers (Q-Day). Then a thief could forge a “found it” and sell the item anyway. Halte only accepts ML-DSA-87 signatures (the NIST FIPS 204 standard), checked on chain by QoreChain. Our tests show a classical key being refused at every step.</p>
+        </div>
+      </section>
+
       <section className="replay-sec" id="replay">
         <div className="sec-head">
           <span className="mono">Replay</span>
@@ -89,7 +121,7 @@ export default async function Home() {
       <section className="method" id="method">
         <div className="sec-head">
           <span className="mono">Method</span>
-          <h2>Every mechanical watch has a lever that stops it. <em>Halte is that lever for a stolen watch&apos;s sale.</em></h2>
+          <h2>Five steps, all on chain. <em>Shown with the watch pilot.</em></h2>
         </div>
         <ol className="figs">
           {FIGS.map((f) => (
