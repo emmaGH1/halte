@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-400.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-500.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-700.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-900.woff2") format("woff2"); font-weight: 900; }
+@font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 400 500; }
+/* Halte film: near-black stage lit by a warm signal-red glow; white product cards float in depth; red only means stolen. */
+:root {
+  --bg: #060607; --tx: #F3F1EC; --mute: rgba(243,241,236,.55);
+  --sig: #FF4526; --sig2: #FF7A52; --ok: #16A36A; --okbg: #E5F6EE; --stopbg: #FDECE7;
+  --card: #FFFFFF; --ink: #0E0F13; --ink2: #5C606B; --hair: rgba(14,15,19,.09);
+  --cold: #A9C1FF;
+  --sans: "Satoshi", "Inter", sans-serif; --mono: "Geist Mono", "JetBrains Mono", monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--sans); color: var(--tx); -webkit-font-smoothing: antialiased; }
+.full { position: absolute; inset: 0; }
+.stage3d { position: absolute; inset: 0; perspective: 1600px; perspective-origin: 50% 45%; }
+
+/* ground light */
+#bg .g { position: absolute; border-radius: 50%; filter: blur(60px); }
+#g1 { width: 1300px; height: 1000px; left: 260px; top: 180px; background: radial-gradient(circle, rgba(255,69,38,.55), rgba(140,24,8,.25) 45%, transparent 70%); }
+#g2 { width: 900px; height: 800px; left: 1100px; top: -200px; background: radial-gradient(circle, rgba(255,122,82,.30), transparent 65%); }
+#g3 { width: 1100px; height: 900px; left: -300px; top: 400px; background: radial-gradient(circle, rgba(120,30,14,.45), transparent 65%); }
+#gcold { width: 1600px; height: 1100px; left: 160px; top: 120px; background: radial-gradient(circle, rgba(120,150,255,.40), rgba(40,60,140,.18) 45%, transparent 70%); opacity: 0; }
+#vig { background: radial-gradient(ellipse at 50% 48%, transparent 40%, rgba(0,0,0,.78) 100%); }
+#grain { opacity: .06; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>"); }
+
+canvas.fullc { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+/* centred lines (opening) */
+.line { position: absolute; left: 0; right: 0; top: 905px; text-align: center; font-weight: 500; font-size: 58px; letter-spacing: -.02em; text-shadow: 0 4px 30px rgba(0,0,0,.6); }
+.line span { display: inline-block; margin: 0 .13em; opacity: 0; }
+.line .r { color: var(--sig2); }
+
+/* split flap */
+.flaps { position: absolute; display: flex; gap: 8px; }
+.fl { width: 74px; height: 104px; border-radius: 10px; background: linear-gradient(#1b1b20 0 49.6%, #0c0c0f 50.4% 100%); box-shadow: 0 1px 0 rgba(255,255,255,.07) inset, 0 20px 40px -12px rgba(0,0,0,.7); font: 700 70px/104px var(--mono); text-align: center; color: var(--tx); position: relative; }
+.fl::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(0,0,0,.65); }
+.fl.sm { width: 46px; height: 66px; font-size: 42px; line-height: 66px; border-radius: 7px; }
+.fl.red { color: var(--sig2); }
+.flabel { position: absolute; font: 500 22px var(--mono); letter-spacing: .14em; color: var(--mute); }
+
+/* cards */
+.card { position: absolute; background: var(--card); color: var(--ink); border-radius: 26px; box-shadow: 0 60px 120px -30px rgba(0,0,0,.85), 0 20px 40px -20px rgba(0,0,0,.6); }
+.lst { left: 640px; top: 130px; width: 640px; height: 640px; padding: 28px; zoom: 1.22; left: 467px; top: 98px; }
+.lst .ph { height: 330px; border-radius: 18px; background: radial-gradient(circle at 50% 45%, #2a2a31, #111114 70%); position: relative; overflow: hidden; }
+.lst .ph canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lst h4 { font: 700 34px var(--sans); margin-top: 24px; letter-spacing: -.01em; }
+.lst .pr { font: 900 50px var(--sans); margin-top: 8px; letter-spacing: -.02em; }
+.lst .meta { display: flex; gap: 12px; margin-top: 16px; }
+.pillx { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border-radius: 999px; background: #F1F0EC; font: 500 21px var(--sans); color: var(--ink2); }
+.tkt { zoom: 1.2; left: 540px; top: 83px; width: 520px; height: 600px; background: #F2E9D6; color: #2A2418; border-radius: 10px; padding: 54px 46px; font-family: var(--mono); }
+.tkt::before { content: ""; position: absolute; left: 50%; top: 22px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #0b0b0c; box-shadow: inset 0 0 0 4px #CDBF9F; }
+.tkt h5 { font: 700 34px var(--mono); letter-spacing: .12em; text-align: center; margin-top: 10px; }
+.tkt .no { text-align: center; font-size: 22px; letter-spacing: .2em; margin-top: 6px; opacity: .7; }
+.tkt dl { margin-top: 44px; display: grid; gap: 22px; font-size: 24px; }
+.tkt dl div { display: flex; justify-content: space-between; border-bottom: 2px dashed rgba(42,36,24,.25); padding-bottom: 14px; }
+.tkt .big { font: 700 64px var(--mono); text-align: right; margin-top: 30px; }
+.chat { zoom: 1.2; left: 460px; top: 92px; width: 680px; height: 560px; background: #141418; color: var(--tx); padding: 36px; border: 1px solid rgba(255,255,255,.08); }
+.chat .hd { display: flex; align-items: center; gap: 14px; font: 700 26px var(--sans); padding-bottom: 22px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.chat .hd i { width: 44px; height: 44px; border-radius: 50%; background: #2b2b33; display: block; }
+.chat .hd small { font: 500 19px var(--sans); color: var(--mute); display: block; }
+.bub { position: absolute; max-width: 470px; padding: 18px 24px; border-radius: 24px; font: 500 28px var(--sans); line-height: 1.25; }
+.bub.l { left: 36px; background: #26262d; border-bottom-left-radius: 8px; }
+.bub.r { right: 36px; background: #F3F1EC; color: var(--ink); border-bottom-right-radius: 8px; }
+
+/* register */
+.reg { left: 330px; top: 140px; width: 1260px; height: 700px; padding: 40px 46px; }
+.reg h4 { font: 700 34px var(--sans); letter-spacing: -.01em; }
+.reg .srch { margin-top: 22px; height: 76px; border-radius: 16px; background: #F3F2EE; display: flex; align-items: center; padding: 0 26px; font: 500 30px var(--mono); color: var(--ink); gap: 16px; }
+.reg .srch b { width: 3px; height: 36px; background: var(--ink); display: inline-block; }
+.reg .res { margin-top: 18px; height: 70px; border-radius: 14px; display: flex; align-items: center; gap: 14px; padding: 0 24px; background: #F7F7F5; font: 600 28px var(--sans); color: var(--ink2); }
+.reg table { width: 100%; margin-top: 22px; border-collapse: collapse; font: 500 25px var(--sans); color: var(--ink2); }
+.reg td { padding: 16px 6px; border-top: 1px solid var(--hair); }
+.reg td:last-child { text-align: right; font-family: var(--mono); font-size: 22px; }
+.stamp { position: absolute; padding: 14px 26px; border-radius: 14px; font: 900 40px var(--sans); letter-spacing: .01em; border: 5px solid currentColor; background: rgba(255,255,255,.92); }
+.stamp.a { color: #C77700; } .stamp.r { color: #D1301A; }
+
+/* quantum */
+.qkey { left: 690px; top: 300px; width: 540px; height: 300px; background: rgba(18,22,36,.82); color: var(--tx); border: 1px solid rgba(169,193,255,.35); padding: 40px 44px; backdrop-filter: blur(6px); }
+.qkey .k1 { font: 500 22px var(--mono); letter-spacing: .1em; color: var(--cold); }
+.qkey .k2 { font: 700 46px var(--sans); margin-top: 14px; letter-spacing: -.01em; }
+.qkey .k3 { font: 500 24px var(--mono); margin-top: 22px; color: var(--mute); }
+.qkey.forged { border-color: rgba(255,69,38,.6); background: rgba(40,14,10,.85); }
+.qkey.forged .k1 { color: var(--sig2); }
+.rep { left: 1110px; top: 330px; width: 520px; height: 250px; padding: 36px 40px; }
+.rep .k1 { font: 500 22px var(--mono); letter-spacing: .1em; color: var(--ink2); }
+.rep .st { position: relative; height: 60px; margin-top: 22px; }
+.rep .st span { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; gap: 12px; height: 60px; padding: 0 24px; border-radius: 999px; font: 700 30px var(--sans); }
+.rep .on { background: var(--stopbg); color: #C42A14; }
+.rep .off { background: #EFEFEC; color: #7A7E88; opacity: 0; }
+.rep .on b, .rep .off b { width: 14px; height: 14px; border-radius: 50%; background: currentColor; }
+#parts { position: absolute; inset: 0; }
+.qchips span { position: absolute; display: inline-flex; align-items: center; gap: 14px; height: 76px; padding: 0 30px; border-radius: 999px; background: rgba(18,22,36,.85); border: 1px solid rgba(169,193,255,.35); font: 700 32px var(--sans); color: #DDE6FF; }
+.qchips span::after { content: "ECDSA · forgeable"; font: 500 20px var(--mono); color: #FF8A66; margin-left: 8px; }
+#qc1 { left: 340px; top: 300px; } #qc2 { left: 1080px; top: 380px; } #qc3 { left: 560px; top: 560px; }
+#parts i { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--cold); }
+
+/* logo */
+.logo { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; gap: 34px; }
+.logo svg { width: 150px; height: 150px; }
+.logo b { font: 900 170px var(--sans); letter-spacing: -.045em; }
+
+/* passport */
+.pp { left: 380px; top: 150px; width: 760px; height: 700px; padding: 44px; }
+.pp .lab { font: 500 24px var(--sans); color: var(--ink2); }
+.pp h3 { font: 900 64px var(--sans); letter-spacing: -.03em; margin-top: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 12px; height: 50px; padding: 0 22px 0 18px; border-radius: 999px; font: 700 25px var(--sans); }
+.chip.ok { background: var(--okbg); color: #0B7A50; } .chip.ok b { width: 13px; height: 13px; border-radius: 50%; background: #16A36A; box-shadow: 0 0 0 5px rgba(22,163,106,.18); }
+.pp .art { position: absolute; left: 44px; right: 44px; top: 270px; height: 380px; border-radius: 22px; background: radial-gradient(circle at 50% 50%, #26262c, #0f0f12 72%); overflow: hidden; }
+.pp .art canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fchip { position: absolute; background: #fff; color: var(--ink); border-radius: 20px; padding: 22px 28px; box-shadow: 0 40px 80px -20px rgba(0,0,0,.7); }
+.fchip small { display: block; font: 500 20px var(--sans); color: var(--ink2); }
+.fchip b { display: block; font: 800 34px var(--sans); letter-spacing: -.01em; margin-top: 4px; }
+.fchip i { font: 500 20px var(--mono); color: var(--ink2); font-style: normal; }
+.phone { position: absolute; left: 1290px; top: 210px; width: 330px; height: 640px; border-radius: 52px; background: #0d0d10; border: 10px solid #26262c; box-shadow: 0 60px 120px -30px rgba(0,0,0,.9); padding: 70px 26px; }
+.phone .nt { position: absolute; left: 50%; top: 16px; width: 110px; height: 30px; margin-left: -55px; border-radius: 20px; background: #000; }
+.phone .kc { border-radius: 24px; background: #17171b; border: 1px solid rgba(255,255,255,.08); padding: 26px 22px; }
+.phone .kc small { font: 500 19px var(--sans); color: var(--mute); }
+.phone .kc b { display: block; font: 800 34px var(--sans); margin-top: 6px; }
+.phone .kc i { display: block; margin-top: 14px; font: 500 18px var(--mono); color: #7CE3B0; font-style: normal; }
+.phone .kd { margin-top: 18px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+.phone .kd span { height: 22px; border-radius: 6px; background: #22222a; }
+
+/* dealer */
+.dl { left: 360px; top: 160px; width: 1200px; height: 650px; padding: 48px 54px; }
+.dl .top { display: flex; justify-content: space-between; align-items: center; }
+.dl h3 { font: 800 44px var(--sans); letter-spacing: -.02em; }
+.dl .sub { font: 500 26px var(--sans); color: var(--ink2); margin-top: 6px; }
+.offer { margin-top: 34px; border-radius: 20px; background: #F6F5F2; padding: 26px 30px; display: flex; justify-content: space-between; align-items: center; }
+.offer b { font: 800 34px var(--sans); }
+.offer span { font: 500 24px var(--sans); color: var(--ink2); }
+.offer i { font: 500 22px var(--mono); color: var(--ink2); font-style: normal; }
+.buy { position: absolute; left: 54px; top: 330px; height: 84px; width: 470px; border-radius: 999px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; gap: 16px; font: 700 31px var(--sans); }
+.verd { position: absolute; left: 54px; right: 54px; top: 450px; height: 150px; border-radius: 22px; background: var(--okbg); box-shadow: inset 0 0 0 2px rgba(22,163,106,.28); padding: 28px 34px; display: flex; align-items: center; gap: 26px; }
+.verd .ic { width: 76px; height: 76px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; font: 800 40px var(--sans); }
+.verd b { font: 900 52px var(--sans); color: #0B7A50; letter-spacing: -.02em; display: block; }
+.verd span { font: 500 26px var(--sans); color: #245C45; }
+
+/* cursor */
+#cur { position: absolute; left: 0; top: 0; width: 76px; height: 76px; z-index: 30; }
+#cur svg { position: absolute; left: 0; top: 0; width: 76px; height: 76px; overflow: visible; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+
+/* captions */
+.caps { position: absolute; left: 0; right: 0; bottom: 64px; height: 60px; z-index: 40; }
+.cg { position: absolute; left: 0; right: 0; top: 0; text-align: center; font: 500 38px var(--sans); letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,.85), 0 0 2px rgba(0,0,0,.6); opacity: 0; }
+.cg .k { color: var(--sig2); } .cg .g { color: #6FE3A6; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="55.6" data-width="1920" data-height="1080">
+
+  <div id="bg" class="clip full" data-start="0" data-duration="55.6" data-track-index="0" data-layout-ignore>
+    <div class="g" id="g1"></div><div class="g" id="g2"></div><div class="g" id="g3"></div><div class="g" id="gcold"></div>
+  </div>
+
+  <!-- the dial: our dot-lattice watch, drawn from timeline time -->
+  <div id="dialL" class="clip full" data-start="0" data-duration="42.2" data-track-index="1" data-layout-ignore>
+    <div id="dialW" class="full"><canvas id="dial" class="fullc" width="1920" height="1080"></canvas></div>
+  </div>
+
+  <!-- S1 opening lines -->
+  <div id="s1" class="clip full" data-start="0" data-duration="6.4" data-track-index="2">
+    <div class="line" id="l1"><span>A</span><span>watch</span><span>is</span><span>built</span><span>to</span><span>outlast</span><span>its</span><span>owner.</span></div>
+    <div class="line" id="l2"><span>That's</span><span>also</span><span>what</span><span>makes</span><span>it</span><span>worth</span><span class="r">stealing.</span></div>
+  </div>
+
+  <!-- S2 within days -->
+  <div id="s2" class="clip full" data-start="6.2" data-duration="3.7" data-track-index="3">
+    <div class="flabel" style="left:980px;top:330px">LISTED FOR SALE</div>
+    <div class="flaps" id="fPrice" style="left:980px;top:380px"></div>
+    <div class="flabel" style="left:980px;top:540px">SINCE THE THEFT</div>
+    <div class="flaps" id="fDay" style="left:980px;top:590px"></div>
+  </div>
+
+  <!-- S3 three places -->
+  <div id="s3" class="clip full" data-start="9.7" data-duration="5.2" data-track-index="4">
+    <div class="stage3d">
+      <div class="card lst" id="cLst">
+        <div class="ph"><canvas id="lstDial" width="584" height="330"></canvas></div>
+        <h4>Steel sports watch, 41 mm</h4>
+        <div class="pr">$14,200</div>
+        <div class="meta"><span class="pillx">Listed 2 hours ago</span><span class="pillx">New seller · 0 reviews</span></div>
+      </div>
+      <div class="card tkt" id="cTkt">
+        <h5>PAWN TICKET</h5><div class="no">No. 4471</div>
+        <dl><div><dt>Item</dt><dd>Gent's wristwatch</dd></div><div><dt>Papers</dt><dd>None</dd></div><div><dt>ID checked</dt><dd>No</dd></div></dl>
+        <div class="big">$6,500</div>
+      </div>
+      <div class="card chat" id="cChat">
+        <div class="hd"><i></i><div>Watch dealer<small>online</small></div></div>
+        <div class="bub r" id="b1" style="top:150px">I have a 41 mm steel. No box, no papers.</div>
+        <div class="bub l" id="b2" style="top:290px">Cash today?</div>
+        <div class="bub r" id="b3" style="top:400px">Cash today.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4 register -->
+  <div id="s4" class="clip full" data-start="14.8" data-duration="8.1" data-track-index="5">
+    <div class="stage3d">
+      <div class="card reg" id="cReg">
+        <h4>Stolen watch register</h4>
+        <div class="srch"><span id="typed"></span><b id="caret"></b></div>
+        <div class="res" id="res">No record found</div>
+        <table data-layout-allow-overlap>
+          <tr><td>Diver, 40 mm, steel</td><td>reported Mar 2024</td></tr>
+          <tr><td>Chronograph, gold</td><td>reported Nov 2023</td></tr>
+          <tr><td>Dress watch, 38 mm</td><td>reported Aug 2023</td></tr>
+        </table>
+        <div class="stamp a" data-layout-allow-overlap id="st1" style="left:640px;top:250px">Updated 14 months ago</div>
+        <div class="stamp a" data-layout-allow-overlap id="st2" style="left:120px;top:420px">Other country</div>
+        <div class="stamp r" data-layout-allow-overlap id="st3" style="left:700px;top:520px">Not reported yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 sold -->
+  <div id="s5" class="clip full" data-start="22.8" data-duration="4.2" data-track-index="6">
+    <div class="flaps" id="fSold" style="left:420px;top:440px"></div><div class="flaps" id="fSoldP" style="left:830px;top:440px"></div>
+  </div>
+
+  <!-- S6 quantum -->
+  <div id="s6" class="clip full" data-start="26.7" data-duration="13.7" data-track-index="7">
+    <canvas id="plane" class="fullc" width="1920" height="1080"></canvas>
+    <div id="qday" style="position:absolute;left:0;right:0;top:300px;text-align:center"><div style="font:900 210px var(--sans);letter-spacing:-.05em;color:#DDE6FF">Q-Day</div><div style="font:500 34px var(--sans);color:rgba(221,230,255,.7);margin-top:4px">the day quantum computers break today's keys</div></div>
+    <div class="qchips"><span id="qc1">Bank logins</span><span id="qc2">Crypto wallets</span><span id="qc3">Ownership records</span></div>
+    <div class="stage3d">
+      <div class="card qkey" id="cKey"><div class="k1">WALLET KEY · ECDSA</div><div class="k2">Proves who owns what</div><div class="k3">secp256k1 · 32 bytes</div></div>
+      <div id="parts"></div>
+      <div class="card qkey forged" id="cForge" style="left:300px;top:330px;width:500px;height:250px"><div class="k1">FORGED KEY</div><div class="k2">Signs as the owner</div><div class="k3">after Q-Day</div></div>
+      <div class="card rep" id="cRep"><div class="k1">THEFT REPORT</div><div class="st"><span class="on" id="repOn"><b></b>Active</span><span class="off" id="repOff"><b></b>Lifted</span></div></div>
+    </div>
+  </div>
+
+  <!-- S7 logo -->
+  <div id="s7" class="clip full" data-start="40.2" data-duration="2.5" data-track-index="8">
+    <div class="logo" id="logo"><svg viewBox="0 0 150 150" id="logoMark" aria-hidden="true"></svg><b id="logoWord">Halte</b></div>
+  </div>
+
+  <!-- S8 passport -->
+  <div id="s8" class="clip full" data-start="42.45" data-duration="6.85" data-track-index="9">
+    <div class="stage3d">
+      <div class="card pp" id="cPP">
+        <div class="lab">Watch passport</div>
+        <h3>HLT-9C67-55AC</h3>
+        <div style="margin-top:16px"><span class="chip ok"><b></b>Active</span></div>
+        <div class="art"><canvas id="ppDial" width="672" height="380"></canvas></div>
+      </div>
+      <div class="fchip" id="fcChain" style="left:1010px;top:200px"><small>Recorded on</small><b>QoreChain Diana</b><i>block 10,814,076</i></div>
+      <div class="fchip" id="fcKey" style="left:930px;top:600px"><small>Owner key</small><b>ML-DSA-87</b><i>post-quantum · 2,592 bytes</i></div>
+      <div class="phone" id="phone"><div class="nt"></div><div class="kc"><small>Your owner key</small><b>ML-DSA-87</b><i>● kept on this phone</i></div><div class="kd" id="kd"></div></div>
+    </div>
+  </div>
+
+  <!-- S9 dealer check -->
+  <div id="s9" class="clip full" data-start="49.2" data-duration="6.4" data-track-index="10">
+    <div class="stage3d">
+      <div class="card dl" id="cDl">
+        <div class="top"><div><h3>Dealer check</h3><div class="sub">Before you pay, ask QoreChain.</div></div><span class="chip ok"><b></b>Passport active</span></div>
+        <div class="offer"><div><b>Offer #31</b> <span>· HLT-9C67-55AC to Halte demo dealer</span></div><i>signed ML-DSA-87</i></div>
+        <div class="buy" id="buy">The dealer tries to buy it <span>→</span></div>
+        <div class="verd" id="verd"><div class="ic">✓</div><div><b>Sellable</b><span>The sale would go through · block 10,814,078</span></div></div>
+      </div>
+      <div id="cur">
+        <svg id="arrow" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 3 L5 25.5 L10.6 20.2 L14.4 28.6 L18 27 L14.3 18.8 L22 18.8 Z" fill="#111" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg id="hand" viewBox="0 0 32 32" aria-hidden="true" style="opacity:0"><path d="M11.2 15.5 V5.2 c0-1.3 1-2.3 2.2-2.3 s2.2 1 2.2 2.3 v8.1 c0-1.2 1-2.1 2.1-2.1 s2.1.9 2.1 2.1 v1 c0-1.1.9-2 2-2 s2 .9 2 2 v1.3 c0-1 .9-1.8 1.9-1.8 s1.9.8 1.9 1.8 v6.6 c0 4.3-3.1 7.9-7.6 7.9 h-2.6 c-2.6 0-4.4-1.2-5.8-3.3 L6.2 19.6 c-.6-.9-.4-2.1.5-2.7 .9-.6 2.1-.4 2.8.5 Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/><path d="M15.6 13.3 V18 M19.8 14.4 V18 M23.8 15.7 V18.4" stroke="#111" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div id="vigL" class="clip full" data-start="0" data-duration="55.6" data-track-index="11" data-layout-ignore><div class="full" id="vig"></div><div class="full" id="grain"></div></div>
+
+  <div id="caps" class="clip caps" data-start="0" data-duration="55.6" data-track-index="12" data-track-kind="captions"></div>
+
+  <audio id="vo" class="clip" src="assets/audio/vo.mp3" data-start="0.5" data-media-start="0" data-duration="54.6" data-track-index="13" data-volume="1"></audio>
+  <audio id="music" class="clip" src="assets/audio/music.mp3" data-start="0" data-media-start="0" data-duration="55.6" data-track-index="14" data-volume="0.2" data-fade-out="1.2"></audio>
+  <audio id="sx_t1" class="clip" src="assets/sfx/tick.mp3" data-start="0.55" data-duration="4" data-track-index="15" data-volume="0.55"></audio>
+  <audio id="sx_flap1" class="clip" src="assets/sfx/flap.mp3" data-start="6.45" data-duration="1.2" data-track-index="16" data-volume="0.6"></audio>
+  <audio id="sx_flap2" class="clip" src="assets/sfx/flap.mp3" data-start="8.85" data-duration="1.2" data-track-index="17" data-volume="0.5"></audio>
+  <audio id="sx_w1" class="clip" src="assets/sfx/whoosh1.mp3" data-start="9.7" data-duration="0.8" data-track-index="18" data-volume="0.55"></audio>
+  <audio id="sx_w2" class="clip" src="assets/sfx/whoosh2.mp3" data-start="10.9" data-duration="1" data-track-index="19" data-volume="0.55"></audio>
+  <audio id="sx_w3" class="clip" src="assets/sfx/whoosh1.mp3" data-start="12.45" data-duration="0.8" data-track-index="20" data-volume="0.5"></audio>
+  <audio id="sx_w4" class="clip" src="assets/sfx/whoosh2.mp3" data-start="14.75" data-duration="1" data-track-index="21" data-volume="0.55"></audio>
+  <audio id="sx_c1" class="clip" src="assets/sfx/click.mp3" data-start="17.45" data-duration="0.5" data-track-index="22" data-volume="0.7"></audio>
+  <audio id="sx_c2" class="clip" src="assets/sfx/click.mp3" data-start="19.2" data-duration="0.5" data-track-index="23" data-volume="0.7"></audio>
+  <audio id="sx_c3" class="clip" src="assets/sfx/click.mp3" data-start="20.75" data-duration="0.5" data-track-index="24" data-volume="0.7"></audio>
+  <audio id="sx_flap3" class="clip" src="assets/sfx/flap.mp3" data-start="23.55" data-duration="1.2" data-track-index="25" data-volume="0.6"></audio>
+  <audio id="sx_stop" class="clip" src="assets/sfx/stop.mp3" data-start="26.0" data-duration="1.5" data-track-index="26" data-volume="0.6"></audio>
+  <audio id="sx_gl" class="clip" src="assets/sfx/glitch.mp3" data-start="30.05" data-duration="0.8" data-track-index="27" data-volume="0.6"></audio>
+  <audio id="sx_w5" class="clip" src="assets/sfx/whoosh2.mp3" data-start="34.85" data-duration="1" data-track-index="28" data-volume="0.5"></audio>
+  <audio id="sx_gl2" class="clip" src="assets/sfx/glitch.mp3" data-start="37.95" data-duration="0.8" data-track-index="29" data-volume="0.45"></audio>
+  <audio id="sx_imp" class="clip" src="assets/sfx/impact.mp3" data-start="40.55" data-duration="2.5" data-track-index="30" data-volume="0.75"></audio>
+  <audio id="sx_w6" class="clip" src="assets/sfx/whoosh1.mp3" data-start="42.4" data-duration="0.8" data-track-index="31" data-volume="0.5"></audio>
+  <audio id="sx_w7" class="clip" src="assets/sfx/whoosh2.mp3" data-start="49.15" data-duration="1" data-track-index="32" data-volume="0.5"></audio>
+  <audio id="sx_cl" class="clip" src="assets/sfx/click.mp3" data-start="52.15" data-duration="0.5" data-track-index="33" data-volume="0.8"></audio>
+</div>
+
+<script>
+const WORDS = [{"text": "A", "start": 0.0, "end": 0.093}, {"text": "watch", "start": 0.209, "end": 0.546}, {"text": "is", "start": 0.615, "end": 0.731}, {"text": "built", "start": 0.824, "end": 1.138}, {"text": "to", "start": 1.184, "end": 1.254}, {"text": "outlast", "start": 1.335, "end": 1.962}, {"text": "its", "start": 2.02, "end": 2.194}, {"text": "owner.", "start": 2.287, "end": 2.891}, {"text": "That's", "start": 3.193, "end": 3.495}, {"text": "also", "start": 3.564, "end": 3.947}, {"text": "what", "start": 4.005, "end": 4.18}, {"text": "makes", "start": 4.261, "end": 4.551}, {"text": "it", "start": 4.621, "end": 4.702}, {"text": "worth", "start": 4.76, "end": 5.016}, {"text": "stealing.", "start": 5.062, "end": 5.782}, {"text": "A", "start": 6.014, "end": 6.095}, {"text": "stolen", "start": 6.188, "end": 6.606}, {"text": "watch", "start": 6.664, "end": 6.943}, {"text": "can", "start": 7.001, "end": 7.14}, {"text": "be", "start": 7.198, "end": 7.303}, {"text": "back", "start": 7.384, "end": 7.651}, {"text": "on", "start": 7.732, "end": 7.825}, {"text": "sale", "start": 7.895, "end": 8.185}, {"text": "within", "start": 8.208, "end": 8.452}, {"text": "days.", "start": 8.522, "end": 9.125}, {"text": "Online.", "start": 9.427, "end": 10.217}, {"text": "At", "start": 10.519, "end": 10.704}, {"text": "a", "start": 10.751, "end": 10.774}, {"text": "pawn", "start": 10.855, "end": 11.146}, {"text": "counter.", "start": 11.227, "end": 11.877}, {"text": "Through", "start": 12.074, "end": 12.365}, {"text": "a", "start": 12.399, "end": 12.434}, {"text": "dealer", "start": 12.516, "end": 12.864}, {"text": "who", "start": 12.922, "end": 13.073}, {"text": "never", "start": 13.177, "end": 13.479}, {"text": "asks.", "start": 13.572, "end": 14.222}, {"text": "The", "start": 14.524, "end": 14.675}, {"text": "dealer", "start": 14.745, "end": 15.047}, {"text": "can", "start": 15.093, "end": 15.221}, {"text": "check", "start": 15.279, "end": 15.511}, {"text": "a", "start": 15.557, "end": 15.581}, {"text": "register.", "start": 15.639, "end": 16.428}, {"text": "It's", "start": 16.591, "end": 16.811}, {"text": "out", "start": 16.892, "end": 17.124}, {"text": "of", "start": 17.183, "end": 17.252}, {"text": "date,", "start": 17.357, "end": 17.809}, {"text": "or", "start": 17.949, "end": 18.088}, {"text": "it's", "start": 18.158, "end": 18.297}, {"text": "in", "start": 18.39, "end": 18.541}, {"text": "another", "start": 18.622, "end": 18.947}, {"text": "country,", "start": 19.005, "end": 19.609}, {"text": "or", "start": 19.772, "end": 19.922}, {"text": "the", "start": 19.992, "end": 20.073}, {"text": "theft", "start": 20.166, "end": 20.468}, {"text": "wasn't", "start": 20.526, "end": 20.805}, {"text": "reported", "start": 20.84, "end": 21.351}, {"text": "in", "start": 21.397, "end": 21.467}, {"text": "time.", "start": 21.548, "end": 22.094}, {"text": "So", "start": 22.453, "end": 22.639}, {"text": "the", "start": 22.697, "end": 22.779}, {"text": "watch", "start": 22.837, "end": 23.115}, {"text": "sells,", "start": 23.173, "end": 23.789}, {"text": "and", "start": 23.928, "end": 24.102}, {"text": "the", "start": 24.16, "end": 24.241}, {"text": "owner", "start": 24.323, "end": 24.625}, {"text": "never", "start": 24.706, "end": 24.961}, {"text": "sees", "start": 25.019, "end": 25.321}, {"text": "it", "start": 25.391, "end": 25.472}, {"text": "again.", "start": 25.53, "end": 26.018}, {"text": "And", "start": 26.378, "end": 26.54}, {"text": "a", "start": 26.61, "end": 26.633}, {"text": "new", "start": 26.738, "end": 26.935}, {"text": "problem", "start": 27.005, "end": 27.376}, {"text": "is", "start": 27.434, "end": 27.515}, {"text": "coming.", "start": 27.597, "end": 28.084}, {"text": "Quantum", "start": 28.224, "end": 28.688}, {"text": "computers", "start": 28.758, "end": 29.303}, {"text": "will", "start": 29.338, "end": 29.489}, {"text": "break", "start": 29.547, "end": 29.837}, {"text": "the", "start": 29.884, "end": 29.953}, {"text": "keys", "start": 30.012, "end": 30.325}, {"text": "most", "start": 30.429, "end": 30.697}, {"text": "systems", "start": 30.755, "end": 31.265}, {"text": "use", "start": 31.347, "end": 31.672}, {"text": "to", "start": 31.718, "end": 31.823}, {"text": "prove", "start": 31.916, "end": 32.38}, {"text": "who", "start": 32.52, "end": 32.833}, {"text": "owns", "start": 32.938, "end": 33.286}, {"text": "what.", "start": 33.344, "end": 33.785}, {"text": "A", "start": 34.145, "end": 34.25}, {"text": "thief", "start": 34.412, "end": 34.818}, {"text": "with", "start": 35.12, "end": 35.318}, {"text": "a", "start": 35.352, "end": 35.376}, {"text": "forged", "start": 35.48, "end": 35.863}, {"text": "key", "start": 35.956, "end": 36.363}, {"text": "could", "start": 36.63, "end": 36.85}, {"text": "lift", "start": 36.943, "end": 37.233}, {"text": "a", "start": 37.291, "end": 37.326}, {"text": "theft", "start": 37.419, "end": 37.709}, {"text": "report,", "start": 37.744, "end": 38.348}, {"text": "and", "start": 38.452, "end": 38.638}, {"text": "sell", "start": 38.731, "end": 38.963}, {"text": "anyway.", "start": 39.021, "end": 39.567}, {"text": "So", "start": 39.927, "end": 40.101}, {"text": "we", "start": 40.159, "end": 40.275}, {"text": "built", "start": 40.38, "end": 40.647}, {"text": "Halt.", "start": 40.751, "end": 41.297}, {"text": "Every", "start": 41.657, "end": 42.005}, {"text": "watch", "start": 42.063, "end": 42.353}, {"text": "gets", "start": 42.423, "end": 42.644}, {"text": "a", "start": 42.69, "end": 42.713}, {"text": "passport", "start": 42.783, "end": 43.317}, {"text": "on", "start": 43.387, "end": 43.468}, {"text": "QoreChain,", "start": 43.538, "end": 44.292}, {"text": "signed", "start": 44.49, "end": 44.791}, {"text": "with", "start": 44.815, "end": 44.919}, {"text": "a", "start": 44.954, "end": 44.977}, {"text": "post-quantum", "start": 45.07, "end": 45.929}, {"text": "key", "start": 46.034, "end": 46.37}, {"text": "the", "start": 46.603, "end": 46.73}, {"text": "owner", "start": 46.823, "end": 47.148}, {"text": "keeps", "start": 47.218, "end": 47.531}, {"text": "on", "start": 47.589, "end": 47.705}, {"text": "their", "start": 47.764, "end": 47.949}, {"text": "phone.", "start": 48.007, "end": 48.518}, {"text": "The", "start": 48.82, "end": 48.959}, {"text": "owner", "start": 49.064, "end": 49.401}, {"text": "offers", "start": 49.47, "end": 49.784}, {"text": "it", "start": 49.842, "end": 49.934}, {"text": "to", "start": 49.992, "end": 50.074}, {"text": "a", "start": 50.167, "end": 50.19}, {"text": "dealer.", "start": 50.26, "end": 50.759}, {"text": "The", "start": 50.956, "end": 51.107}, {"text": "dealer", "start": 51.2, "end": 51.537}, {"text": "checks", "start": 51.606, "end": 51.92}, {"text": "before", "start": 51.978, "end": 52.303}, {"text": "paying.", "start": 52.373, "end": 52.988}, {"text": "It's", "start": 53.15, "end": 53.406}, {"text": "clear.", "start": 53.475, "end": 53.998}, {"text": "Then", "start": 54.265, "end": 54.509}, {"text": "the", "start": 54.578, "end": 54.671}, {"text": "watch", "start": 54.753, "end": 55.066}, {"text": "is", "start": 55.136, "end": 55.252}, {"text": "stolen.", "start": 55.31, "end": 56.018}, {"text": "One", "start": 56.25, "end": 56.529}, {"text": "tap", "start": 56.575, "end": 56.784}, {"text": "from", "start": 56.854, "end": 57.005}, {"text": "the", "start": 57.063, "end": 57.144}, {"text": "owner,", "start": 57.214, "end": 57.794}, {"text": "and", "start": 57.899, "end": 58.073}, {"text": "the", "start": 58.131, "end": 58.201}, {"text": "passport", "start": 58.259, "end": 58.804}, {"text": "freezes", "start": 58.886, "end": 59.466}, {"text": "in", "start": 59.548, "end": 59.664}, {"text": "the", "start": 59.71, "end": 59.791}, {"text": "next", "start": 59.873, "end": 60.163}, {"text": "block.", "start": 60.232, "end": 60.708}, {"text": "Every", "start": 61.01, "end": 61.347}, {"text": "dealer,", "start": 61.405, "end": 61.753}, {"text": "marketplace", "start": 61.811, "end": 62.589}, {"text": "and", "start": 62.636, "end": 62.763}, {"text": "insurer", "start": 62.833, "end": 63.332}, {"text": "that", "start": 63.39, "end": 63.588}, {"text": "checks", "start": 63.657, "end": 64.099}, {"text": "gets", "start": 64.296, "end": 64.54}, {"text": "the", "start": 64.586, "end": 64.668}, {"text": "same", "start": 64.737, "end": 65.039}, {"text": "answer.", "start": 65.097, "end": 65.84}, {"text": "Do", "start": 66.072, "end": 66.235}, {"text": "not", "start": 66.328, "end": 66.502}, {"text": "buy.", "start": 66.571, "end": 67.082}, {"text": "Even", "start": 67.245, "end": 67.581}, {"text": "the", "start": 67.628, "end": 67.709}, {"text": "deal", "start": 67.767, "end": 67.999}, {"text": "that", "start": 68.046, "end": 68.174}, {"text": "was", "start": 68.22, "end": 68.336}, {"text": "already", "start": 68.406, "end": 68.87}, {"text": "agreed", "start": 68.928, "end": 69.335}, {"text": "is", "start": 69.393, "end": 69.497}, {"text": "dead.", "start": 69.567, "end": 69.996}, {"text": "When", "start": 70.228, "end": 70.426}, {"text": "the", "start": 70.461, "end": 70.53}, {"text": "watch", "start": 70.6, "end": 70.879}, {"text": "comes", "start": 70.948, "end": 71.215}, {"text": "home,", "start": 71.285, "end": 71.749}, {"text": "the", "start": 71.854, "end": 71.958}, {"text": "owner", "start": 72.028, "end": 72.353}, {"text": "unfreezes", "start": 72.434, "end": 73.015}, {"text": "it.", "start": 73.085, "end": 73.363}, {"text": "The", "start": 73.63, "end": 73.77}, {"text": "old", "start": 73.851, "end": 74.083}, {"text": "deal", "start": 74.118, "end": 74.327}, {"text": "stays", "start": 74.42, "end": 74.884}, {"text": "dead,", "start": 74.977, "end": 75.407}, {"text": "so", "start": 75.511, "end": 75.685}, {"text": "a", "start": 75.755, "end": 75.778}, {"text": "sale", "start": 75.848, "end": 76.161}, {"text": "arranged", "start": 76.196, "end": 76.602}, {"text": "around", "start": 76.626, "end": 76.881}, {"text": "the", "start": 76.916, "end": 76.985}, {"text": "theft", "start": 77.055, "end": 77.415}, {"text": "can", "start": 77.612, "end": 77.81}, {"text": "never", "start": 77.868, "end": 78.112}, {"text": "go", "start": 78.17, "end": 78.321}, {"text": "through.", "start": 78.39, "end": 78.901}, {"text": "And", "start": 79.133, "end": 79.319}, {"text": "the", "start": 79.377, "end": 79.458}, {"text": "thief?", "start": 79.528, "end": 80.039}, {"text": "Give", "start": 80.271, "end": 80.48}, {"text": "them", "start": 80.515, "end": 80.666}, {"text": "the", "start": 80.724, "end": 80.794}, {"text": "wallet", "start": 80.852, "end": 81.199}, {"text": "key,", "start": 81.281, "end": 81.733}, {"text": "even", "start": 81.931, "end": 82.21}, {"text": "a", "start": 82.268, "end": 82.291}, {"text": "forged", "start": 82.36, "end": 82.709}, {"text": "one.", "start": 82.79, "end": 83.092}, {"text": "Refused.", "start": 83.208, "end": 83.974}, {"text": "Only", "start": 84.241, "end": 84.59}, {"text": "the", "start": 84.636, "end": 84.717}, {"text": "owner's", "start": 84.799, "end": 85.182}, {"text": "M", "start": 85.321, "end": 85.518}, {"text": "L", "start": 85.658, "end": 85.82}, {"text": "D", "start": 85.925, "end": 86.064}, {"text": "S", "start": 86.261, "end": 86.424}, {"text": "A", "start": 86.586, "end": 86.691}, {"text": "key", "start": 86.795, "end": 87.039}, {"text": "can", "start": 87.109, "end": 87.318}, {"text": "move", "start": 87.422, "end": 87.701}, {"text": "this", "start": 87.736, "end": 87.922}, {"text": "watch,", "start": 88.026, "end": 88.502}, {"text": "and", "start": 88.665, "end": 88.85}, {"text": "QoreChain", "start": 88.943, "end": 89.489}, {"text": "checks", "start": 89.559, "end": 89.895}, {"text": "it", "start": 89.942, "end": 90.035}, {"text": "on", "start": 90.104, "end": 90.22}, {"text": "chain,", "start": 90.29, "end": 90.778}, {"text": "every", "start": 91.045, "end": 91.358}, {"text": "time.", "start": 91.416, "end": 91.869}, {"text": "For", "start": 92.171, "end": 92.38}, {"text": "a", "start": 92.438, "end": 92.461}, {"text": "dealer,", "start": 92.531, "end": 93.03}, {"text": "it's", "start": 93.134, "end": 93.355}, {"text": "one", "start": 93.436, "end": 93.669}, {"text": "check", "start": 93.715, "end": 93.97}, {"text": "before", "start": 94.04, "end": 94.458}, {"text": "you", "start": 94.493, "end": 94.574}, {"text": "pay.", "start": 94.655, "end": 95.12}, {"text": "For", "start": 95.387, "end": 95.573}, {"text": "a", "start": 95.619, "end": 95.642}, {"text": "marketplace,", "start": 95.7, "end": 96.571}, {"text": "one", "start": 96.676, "end": 96.931}, {"text": "call", "start": 96.989, "end": 97.372}, {"text": "in", "start": 97.465, "end": 97.581}, {"text": "the", "start": 97.616, "end": 97.686}, {"text": "listing", "start": 97.79, "end": 98.208}, {"text": "flow.", "start": 98.278, "end": 98.718}, {"text": "Every", "start": 99.136, "end": 99.45}, {"text": "step", "start": 99.496, "end": 99.775}, {"text": "is", "start": 99.845, "end": 99.938}, {"text": "a", "start": 99.996, "end": 100.03}, {"text": "real", "start": 100.135, "end": 100.39}, {"text": "transaction", "start": 100.437, "end": 101.145}, {"text": "on", "start": 101.203, "end": 101.284}, {"text": "QoreChain,", "start": 101.366, "end": 102.213}, {"text": "open", "start": 102.445, "end": 102.805}, {"text": "for", "start": 102.875, "end": 103.014}, {"text": "anyone", "start": 103.095, "end": 103.513}, {"text": "to", "start": 103.548, "end": 103.618}, {"text": "verify.", "start": 103.711, "end": 104.419}, {"text": "A", "start": 104.616, "end": 104.698}, {"text": "watch", "start": 104.814, "end": 105.185}, {"text": "is", "start": 105.29, "end": 105.475}, {"text": "built", "start": 105.58, "end": 105.87}, {"text": "to", "start": 105.917, "end": 105.975}, {"text": "outlast", "start": 106.033, "end": 106.544}, {"text": "its", "start": 106.602, "end": 106.764}, {"text": "owner.", "start": 106.845, "end": 107.38}, {"text": "Now", "start": 107.612, "end": 107.844}, {"text": "it", "start": 107.925, "end": 107.995}, {"text": "can", "start": 108.041, "end": 108.169}, {"text": "outlast", "start": 108.227, "end": 108.68}, {"text": "a", "start": 108.726, "end": 108.773}, {"text": "thief.", "start": 108.854, "end": 109.342}, {"text": "Halt.", "start": 109.504, "end": 110.027}, {"text": "Stolen", "start": 110.224, "end": 110.746}, {"text": "watches,", "start": 110.816, "end": 111.455}, {"text": "unsellable.", "start": 111.617, "end": 112.662}];
+const OFF = 0.5;                       // the voice starts 0.5 s into the film
+const T = i => WORDS[i].start + OFF;   // film time of word i
+const tl = gsap.timeline({ paused: true });
+
+/* ---------- dial drawing (pure function of time) ---------- */
+const hash = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
+function drawDial(ctx, w, h, st) {
+  // st: {t, cx, cy, R, gap, wave (0..1 red), frozenAt, alpha}
+  ctx.clearRect(0, 0, w, h);
+  const { cx, cy, R, gap } = st;
+  const sec = st.frozenAt != null && st.t > st.frozenAt ? Math.floor(st.frozenAt) : Math.floor(st.t);
+  const hands = [{ a: ((sec * 6 - 90) * Math.PI) / 180, l: R * .84, wd: 1.1 }, { a: ((310 - 90) * Math.PI) / 180, l: R * .62, wd: 2.2 }, { a: ((52 - 90) * Math.PI) / 180, l: R * .44, wd: 2.6 }];
+  const diag = Math.hypot(w, h);
+  for (let y = gap / 2; y < h; y += gap) for (let x = gap / 2; x < w; x += gap) {
+    const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy);
+    let v = .05 + hash(x, y) * .05;
+    if (Math.abs(d - R) < gap * .7) v = .95;
+    else if (Math.abs(d - R * .9) < gap * .5 && Math.round(((Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI)) * 60) % 5 === 0) v = .8;
+    else if (d < R * .9) { v = .08 + hash(x, y) * .06; for (const hd of hands) { const al = dx * Math.cos(hd.a) + dy * Math.sin(hd.a), off = Math.abs(-dx * Math.sin(hd.a) + dy * Math.cos(hd.a)); if (al > -gap && al < hd.l && off < gap * .45 * hd.wd) v = .95; } if (d < gap * .9) v = 1; }
+    if (Math.abs(dy) < gap * 1.2 && dx > R && dx < R + gap * 2.4) v = .9;
+    if (v < .2 && d > R * 1.35) continue;
+    const red = st.wave > 0 && Math.hypot(x - (cx + R + gap), y - cy) / diag < st.wave * 1.2;
+    ctx.fillStyle = red ? `rgba(255,69,38,${v})` : `rgba(243,241,236,${v})`;
+    ctx.beginPath(); ctx.arc(x, y, v > .5 ? gap * .3 : gap * .2, 0, 6.283); ctx.fill();
+  }
+}
+const D = { t: 0, wave: 0, frozenAt: null };
+const dctx = document.getElementById("dial").getContext("2d");
+const renderDial = () => drawDial(dctx, 1920, 1080, { t: D.t, cx: 960, cy: 470, R: 340, gap: 14, wave: D.wave, frozenAt: D.frozenAt });
+tl.to(D, { t: 42.2, duration: 42.2, ease: "none", onUpdate: renderDial }, 0);
+// small dials on cards
+const lctx = document.getElementById("lstDial").getContext("2d");
+drawDial(lctx, 584, 330, { t: 7, cx: 292, cy: 165, R: 120, gap: 9, wave: 0, frozenAt: null });
+const P = { t: 0 };
+const pctx = document.getElementById("ppDial").getContext("2d");
+tl.to(P, { t: 8, duration: 8, ease: "none", onUpdate: () => drawDial(pctx, 672, 380, { t: 3 + P.t, cx: 336, cy: 190, R: 150, gap: 10, wave: 0, frozenAt: null }) }, 42.1);
+
+/* ---------- ground light ---------- */
+tl.fromTo("#g1", { x: -60, y: 30, scale: 1 }, { x: 80, y: -40, scale: 1.12, duration: 55.6, ease: "sine.inOut" }, 0);
+tl.fromTo("#g2", { x: 40, y: 0 }, { x: -120, y: 60, duration: 55.6, ease: "sine.inOut" }, 0);
+tl.fromTo("#g3", { x: 0, y: 0 }, { x: 140, y: -50, duration: 55.6, ease: "sine.inOut" }, 0);
+tl.fromTo("#bg", { opacity: 0 }, { opacity: .55, duration: 2.5, ease: "power2.out" }, 0);
+
+/* ---------- S1: the dial and two lines ---------- */
+tl.fromTo("#dialW", { opacity: 0, scale: 1.25, filter: "blur(14px)" }, { opacity: .9, scale: 1.05, filter: "blur(0px)", duration: 2.2, ease: "power3.out" }, 0);
+tl.to("#dialW", { scale: 1.12, duration: 4, ease: "none" }, 2.2);
+const wordsIn = (sel, idx0) => document.querySelectorAll(sel + " span").forEach((s, j) =>
+  tl.fromTo(s, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: .16, ease: "power2.out" }, T(idx0 + j) - .04));
+wordsIn("#l1", 0);
+tl.to("#l1", { opacity: 0, filter: "blur(8px)", duration: .2, ease: "power2.in" }, 3.45);
+wordsIn("#l2", 8);
+tl.to(D, { wave: 1, duration: .9, ease: "power2.in" }, T(14) - .1);           // red runs across the dial on "stealing"
+tl.to("#l2", { opacity: 0, filter: "blur(8px)", duration: .2, ease: "power2.in" }, 6.15);
+
+/* ---------- S2: within days ---------- */
+const FLAPCH = "0123456789$,DAYSOLD ";
+function flaps(id, text, cls) { const el = document.getElementById(id); el.innerHTML = [...text].map(c => `<div class="fl ${cls || ""}"><span>${c === " " ? "&nbsp;" : c}</span></div>`).join(""); return [...el.children]; }
+function flapIn(cells, finals, t0, per) { // each cell rolls through a few chars and lands
+  cells.forEach((c, i) => {
+    const s = c.firstChild, fin = finals[i], n = 3 + (i % 3);
+    for (let k = 0; k < n; k++) { const ch = FLAPCH[(i * 7 + k * 5) % FLAPCH.length]; tl.set(s, { textContent: ch.trim() || " " }, t0 + i * .05 + k * per); }
+    tl.set(s, { textContent: fin === " " ? " " : fin }, t0 + i * .05 + n * per);
+    tl.fromTo(c, { rotationX: -70 }, { rotationX: 0, duration: per * (n + 1), ease: "power2.out" }, t0 + i * .05);
+  });
+}
+const price = flaps("fPrice", "$14,200"); flapIn(price, "$14,200", 6.45, .07);
+const day = flaps("fDay", "DAY 1", "red");
+flapIn(day, "DAY 1", 6.7, .07);
+tl.set(day[4].firstChild, { textContent: "2" }, 8.2); tl.fromTo(day[4], { rotationX: -80 }, { rotationX: 0, duration: .18 }, 8.2);
+tl.set(day[4].firstChild, { textContent: "3" }, 8.9); tl.fromTo(day[4], { rotationX: -80 }, { rotationX: 0, duration: .18 }, 8.9);
+tl.to("#dialW", { x: -430, scale: .9, opacity: .45, filter: "blur(4px)", duration: .7, ease: "power3.inOut" }, 6.2);
+tl.fromTo("#s2 .flaps, #s2 .flabel", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .5, ease: "expo.out", stagger: .05 }, 6.3);
+tl.to("#s2 .flaps, #s2 .flabel", { opacity: 0, x: -80, filter: "blur(10px)", duration: .25, ease: "power3.in" }, 9.55);
+tl.to("#dialW", { opacity: 0, filter: "blur(16px)", duration: .3, ease: "power2.in" }, 9.5);
+
+/* ---------- S3: three places, whip between ---------- */
+const whipIn = (sel, t, rot) => tl.fromTo(sel, { x: 900, rotationY: rot - 25, rotationZ: 0, opacity: 0, filter: "blur(18px)" }, { x: 0, rotationY: rot, opacity: 1, filter: "blur(0px)", duration: .45, ease: "expo.out" }, t);
+const whipOut = (sel, t) => tl.to(sel, { x: -900, opacity: 0, filter: "blur(18px)", duration: .3, ease: "power3.in" }, t);
+whipIn("#cLst", 9.75, -14); tl.to("#cLst", { rotationY: -6, y: -14, duration: 1.1, ease: "none" }, 10.2); whipOut("#cLst", 10.95);
+tl.set("#cTkt", { rotationZ: -7 }, 0);
+whipIn("#cTkt", 11.05, 10); tl.to("#cTkt", { rotationZ: -3, duration: 1.3, ease: "none" }, 11.5); whipOut("#cTkt", 12.5);
+whipIn("#cChat", 12.6, -10);
+["#b1", "#b2", "#b3"].forEach((b, i) => tl.fromTo(b, { opacity: 0, y: 30, scale: .92 }, { opacity: 1, y: 0, scale: 1, duration: .35, ease: "back.out(1.6)" }, [12.85, 13.45, 13.95][i]));
+tl.to("#cChat", { rotationY: -2, duration: 2, ease: "none" }, 13.05);
+whipOut("#cChat", 14.65);
+
+/* ---------- S4: the register ---------- */
+tl.fromTo("#cReg", { opacity: 0, rotationX: 28, rotationY: -12, y: 120, scale: .9, filter: "blur(12px)" }, { opacity: 1, rotationX: 14, rotationY: -8, y: 0, scale: 1, filter: "blur(0px)", duration: .8, ease: "expo.out" }, 14.85);
+tl.to("#cReg", { rotationX: 6, rotationY: 4, scale: 1.04, duration: 7, ease: "sine.inOut" }, 15.65);
+const serial = "Serial 7Z41 K9 0328";
+for (let k = 1; k <= serial.length; k++) tl.set("#typed", { textContent: serial.slice(0, k) }, 15.3 + k * .045);
+tl.fromTo("#caret", { opacity: 1 }, { opacity: 0, duration: .01 }, 16.3);
+tl.fromTo("#res", { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: .3, ease: "power2.out" }, T(41) + .1);
+const stamp = (id, t, rot) => tl.fromTo(id, { opacity: 0, scale: 1.9, rotation: rot - 8 }, { opacity: 1, scale: 1, rotation: rot, duration: .28, ease: "power4.in" }, t);
+stamp("#st1", T(43) - .02, -4); stamp("#st2", T(49) - .02, 3); stamp("#st3", T(53) - .02, -2);
+tl.to("#cReg", { opacity: 0, scale: .94, filter: "blur(14px)", duration: .35, ease: "power2.in" }, 22.5);
+
+/* ---------- S5: sold ---------- */
+const sold = flaps("fSold", "SOLD", "red"), soldP = flaps("fSoldP", "$14,200", "");
+tl.fromTo("#s5 .flaps", { opacity: 0 }, { opacity: 1, duration: .2 }, 22.9);
+flapIn(sold, "SOLD", 23.0, .06); flapIn(soldP, "$14,200", 23.15, .06);
+tl.to("#s5 .flaps", { opacity: 0, scale: .96, filter: "blur(10px)", duration: .6, ease: "power2.in" }, 25.4);
+tl.fromTo("#dialW", { opacity: 0, x: 0, scale: .55, filter: "blur(0px)" }, { opacity: .35, duration: .5 }, 25.3);
+tl.set(D, { wave: 0, frozenAt: 26.0 }, 25.3);
+tl.to("#dialW", { opacity: 0, duration: .6, ease: "power2.in" }, 26.2);
+tl.to("#bg", { opacity: .15, duration: 1, ease: "power2.inOut" }, 25.5);
+
+/* ---------- S6: quantum ---------- */
+const plctx = document.getElementById("plane").getContext("2d");
+const Q = { t: 0, amp: 0, cold: 1 };
+function drawPlane() { // a lattice of dots seen in perspective, rippling
+  const c = plctx; c.clearRect(0, 0, 1920, 1080);
+  for (let gz = 1; gz < 46; gz++) for (let gx = -40; gx <= 40; gx++) {
+    const z = gz * 38, x = gx * 38, wave = Math.sin(gx * .35 + Q.t * 2.2) * Math.cos(gz * .3 - Q.t * 1.7) * Q.amp * 30;
+    const y = 260 + wave, f = 900 / (z + 300), sx = 960 + x * f, sy = 560 + y * f * 1.0;
+    if (sx < -20 || sx > 1940 || sy > 1100) continue;
+    const a = Math.max(0, 1 - z / 1700) * .9;
+    c.fillStyle = Q.cold ? `rgba(169,193,255,${a})` : `rgba(255,90,54,${a})`;
+    c.beginPath(); c.arc(sx, sy, Math.max(.8, 3.2 * f), 0, 6.283); c.fill();
+  }
+}
+tl.fromTo("#plane", { opacity: 0 }, { opacity: 1, duration: 1.2, ease: "power2.out" }, 26.8);
+tl.to(Q, { t: 14, duration: 14, ease: "none", onUpdate: drawPlane }, 26.7);
+tl.to(Q, { amp: 1, duration: 1.2, ease: "power2.inOut" }, T(75) - .2);
+tl.to("#gcold", { opacity: 1, duration: 1.2 }, 26.8);
+tl.to("#bg", { opacity: .6, duration: 1.2 }, 26.8);
+tl.to(["#g1", "#g2", "#g3"], { opacity: .15, duration: 1.2 }, 26.8);
+tl.fromTo("#qday", { opacity: 0, scale: 1.08, filter: "blur(14px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: .6, ease: "expo.out" }, T(71) - .1);
+tl.to("#qday", { opacity: 0, scale: .96, filter: "blur(12px)", duration: .25, ease: "power2.in" }, T(75) + .15);
+tl.fromTo("#cKey", { opacity: 0, y: 60, rotationX: 20, filter: "blur(10px)" }, { opacity: 1, y: 0, rotationX: 8, filter: "blur(0px)", duration: .5, ease: "expo.out" }, T(75) + .3);
+["#qc1", "#qc2", "#qc3"].forEach((q, i) => {
+  tl.fromTo(q, { opacity: 0, y: 30, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .4, ease: "back.out(1.6)" }, [T(81), T(83) - .1, T(86)][i]);
+  tl.to(q, { opacity: 0, filter: "blur(10px)", duration: .25 }, T(89) - .3);
+});
+// the key breaks into dots on "break"
+const parts = document.getElementById("parts"); let ph = "";
+for (let i = 0; i < 90; i++) { const px = 700 + (i % 15) * 36, py = 310 + Math.floor(i / 15) * 48; ph += `<i id="pt${i}" style="left:${px}px;top:${py}px"></i>`; } parts.innerHTML = ph;
+tl.set("#parts i", { opacity: 0 }, 0);
+tl.to("#cKey", { opacity: 0, scale: 1.04, filter: "blur(6px)", duration: .12 }, T(78));
+for (let i = 0; i < 90; i++) {
+  const a = hash(i, 3) * 6.283, r = 220 + hash(i, 9) * 520;
+  tl.fromTo("#pt" + i, { opacity: 1, x: 0, y: 0 }, { opacity: 0, x: Math.cos(a) * r, y: Math.sin(a) * r * .7, duration: 1.6 + hash(i, 5) * .8, ease: "expo.out" }, T(78) + hash(i, 1) * .08);
+}
+// red: the forged key, then the report gets lifted, then sold anyway
+tl.to(Q, { cold: 0, duration: .01 }, T(89));
+tl.to("#gcold", { opacity: 0, duration: .8 }, T(89));
+tl.to(["#g1", "#g2", "#g3"], { opacity: 1, duration: .8 }, T(89));
+tl.fromTo("#cForge", { opacity: 0, x: -200, rotationY: 30, filter: "blur(12px)" }, { opacity: 1, x: 0, rotationY: 12, filter: "blur(0px)", duration: .6, ease: "expo.out" }, T(90) - .1);
+tl.fromTo("#cRep", { opacity: 0, x: 200, rotationY: -30, filter: "blur(12px)" }, { opacity: 1, x: 0, rotationY: -12, filter: "blur(0px)", duration: .6, ease: "expo.out" }, T(96) - .4);
+tl.to("#cForge", { x: 190, rotationY: 0, duration: .5, ease: "power3.inOut" }, T(96));
+tl.to("#repOn", { opacity: 0, duration: .12 }, T(99) - .1);
+tl.fromTo("#repOff", { opacity: 0, scale: .9 }, { opacity: 1, scale: 1, duration: .3, ease: "expo.out" }, T(99) - .1);
+tl.to(["#cForge", "#cRep", "#plane"], { opacity: 0, filter: "blur(14px)", duration: .5, ease: "power2.in" }, 39.85);
+
+/* ---------- S7: logo ---------- */
+(function mark() { // the Halte mark: a small dot dial with its hand stopped
+  const s = document.getElementById("logoMark"); let h = "";
+  for (let y = 5; y < 150; y += 10) for (let x = 5; x < 150; x += 10) { const d = Math.hypot(x - 75, y - 75); if (d > 72) continue;
+    const ring = Math.abs(d - 64) < 6, hand = (Math.abs(x - 75) < 4 && y < 75 && y > 20) || (Math.abs(y - 75) < 4 && x > 75 && x < 112);
+    h += `<circle class="lm ${ring || hand ? "on" : ""}" cx="${x}" cy="${y}" r="${ring || hand ? 4 : 2}" fill="${ring || hand ? "#F3F1EC" : "rgba(243,241,236,.16)"}"/>`; }
+  s.innerHTML = h;
+})();
+tl.fromTo("#logoMark .lm", { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: .3, ease: "back.out(2)", stagger: { each: .0015, from: "center" } }, 40.35);
+tl.fromTo("#logoWord", { opacity: 0, x: -40, filter: "blur(10px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: .5, ease: "expo.out" }, T(106) - .15);
+tl.fromTo("#logo", { scale: 1 }, { scale: 1.06, duration: 2.1, ease: "none" }, 40.4);
+tl.to("#bg", { opacity: .9, duration: .5 }, T(106));
+tl.to("#logo", { opacity: 0, scale: 1.25, filter: "blur(14px)", duration: .3, ease: "power3.in" }, 42.3);
+
+/* ---------- S8: passport ---------- */
+tl.fromTo("#cPP", { opacity: 0, rotationY: 34, rotationX: 6, x: -160, z: -300, filter: "blur(14px)" }, { opacity: 1, rotationY: 16, rotationX: 4, x: 0, z: 0, filter: "blur(0px)", duration: .9, ease: "expo.out" }, 42.5);
+tl.to("#cPP", { rotationY: 8, duration: 5.8, ease: "sine.inOut" }, 43.4);
+tl.fromTo("#fcChain", { opacity: 0, y: 40, z: 200, scale: .9 }, { opacity: 1, y: 0, z: 0, scale: 1, duration: .5, ease: "back.out(1.4)" }, T(113) - .1);
+tl.fromTo("#fcKey", { opacity: 0, y: 40, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .5, ease: "back.out(1.4)" }, T(117) - .05);
+tl.to(["#cPP", "#fcChain", "#fcKey"], { x: "-=170", duration: .7, ease: "power3.inOut" }, T(119) - .3);
+tl.fromTo("#phone", { opacity: 0, x: 300, rotationY: -25 }, { opacity: 1, x: 0, rotationY: -12, duration: .7, ease: "expo.out" }, T(119) - .25);
+document.getElementById("kd").innerHTML = Array.from({ length: 24 }, () => "<span></span>").join("");
+tl.fromTo("#kd span", { background: "#22222a" }, { background: "#3A7D5E", duration: .05, stagger: .02 }, T(121));
+tl.to(["#cPP", "#fcChain", "#fcKey", "#phone"], { opacity: 0, filter: "blur(14px)", scale: .97, duration: .35, ease: "power2.in" }, 49.0);
+
+/* ---------- S9: the dealer checks, macOS cursor ---------- */
+tl.fromTo("#cDl", { opacity: 0, y: 140, rotationX: 22, scale: .92, filter: "blur(12px)" }, { opacity: 1, y: 0, rotationX: 7, scale: 1, filter: "blur(0px)", duration: .8, ease: "expo.out" }, 49.2);
+tl.to("#cDl", { rotationX: 2, scale: 1.03, duration: 5.6, ease: "sine.inOut" }, 50.0);
+tl.set("#verd", { opacity: 0 }, 0);
+tl.set("#hand", { opacity: 0 }, 0);
+tl.fromTo("#cur", { x: 1720, y: 1000 }, { x: 600, y: 520, duration: 1.3, ease: "power3.inOut" }, 50.3);   // glide in
+tl.to("#cur", { x: 640, y: 540, duration: .5, ease: "power2.out" }, 51.6);                                // settle on the button
+tl.set("#arrow", { opacity: 0 }, 51.45); tl.set("#hand", { opacity: 1 }, 51.45);                           // arrow becomes the hand over a button
+tl.to("#cur", { scale: .86, duration: .07, ease: "power2.in" }, T(134) - .02);
+tl.to("#cur", { scale: 1, duration: .18, ease: "power2.out" }, T(134) + .05);
+tl.to("#buy", { scale: .97, duration: .07 }, T(134) - .02); tl.to("#buy", { scale: 1, duration: .2, ease: "back.out(2)" }, T(134) + .05);
+tl.fromTo("#verd", { opacity: 0, y: 24, scale: .98 }, { opacity: 1, y: 0, scale: 1, duration: .45, ease: "expo.out" }, T(134) + .2);
+tl.set("#hand", { opacity: 0 }, 52.9); tl.set("#arrow", { opacity: 1 }, 52.9);
+tl.to("#cur", { x: 1300, y: 700, duration: .8, ease: "power2.inOut" }, 52.9);
+
+/* ---------- captions (from 6.2 s on) ---------- */
+const SHOW = { 106: "Halte." };
+const KEY = { 24: "k", 35: "k", 41: "k", 61: "k", 68: "k", 78: "k", 93: "k", 102: "k", 106: "k", 111: "k", 117: "k", 138: "g" };
+const caps = document.getElementById("caps"); const groups = []; let cur = [];
+for (let i = 15; i <= 138; i++) { cur.push(i); const t = WORDS[i].text; const next = WORDS[i + 1];
+  if (/[.?!]$/.test(t) || (/,$/.test(t) && cur.length >= 3) || cur.length >= 7 || !next || (next.start - WORDS[i].end > .3)) { groups.push(cur); cur = []; } }
+if (cur.length) groups.push(cur);
+caps.innerHTML = groups.map((g, n) => `<div class="cg" id="cg${n}">` + g.map(i => `<span class="${KEY[i] || ""}">${SHOW[i] || WORDS[i].text}</span>`).join(" ") + `</div>`).join("");
+groups.forEach((g, n) => {
+  const s = T(g[0]) - .08, e = Math.min(T(g[g.length - 1]) + (WORDS[g[g.length - 1]].end - WORDS[g[g.length - 1]].start) + .25, groups[n + 1] ? T(groups[n + 1][0]) - .1 : 55.4);
+  tl.fromTo("#cg" + n, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .14, ease: "power2.out" }, s);
+  tl.to("#cg" + n, { opacity: 0, duration: .1, ease: "power2.in" }, e - .1);
+  tl.set("#cg" + n, { opacity: 0 }, e);
+});
+
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
