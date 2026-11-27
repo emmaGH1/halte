@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-400.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-500.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-700.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-900.woff2") format("woff2"); font-weight: 900; }
+@font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 400 500; }
+/* Halte film v3: near-black stage lit by a warm glow; white product cards float in depth; red only means stolen. */
+:root {
+  --bg: #060607; --tx: #F3F1EC; --mute: rgba(243,241,236,.58);
+  --sig: #FF4526; --sig2: #FF7A52; --ok: #16A36A; --okbg: #E5F6EE; --stopbg: #FDECE7; --stop: #C42A14;
+  --card: #FFFFFF; --ink: #0E0F13; --ink2: #5C606B; --hair: rgba(14,15,19,.09); --cold: #A9C1FF;
+  --sans: "Satoshi", "Inter", sans-serif; --mono: "Geist Mono", "JetBrains Mono", monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--sans); color: var(--tx); -webkit-font-smoothing: antialiased; }
+.full { position: absolute; inset: 0; }
+.stage3d { position: absolute; inset: 0; perspective: 1700px; perspective-origin: 50% 45%; }
+#bg .g { position: absolute; border-radius: 50%; filter: blur(60px); }
+#g1 { width: 1300px; height: 1000px; left: 260px; top: 180px; background: radial-gradient(circle, rgba(255,69,38,.5), rgba(140,24,8,.22) 45%, transparent 70%); }
+#g2 { width: 900px; height: 800px; left: 1100px; top: -200px; background: radial-gradient(circle, rgba(255,122,82,.28), transparent 65%); }
+#g3 { width: 1100px; height: 900px; left: -300px; top: 400px; background: radial-gradient(circle, rgba(120,30,14,.42), transparent 65%); }
+#gcold { width: 1600px; height: 1100px; left: 160px; top: 120px; background: radial-gradient(circle, rgba(120,150,255,.38), rgba(40,60,140,.16) 45%, transparent 70%); opacity: 0; }
+#gred { width: 1700px; height: 1200px; left: 110px; top: 0; background: radial-gradient(circle, rgba(255,50,20,.55), transparent 65%); opacity: 0; }
+#vig { background: radial-gradient(ellipse at 50% 48%, transparent 40%, rgba(0,0,0,.78) 100%); }
+#grain { opacity: .05; mix-blend-mode: overlay; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>"); }
+canvas.fullc { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+
+/* flip board */
+.flaps { position: absolute; display: flex; gap: 8px; }
+.fl { width: 74px; height: 104px; border-radius: 10px; background: linear-gradient(#1b1b20 0 49.6%, #0c0c0f 50.4% 100%); box-shadow: 0 1px 0 rgba(255,255,255,.07) inset, 0 20px 40px -12px rgba(0,0,0,.7); font: 700 70px/104px var(--mono); text-align: center; color: var(--tx); position: relative; }
+.fl::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(0,0,0,.65); }
+.flabel { position: absolute; font: 500 22px var(--mono); letter-spacing: .14em; color: var(--mute); }
+.qchip { position: absolute; display: inline-flex; align-items: center; gap: 14px; height: 78px; padding: 0 32px 0 24px; border-radius: 999px; background: #fff; color: var(--ink); font: 800 36px var(--sans); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
+.qchip b { width: 16px; height: 16px; border-radius: 50%; background: var(--sig); box-shadow: 0 0 0 6px rgba(255,69,38,.2); }
+
+/* cards */
+.card { position: absolute; background: var(--card); color: var(--ink); border-radius: 26px; box-shadow: 0 60px 120px -30px rgba(0,0,0,.85), 0 20px 40px -20px rgba(0,0,0,.6); }
+.reg { width: 1180px; height: 640px; padding: 42px 48px; }
+.reg h4 { font: 800 36px var(--sans); letter-spacing: -.01em; display: flex; justify-content: space-between; align-items: center; }
+.reg h4 small { font: 500 22px var(--mono); color: var(--ink2); letter-spacing: .06em; }
+.reg .srch { margin-top: 24px; height: 80px; border-radius: 16px; background: #F3F2EE; display: flex; align-items: center; padding: 0 26px; font: 500 31px var(--mono); gap: 16px; }
+.reg .srch b { width: 3px; height: 36px; background: var(--ink); display: inline-block; }
+.reg .res { margin-top: 18px; height: 84px; border-radius: 16px; display: flex; align-items: center; gap: 16px; padding: 0 26px; background: #F7F7F5; font: 700 32px var(--sans); color: var(--ink2); }
+.reg .res.hit { background: var(--stopbg); color: var(--stop); }
+.reg .res i { font: 500 22px var(--mono); font-style: normal; margin-left: auto; color: var(--ink2); }
+.reg table { width: 100%; margin-top: 22px; border-collapse: collapse; font: 500 26px var(--sans); color: var(--ink2); }
+.reg td { padding: 16px 6px; border-top: 1px solid var(--hair); }
+.reg td:last-child { text-align: right; font-family: var(--mono); font-size: 23px; }
+.stamp { position: absolute; padding: 14px 28px; border-radius: 14px; font: 900 44px var(--sans); border: 5px solid currentColor; background: rgba(255,255,255,.94); white-space: nowrap; }
+.stamp.a { color: #C77700; } .stamp.r { color: #D1301A; }
+.bub { position: absolute; max-width: 560px; padding: 22px 30px; border-radius: 28px; font: 600 34px var(--sans); line-height: 1.25; }
+.bub.l { background: #26262d; color: var(--tx); border-bottom-left-radius: 8px; }
+.cert { width: 600px; height: 720px; background: #F4EEDF; color: #2C2618; border-radius: 12px; padding: 60px 54px; text-align: center; }
+.cert h5 { font: 700 26px var(--mono); letter-spacing: .3em; }
+.cert h6 { font: 500 54px Georgia, serif; font-style: italic; margin-top: 26px; line-height: 1.1; }
+.cert p { font: 500 24px var(--mono); margin-top: 34px; line-height: 1.8; opacity: .8; }
+.cert .seal { width: 130px; height: 130px; border-radius: 50%; margin: 40px auto 0; border: 6px double #A8833B; display: grid; place-items: center; font: 700 20px var(--mono); color: #A8833B; letter-spacing: .1em; }
+.cert .q { position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%) rotate(-8deg); font: 900 120px var(--sans); color: var(--sig); opacity: 0; letter-spacing: -.03em; }
+
+/* passport + dealer */
+.pp { width: 760px; height: 700px; padding: 44px; }
+.pp .lab { font: 500 25px var(--sans); color: var(--ink2); }
+.pp h3 { font: 900 64px var(--sans); letter-spacing: -.03em; margin-top: 6px; }
+.chips { position: relative; height: 52px; margin-top: 16px; }
+.chip { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 24px 0 18px; border-radius: 999px; font: 800 26px var(--sans); white-space: nowrap; }
+.chip b { width: 13px; height: 13px; border-radius: 50%; background: currentColor; }
+.chip.ok { background: var(--okbg); color: #0B7A50; } .chip.no { background: var(--stopbg); color: var(--stop); }
+.pp .art { position: absolute; left: 44px; right: 44px; top: 270px; height: 380px; border-radius: 22px; background: radial-gradient(circle at 50% 50%, #26262c, #0f0f12 72%); overflow: hidden; }
+.pp .art canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fchip { position: absolute; background: #fff; color: var(--ink); border-radius: 22px; padding: 24px 30px; box-shadow: 0 40px 80px -20px rgba(0,0,0,.7); white-space: nowrap; }
+.fchip small { display: block; font: 500 21px var(--sans); color: var(--ink2); }
+.fchip b { display: block; font: 800 36px var(--sans); letter-spacing: -.01em; margin-top: 4px; }
+.fchip i { font: 500 21px var(--mono); color: var(--ink2); font-style: normal; }
+.fchip.dk { background: #15151a; color: var(--tx); border: 1px solid rgba(255,255,255,.1); } .fchip.dk small, .fchip.dk i { color: var(--mute); }
+.fchip .okt { color: #6FE3A6; } .fchip .not { color: var(--sig2); }
+.dl { width: 1200px; height: 660px; padding: 48px 54px; }
+.dl .top { display: flex; justify-content: space-between; align-items: center; }
+.dl h3 { font: 800 46px var(--sans); letter-spacing: -.02em; }
+.dl .sub { font: 500 27px var(--sans); color: var(--ink2); margin-top: 6px; }
+.dl .chips { width: 330px; margin: 0; }
+.dl .chips .chip { left: auto; right: 0; }
+.offer { margin-top: 34px; border-radius: 20px; background: #F6F5F2; padding: 26px 30px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+.offer b { font: 800 36px var(--sans); } .offer span { font: 500 25px var(--sans); color: var(--ink2); } .offer i { font: 500 22px var(--mono); color: var(--ink2); font-style: normal; }
+.offer .old { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); font: 800 24px var(--sans); color: var(--stop); background: var(--stopbg); padding: 8px 18px; border-radius: 999px; opacity: 0; }
+.buy { position: absolute; left: 54px; top: 340px; height: 86px; width: 500px; border-radius: 999px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; gap: 16px; font: 700 32px var(--sans); }
+.verd { position: absolute; left: 54px; right: 54px; top: 462px; height: 150px; border-radius: 22px; padding: 28px 34px; display: flex; align-items: center; gap: 26px; opacity: 0; }
+.verd .ic { width: 78px; height: 78px; border-radius: 50%; color: #fff; display: grid; place-items: center; font: 800 40px var(--sans); flex: none; }
+.verd b { font: 900 52px var(--sans); letter-spacing: -.02em; display: block; } .verd span { font: 500 26px var(--sans); }
+.verd.go { background: var(--okbg); box-shadow: inset 0 0 0 2px rgba(22,163,106,.28); } .verd.go .ic { background: var(--ok); } .verd.go b { color: #0B7A50; } .verd.go span { color: #245C45; }
+.verd.no { background: var(--stopbg); box-shadow: inset 0 0 0 2px rgba(196,42,20,.28); } .verd.no .ic { background: var(--stop); } .verd.no b { color: var(--stop); } .verd.no span { color: #7A2A1C; }
+
+/* phone */
+.phone { position: absolute; width: 440px; height: 860px; border-radius: 64px; background: #0d0d10; border: 12px solid #2a2a31; box-shadow: 0 70px 140px -30px rgba(0,0,0,.9); padding: 86px 30px 30px; }
+.phone .nt { position: absolute; left: 50%; top: 20px; width: 130px; height: 36px; margin-left: -65px; border-radius: 20px; background: #000; }
+.phone .ttl { font: 800 40px var(--sans); color: var(--tx); letter-spacing: -.02em; }
+.phone .st { font: 500 22px var(--sans); color: var(--mute); margin-top: 4px; }
+.phone .wcard { margin-top: 26px; height: 260px; border-radius: 26px; background: radial-gradient(circle at 50% 50%, #26262c, #111114 72%); position: relative; overflow: hidden; }
+.phone .wcard canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.phone .pchips { position: relative; height: 50px; margin-top: 22px; }
+.phone .pchips .chip { font-size: 23px; height: 48px; }
+.phone .rbtn { margin-top: 30px; height: 92px; border-radius: 24px; background: var(--sig); color: #fff; display: grid; place-items: center; font: 800 32px var(--sans); }
+.phone .sig { margin-top: 22px; display: grid; grid-template-columns: repeat(10, 1fr); gap: 7px; }
+.phone .sig span { height: 18px; border-radius: 5px; background: #23232a; }
+.phone .sigl { margin-top: 14px; font: 500 20px var(--mono); color: var(--mute); }
+
+/* quantum */
+.qkey { width: 560px; height: 300px; background: rgba(18,22,36,.86); color: var(--tx); border: 1px solid rgba(169,193,255,.35); padding: 40px 44px; }
+.qkey .k1 { font: 500 23px var(--mono); letter-spacing: .1em; color: var(--cold); }
+.qkey .k2 { font: 800 48px var(--sans); margin-top: 14px; letter-spacing: -.01em; }
+.qkey .k3 { font: 500 25px var(--mono); margin-top: 22px; color: var(--mute); }
+.qkey.forged { border-color: rgba(255,69,38,.6); background: rgba(40,14,10,.88); } .qkey.forged .k1 { color: var(--sig2); }
+#parts i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--cold); }
+.need { position: absolute; display: flex; align-items: center; gap: 16px; height: 84px; padding: 0 32px 0 22px; border-radius: 999px; background: #fff; color: var(--ink); font: 800 34px var(--sans); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); white-space: nowrap; }
+.need i { font: 500 22px var(--mono); color: var(--ink2); font-style: normal; }
+.need b { width: 44px; height: 44px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; font: 800 24px var(--sans); }
+
+/* code + explorer */
+.code { width: 1240px; padding: 44px 50px; background: #121216; color: var(--tx); border: 1px solid rgba(255,255,255,.1); font: 500 32px/1.55 var(--mono); }
+.code .d { color: var(--mute); } .code .k { color: #9CC8FF; } .code .s { color: #FFB38F; } .code .r { color: var(--sig2); }
+.code .row { white-space: pre; }
+.exp { width: 1260px; height: 640px; padding: 46px 54px; }
+.exp h4 { font: 800 36px var(--sans); display: flex; justify-content: space-between; }
+.exp h4 span { font: 700 24px var(--sans); color: #0B7A50; background: var(--okbg); padding: 8px 18px; border-radius: 999px; }
+.exp dl { margin-top: 26px; display: grid; gap: 0; }
+.exp dl div { display: grid; grid-template-columns: 260px 1fr; padding: 20px 0; border-top: 1px solid var(--hair); font: 500 27px var(--sans); }
+.exp dt { color: var(--ink2); } .exp dd { font-family: var(--mono); font-size: 25px; overflow-wrap: anywhere; }
+.exp dd em { font-style: normal; color: #0B7A50; font-weight: 700; }
+
+/* logo + end */
+.logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 34px; }
+.logo svg { width: 150px; height: 150px; }
+.logo b { font: 900 170px var(--sans); letter-spacing: -.045em; }
+.endt { position: absolute; left: 0; right: 0; text-align: center; }
+
+/* cursor */
+.cur { position: absolute; left: 0; top: 0; width: 78px; height: 78px; z-index: 30; }
+.cur svg { position: absolute; left: 0; top: 0; width: 78px; height: 78px; overflow: visible; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+
+/* captions */
+.caps { position: absolute; left: 0; right: 0; bottom: 58px; height: 60px; z-index: 40; }
+.cg { position: absolute; left: 0; right: 0; top: 0; text-align: center; font: 600 40px var(--sans); letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 18px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.7); opacity: 0; }
+.cg .k { color: var(--sig2); } .cg .g { color: #6FE3A6; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="110.0" data-width="1920" data-height="1080">
+
+  <div id="bg" class="clip full" data-start="0" data-duration="110.0" data-track-index="0" data-layout-ignore>
+    <div class="g" id="g1"></div><div class="g" id="g2"></div><div class="g" id="g3"></div><div class="g" id="gcold"></div><div class="g" id="gred"></div>
+  </div>
+
+  <!-- dial: our dot-lattice watch -->
+  <div id="dialL" class="clip full" data-start="0" data-duration="5.874" data-track-index="1" data-layout-ignore>
+    <div id="dialW" class="full"><canvas id="dial" class="fullc" width="1920" height="1080"></canvas></div>
+  </div>
+
+  <!-- S1 the counter -->
+  <div id="s1" class="clip full" data-start="0" data-duration="5.824" data-track-index="2">
+    <div class="flabel" style="left:1140px;top:360px">OFFER ON THE COUNTER</div>
+    <div class="flaps" id="fPrice" style="left:1140px;top:410px"></div>
+    <div class="qchip" id="isStolen" style="left:1140px;top:580px"><b></b>Is it stolen?</div>
+  </div>
+
+  <!-- S2-S4 the register -->
+  <div id="sR" class="clip full" data-start="5.574" data-duration="15.351" data-track-index="3">
+    <div class="stage3d">
+      <div class="card reg" id="reg1" style="left:370px;top:150px">
+        <h4>Stolen watch register <small>US</small></h4>
+        <div class="srch"><span id="typed"></span><b id="caret"></b></div>
+        <div class="res" id="res1">No record found <i>as of today</i></div>
+        <table data-layout-allow-overlap><tr><td>Diver, 40 mm, steel</td><td>reported Mar 2024</td></tr><tr><td>Chronograph, gold</td><td>reported Nov 2023</td></tr><tr><td>Dress watch, 38 mm</td><td>reported Aug 2023</td></tr></table>
+        <div class="stamp a" data-layout-allow-overlap id="st1" style="left:610px;top:270px">Updated 14 months ago</div>
+        <div class="stamp r" data-layout-allow-overlap id="st2" style="left:560px;top:470px">Theft not reported yet</div>
+      </div>
+      <div class="card reg" id="reg2" data-layout-allow-overlap style="left:370px;top:150px">
+        <h4>Stolen watch register <small>UK</small></h4>
+        <div class="srch">Serial 7Z41 K9 0328</div>
+        <div class="res hit">Reported stolen <i>London · 2 days ago</i></div>
+        <table><tr><td>Owner report</td><td>filed</td></tr><tr><td>Shared with US register</td><td>no</td></tr></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- S5 word against paperwork -->
+  <div id="s5" class="clip full" data-start="20.725" data-duration="5.057" data-track-index="4">
+    <div class="stage3d">
+      <div class="bub l" id="bub1" style="left:260px;top:300px">It's mine. Bought it in 2019,<br>box and papers included.</div>
+      <div class="card cert" id="cert" style="left:1040px;top:150px">
+        <h5>CERTIFICATE</h5><h6>of Authenticity</h6>
+        <p>Model · Steel sports 41 mm<br>Serial · 7Z41 K9 0328<br>Purchased · 2019</p>
+        <div class="seal">SEALED</div>
+        <div class="q" id="certQ">Fake?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6 logo -->
+  <div id="s6" class="clip full" data-start="25.732" data-duration="2.379" data-track-index="5">
+    <div class="logo" id="logo"><svg viewBox="0 0 150 150" id="logoMark" aria-hidden="true"></svg><b id="logoWord">Halte</b></div>
+  </div>
+
+  <!-- S7 passport -->
+  <div id="s7" class="clip full" data-start="27.911" data-duration="8.582" data-track-index="6">
+    <div class="stage3d">
+      <div class="card pp" id="pp1" style="left:300px;top:150px">
+        <div class="lab">Watch passport</div><h3>HLT-9C67-55AC</h3>
+        <div class="chips"><span class="chip ok"><b></b>Active</span></div>
+        <div class="art"><canvas id="ppDial" width="672" height="380"></canvas></div>
+      </div>
+      <div class="fchip" id="fcMaker" style="left:1120px;top:170px"><small>Issued by</small><b>Watchmaker or owner</b></div>
+      <div class="fchip" id="fcChain" style="left:1180px;top:390px"><small>Recorded on</small><b>QoreChain Diana</b><i>block 10,814,076</i></div>
+      <div class="fchip dk" id="fcKey" style="left:1090px;top:620px"><small>Tied to the owner's key</small><b>ML-DSA-87</b><i class="okt">post-quantum · NIST FIPS 204</i></div>
+    </div>
+  </div>
+
+  <!-- S8 dealer: sellable -->
+  <div id="s8" class="clip full" data-start="36.293" data-duration="8.025" data-track-index="7">
+    <div class="stage3d">
+      <div class="card dl" id="dl1" style="left:360px;top:150px">
+        <div class="top"><div><h3>Dealer check</h3><div class="sub">HLT-9C67-55AC · before you pay</div></div><div class="chips"><span class="chip ok"><b></b>Passport active</span></div></div>
+        <div class="offer"><div><b>Offer #31</b> <span>· to Halte demo dealer</span></div><i>signed ML-DSA-87</i></div>
+        <div class="buy" id="buy1">The dealer tries to buy it <span>→</span></div>
+        <div class="verd go" id="v1"><div class="ic">✓</div><div><b>Sellable</b><span>The offer can go through · block 10,814,078</span></div></div>
+      </div>
+      <div class="cur" id="cur1"></div>
+    </div>
+  </div>
+
+  <!-- S9 the owner reports -->
+  <div id="s9" class="clip full" data-start="44.118" data-duration="9.418" data-track-index="8">
+    <div class="stage3d">
+      <div class="phone" id="ph" style="left:740px;top:110px">
+        <div class="nt"></div>
+        <div class="ttl">My watch</div><div class="st">HLT-9C67-55AC</div>
+        <div class="wcard"><canvas id="phDial" width="356" height="260"></canvas></div>
+        <div class="pchips"><span class="chip ok" id="phOk"><b></b>Active</span><span class="chip no" id="phNo" style="opacity:0"><b></b>Reported stolen</span></div>
+        <div class="rbtn" id="rbtn">Report missing</div>
+        <div class="sig" id="sig"></div>
+        <div class="sigl" id="sigl">Signing with ML-DSA-87…</div>
+      </div>
+      <div class="fchip dk" id="fcVer" style="left:1260px;top:300px"><small>QoreChain</small><b>pqcVerify <span class="okt">✓</span></b><i>4,627-byte signature</i></div>
+      <div class="fchip dk" id="fcBlk" style="left:1260px;top:540px"><small>Passport</small><b class="not">Frozen</b><i>next block · 10,814,082</i></div>
+      <div class="cur" id="cur2"></div>
+    </div>
+  </div>
+
+  <!-- S10 dealer: refused -->
+  <div id="s10" class="clip full" data-start="53.336" data-duration="4.229" data-track-index="9">
+    <div class="stage3d">
+      <div class="card dl" id="dl2" style="left:360px;top:150px">
+        <div class="top"><div><h3>Dealer check</h3><div class="sub">HLT-9C67-55AC · before you pay</div></div><div class="chips"><span class="chip no"><b></b>Reported stolen</span></div></div>
+        <div class="offer"><div><b>Offer #31</b> <span>· to Halte demo dealer</span></div><i>signed ML-DSA-87</i></div>
+        <div class="buy" id="buy2">The dealer tries to buy it <span>→</span></div>
+        <div class="verd no" id="v2"><div class="ic">✕</div><div><b>Do not buy</b><span>Refused · PassportFrozen · block 10,814,083</span></div></div>
+      </div>
+      <div class="cur" id="cur3"></div>
+    </div>
+  </div>
+
+  <!-- S11 recovery, old offer dead -->
+  <div id="s11" class="clip full" data-start="57.365" data-duration="11.938" data-track-index="10">
+    <div class="stage3d">
+      <div class="card dl" id="dl3" style="left:360px;top:150px">
+        <div class="top"><div><h3>Dealer check</h3><div class="sub">HLT-9C67-55AC · watch recovered</div></div><div class="chips"><span class="chip no" id="d3no"><b></b>Reported stolen</span><span class="chip ok" id="d3ok" style="opacity:0"><b></b>Passport active</span></div></div>
+        <div class="offer"><div><b>Offer #31</b> <span>· made before the report</span></div><span class="old" id="oldTag">Dead</span></div>
+        <div class="buy" id="buy3">Accept the old offer <span>→</span></div>
+        <div class="verd no" id="v3"><div class="ic">✕</div><div><b>Refused</b><span>StaleOffer · deals made around a theft stay dead</span></div></div>
+      </div>
+      <div class="cur" id="cur4"></div>
+    </div>
+  </div>
+
+  <!-- S12 Q-Day -->
+  <div id="s12" class="clip full" data-start="69.103" data-duration="15.885" data-track-index="11">
+    <canvas id="plane" class="fullc" width="1920" height="1080"></canvas>
+    <div id="qday" style="position:absolute;left:0;right:0;top:250px;text-align:center"><div style="font:900 200px var(--sans);letter-spacing:-.05em;color:#DDE6FF">Q-Day</div><div style="font:500 34px var(--sans);color:rgba(221,230,255,.72);margin-top:4px">quantum computers crack today's wallet keys</div></div>
+    <div class="stage3d">
+      <div class="card qkey" id="ckey" style="left:680px;top:300px"><div class="k1">WALLET KEY · ECDSA</div><div class="k2">Owner's wallet</div><div class="k3">secp256k1 · 32 bytes</div></div>
+      <div id="parts"></div>
+      <div class="card qkey forged" id="cforge" style="left:240px;top:260px"><div class="k1">CRACKED KEY</div><div class="k2">Thief tries to sell</div><div class="k3">ECDSA signature</div></div>
+      <div class="card dl" id="dl4" style="left:860px;top:230px;width:860px;height:430px;padding:40px 44px">
+        <div class="top"><div><h3 style="font-size:38px">Sell HLT-9C67-55AC</h3><div class="sub">signed with the cracked key</div></div></div>
+        <div class="verd no" id="v4" style="top:200px;left:44px;right:44px;opacity:0"><div class="ic">✕</div><div><b>Refused</b><span>BadPqcSignature</span></div></div>
+      </div>
+      <div class="need" id="n1" style="left:300px;top:250px"><b>✓</b>Sell <i>owner's ML-DSA-87 signature</i></div>
+      <div class="need" id="n2" style="left:300px;top:390px"><b>✓</b>Report a theft <i>owner's ML-DSA-87 signature</i></div>
+      <div class="need" id="n3" style="left:300px;top:530px"><b>✓</b>Lift the freeze <i>owner's ML-DSA-87 signature</i></div>
+    </div>
+  </div>
+
+  <!-- S13 how they plug in -->
+  <div id="s13" class="clip full" data-start="84.788" data-duration="11.38" data-track-index="12">
+    <div class="stage3d">
+      <div class="fchip" id="who1" style="left:300px;top:170px"><small>Private buyers</small><b>Check the passport</b></div>
+      <div class="fchip" id="who2" style="left:760px;top:170px"><small>Dealers · marketplaces</small><b>One API call</b></div>
+      <div class="fchip" id="who3" style="left:1260px;top:170px"><small>Insurers</small><b>One contract read</b></div>
+      <div class="card code" id="code" style="left:340px;top:380px">
+        <div class="row"><span class="k">GET</span> /api/check/HLT-9C67-55AC<span class="d">?offer=31</span></div>
+        <div class="row" id="resp"><span class="d">→</span> { <span class="s">"verdict"</span>: <span class="r">"reported-missing"</span>, <span class="s">"block"</span>: 10814090 }</div>
+        <div class="row" id="sol" style="margin-top:18px"><span class="d">// or from any contract on QoreChain</span></div>
+        <div class="row" id="sol2">halte.<span class="k">statusOf</span>(passportId)  <span class="d">// 2 = stolen</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S14 proof -->
+  <div id="s14" class="clip full" data-start="95.968" data-duration="7.979" data-track-index="13">
+    <div class="stage3d">
+      <div class="card exp" id="exp" style="left:330px;top:150px">
+        <h4>Transaction · QoreChain Diana testnet <span>Success</span></h4>
+        <dl>
+          <div><dt>Contract</dt><dd>Halte · 0x900d…f3e4</dd></div>
+          <div><dt>Method</dt><dd>reportMissing(passport, signature)</dd></div>
+          <div><dt>Signature</dt><dd>ML-DSA-87 · 4,627 bytes · <em>pqcVerify ✓</em></dd></div>
+          <div><dt>Block</dt><dd id="expBlk">10,611,674</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- S15 end -->
+  <div id="s15" class="clip full" data-start="103.747" data-duration="6.253" data-track-index="14">
+    <canvas id="endDial" class="fullc" width="1920" height="1080"></canvas>
+    <div class="endt" id="endW" style="top:300px;font:900 190px var(--sans);letter-spacing:-.05em">Halte</div>
+    <div class="endt" id="endT" style="top:530px;font:700 62px var(--sans);letter-spacing:-.02em">Stolen watches, <span style="color:var(--sig2)">unsellable.</span></div>
+    <div class="endt" id="endU" style="top:660px;font:500 32px var(--mono);color:var(--mute)">halte-roan.vercel.app · live on QoreChain Diana</div>
+  </div>
+
+  <div id="vigL" class="clip full" data-start="0" data-duration="110.0" data-track-index="15" data-layout-ignore><div class="full" id="vig"></div><div class="full" id="grain"></div></div>
+  <div id="caps" class="clip caps" data-start="0" data-duration="110.0" data-track-index="16" data-track-kind="captions"></div>
+
+  <audio id="vo" class="clip" src="assets/audio/vo.mp3" data-start="0.8" data-duration="106.99" data-track-index="40" data-volume="1"></audio>
+  <audio id="mu0" class="clip" src="assets/audio/music.mp3" data-start="0.0" data-media-start="0.0" data-duration="50.96" data-track-index="41" data-volume="0.3" data-fade-in="0" data-fade-out="0.35"></audio>
+  <audio id="mu1" class="clip" src="assets/audio/music.mp3" data-start="55.92" data-media-start="30.0" data-duration="28.68" data-track-index="42" data-volume="0.26" data-fade-in="0.8" data-fade-out="1.2"></audio>
+  <audio id="mu2" class="clip" src="assets/audio/music.mp3" data-start="84.4" data-media-start="86.0" data-duration="25.6" data-track-index="43" data-volume="0.42" data-fade-in="1.0" data-fade-out="2.0"></audio>
+  <audio id="sx0" class="clip" src="assets/sfx/tick.mp3" data-start="0.4" data-duration="0.62" data-track-index="50" data-volume="0.35"></audio>
+  <audio id="sx1" class="clip" src="assets/sfx/tick.mp3" data-start="1.4" data-duration="0.62" data-track-index="51" data-volume="0.3"></audio>
+  <audio id="sx2" class="clip" src="assets/sfx/tick.mp3" data-start="2.4" data-duration="0.62" data-track-index="52" data-volume="0.3"></audio>
+  <audio id="sx3" class="clip" src="assets/sfx/swoosh.mp3" data-start="5.62" data-duration="0.83" data-track-index="53" data-volume="0.5"></audio>
+  <audio id="sx4" class="clip" src="assets/sfx/type.mp3" data-start="6.07" data-duration="1.22" data-track-index="54" data-volume="0.35"></audio>
+  <audio id="sx5" class="clip" src="assets/sfx/swoosh2.mp3" data-start="10.3" data-duration="0.73" data-track-index="55" data-volume="0.45"></audio>
+  <audio id="sx6" class="clip" src="assets/sfx/tap.mp3" data-start="15.93" data-duration="0.52" data-track-index="56" data-volume="0.55"></audio>
+  <audio id="sx7" class="clip" src="assets/sfx/tap.mp3" data-start="19.2" data-duration="0.52" data-track-index="57" data-volume="0.55"></audio>
+  <audio id="sx8" class="clip" src="assets/sfx/swoosh.mp3" data-start="20.72" data-duration="0.83" data-track-index="58" data-volume="0.45"></audio>
+  <audio id="sx9" class="clip" src="assets/sfx/glitch.mp3" data-start="24.74" data-duration="0.62" data-track-index="59" data-volume="0.5"></audio>
+  <audio id="sx10" class="clip" src="assets/sfx/reveal.mp3" data-start="25.78" data-duration="2.5" data-track-index="60" data-volume="0.7"></audio>
+  <audio id="sx11" class="clip" src="assets/sfx/swoosh2.mp3" data-start="27.91" data-duration="0.73" data-track-index="61" data-volume="0.45"></audio>
+  <audio id="sx12" class="clip" src="assets/sfx/tap2.mp3" data-start="32.1" data-duration="0.52" data-track-index="62" data-volume="0.5"></audio>
+  <audio id="sx13" class="clip" src="assets/sfx/tap2.mp3" data-start="34.7" data-duration="0.52" data-track-index="63" data-volume="0.5"></audio>
+  <audio id="sx14" class="clip" src="assets/sfx/swoosh.mp3" data-start="36.29" data-duration="0.83" data-track-index="64" data-volume="0.45"></audio>
+  <audio id="sx15" class="clip" src="assets/sfx/tap.mp3" data-start="37.89" data-duration="0.52" data-track-index="65" data-volume="0.7"></audio>
+  <audio id="sx16" class="clip" src="assets/sfx/ok.mp3" data-start="39.33" data-duration="1.22" data-track-index="66" data-volume="0.6"></audio>
+  <audio id="sx17" class="clip" src="assets/sfx/swoosh2.mp3" data-start="44.12" data-duration="0.73" data-track-index="67" data-volume="0.45"></audio>
+  <audio id="sx18" class="clip" src="assets/sfx/tap.mp3" data-start="46.77" data-duration="0.52" data-track-index="68" data-volume="0.7"></audio>
+  <audio id="sx19" class="clip" src="assets/sfx/tap2.mp3" data-start="50.66" data-duration="0.52" data-track-index="69" data-volume="0.45"></audio>
+  <audio id="sx20" class="clip" src="assets/sfx/swoosh.mp3" data-start="53.34" data-duration="0.83" data-track-index="70" data-volume="0.4"></audio>
+  <audio id="sx21" class="clip" src="assets/sfx/tap.mp3" data-start="54.89" data-duration="0.52" data-track-index="71" data-volume="0.7"></audio>
+  <audio id="sx22" class="clip" src="assets/sfx/no.mp3" data-start="55.82" data-duration="1.04" data-track-index="72" data-volume="0.65"></audio>
+  <audio id="sx23" class="clip" src="assets/sfx/swoosh2.mp3" data-start="57.37" data-duration="0.73" data-track-index="73" data-volume="0.45"></audio>
+  <audio id="sx24" class="clip" src="assets/sfx/tap2.mp3" data-start="59.49" data-duration="0.52" data-track-index="74" data-volume="0.5"></audio>
+  <audio id="sx25" class="clip" src="assets/sfx/tap.mp3" data-start="67.07" data-duration="0.52" data-track-index="75" data-volume="0.7"></audio>
+  <audio id="sx26" class="clip" src="assets/sfx/no.mp3" data-start="67.9" data-duration="1.04" data-track-index="76" data-volume="0.6"></audio>
+  <audio id="sx27" class="clip" src="assets/sfx/swoosh.mp3" data-start="69.1" data-duration="0.83" data-track-index="77" data-volume="0.45"></audio>
+  <audio id="sx28" class="clip" src="assets/sfx/glitch.mp3" data-start="72.07" data-duration="0.62" data-track-index="78" data-volume="0.55"></audio>
+  <audio id="sx29" class="clip" src="assets/sfx/tap.mp3" data-start="73.64" data-duration="0.52" data-track-index="79" data-volume="0.6"></audio>
+  <audio id="sx30" class="clip" src="assets/sfx/no.mp3" data-start="76.42" data-duration="1.04" data-track-index="80" data-volume="0.6"></audio>
+  <audio id="sx31" class="clip" src="assets/sfx/tap2.mp3" data-start="77.77" data-duration="0.52" data-track-index="81" data-volume="0.4"></audio>
+  <audio id="sx32" class="clip" src="assets/sfx/tap2.mp3" data-start="82.2" data-duration="0.52" data-track-index="82" data-volume="0.4"></audio>
+  <audio id="sx33" class="clip" src="assets/sfx/tap2.mp3" data-start="83.46" data-duration="0.52" data-track-index="83" data-volume="0.4"></audio>
+  <audio id="sx34" class="clip" src="assets/sfx/swoosh2.mp3" data-start="84.79" data-duration="0.73" data-track-index="84" data-volume="0.45"></audio>
+  <audio id="sx35" class="clip" src="assets/sfx/type.mp3" data-start="92.48" data-duration="1.22" data-track-index="85" data-volume="0.35"></audio>
+  <audio id="sx36" class="clip" src="assets/sfx/tap2.mp3" data-start="94.43" data-duration="0.52" data-track-index="86" data-volume="0.45"></audio>
+  <audio id="sx37" class="clip" src="assets/sfx/swoosh.mp3" data-start="95.97" data-duration="0.83" data-track-index="87" data-volume="0.45"></audio>
+  <audio id="sx38" class="clip" src="assets/sfx/ok.mp3" data-start="102.91" data-duration="1.22" data-track-index="88" data-volume="0.45"></audio>
+  <audio id="sx39" class="clip" src="assets/sfx/reveal.mp3" data-start="103.75" data-duration="2.5" data-track-index="89" data-volume="0.6"></audio>
+</div>
+
+<script>
+const WORDS = [{"text": "Before", "start": 0.0, "end": 0.406}, {"text": "money", "start": 0.464, "end": 0.685}, {"text": "changes", "start": 0.731, "end": 1.126}, {"text": "hands,", "start": 1.196, "end": 1.637}, {"text": "a", "start": 1.672, "end": 1.741}, {"text": "dealer", "start": 1.823, "end": 2.113}, {"text": "wants", "start": 2.171, "end": 2.368}, {"text": "to", "start": 2.403, "end": 2.473}, {"text": "know", "start": 2.531, "end": 2.682}, {"text": "whether", "start": 2.728, "end": 2.995}, {"text": "the", "start": 3.065, "end": 3.146}, {"text": "watch", "start": 3.204, "end": 3.437}, {"text": "is", "start": 3.495, "end": 3.564}, {"text": "stolen.", "start": 3.599, "end": 4.261}, {"text": "An", "start": 5.074, "end": 5.213}, {"text": "empty", "start": 5.271, "end": 5.526}, {"text": "search", "start": 5.584, "end": 5.828}, {"text": "result", "start": 5.875, "end": 6.281}, {"text": "only", "start": 6.351, "end": 6.594}, {"text": "tells", "start": 6.653, "end": 6.885}, {"text": "the", "start": 6.931, "end": 7.001}, {"text": "dealer", "start": 7.07, "end": 7.396}, {"text": "what\u2019s", "start": 7.477, "end": 7.721}, {"text": "in", "start": 7.779, "end": 7.86}, {"text": "that", "start": 7.918, "end": 8.057}, {"text": "register", "start": 8.127, "end": 8.58}, {"text": "today.", "start": 8.649, "end": 9.195}, {"text": "The", "start": 9.799, "end": 9.927}, {"text": "owner", "start": 9.996, "end": 10.217}, {"text": "may", "start": 10.263, "end": 10.391}, {"text": "already", "start": 10.449, "end": 10.855}, {"text": "have", "start": 10.902, "end": 11.018}, {"text": "reported", "start": 11.064, "end": 11.517}, {"text": "the", "start": 11.564, "end": 11.645}, {"text": "theft", "start": 11.703, "end": 11.958}, {"text": "in", "start": 12.016, "end": 12.098}, {"text": "another", "start": 12.167, "end": 12.457}, {"text": "country.", "start": 12.516, "end": 13.212}, {"text": "Even", "start": 13.653, "end": 13.909}, {"text": "the", "start": 13.955, "end": 14.025}, {"text": "right", "start": 14.095, "end": 14.28}, {"text": "register", "start": 14.338, "end": 14.756}, {"text": "can", "start": 14.826, "end": 14.942}, {"text": "be", "start": 15.0, "end": 15.081}, {"text": "out", "start": 15.128, "end": 15.279}, {"text": "of", "start": 15.314, "end": 15.372}, {"text": "date,", "start": 15.43, "end": 15.964}, {"text": "and", "start": 16.173, "end": 16.324}, {"text": "until", "start": 16.382, "end": 16.637}, {"text": "the", "start": 16.707, "end": 16.776}, {"text": "owner", "start": 16.846, "end": 17.09}, {"text": "reports", "start": 17.16, "end": 17.543}, {"text": "the", "start": 17.589, "end": 17.67}, {"text": "theft,", "start": 17.74, "end": 18.286}, {"text": "there\u2019s", "start": 18.402, "end": 18.634}, {"text": "nothing", "start": 18.681, "end": 18.936}, {"text": "to", "start": 18.982, "end": 19.04}, {"text": "find.", "start": 19.11, "end": 19.621}, {"text": "That", "start": 20.225, "end": 20.468}, {"text": "leaves", "start": 20.55, "end": 20.805}, {"text": "the", "start": 20.852, "end": 20.933}, {"text": "dealer", "start": 21.003, "end": 21.304}, {"text": "weighing", "start": 21.362, "end": 21.618}, {"text": "the", "start": 21.664, "end": 21.734}, {"text": "seller\u2019s", "start": 21.769, "end": 22.152}, {"text": "word", "start": 22.21, "end": 22.489}, {"text": "against", "start": 22.547, "end": 22.849}, {"text": "paperwork", "start": 22.907, "end": 23.406}, {"text": "someone", "start": 23.464, "end": 23.766}, {"text": "can", "start": 23.801, "end": 23.917}, {"text": "fake.", "start": 23.986, "end": 24.486}, {"text": "So", "start": 25.182, "end": 25.321}, {"text": "we", "start": 25.379, "end": 25.461}, {"text": "built", "start": 25.519, "end": 25.728}, {"text": "Halt.", "start": 25.786, "end": 26.297}, {"text": "The", "start": 27.411, "end": 27.551}, {"text": "watchmaker", "start": 27.609, "end": 28.224}, {"text": "or", "start": 28.34, "end": 28.514}, {"text": "the", "start": 28.584, "end": 28.665}, {"text": "owner", "start": 28.746, "end": 29.06}, {"text": "issues", "start": 29.176, "end": 29.501}, {"text": "a", "start": 29.559, "end": 29.582}, {"text": "passport", "start": 29.652, "end": 30.29}, {"text": "for", "start": 30.36, "end": 30.522}, {"text": "the", "start": 30.58, "end": 30.662}, {"text": "watch", "start": 30.743, "end": 31.01}, {"text": "on", "start": 31.091, "end": 31.242}, {"text": "QoreChain.", "start": 31.3, "end": 32.067}, {"text": "It\u2019s", "start": 32.577, "end": 32.775}, {"text": "tied", "start": 32.844, "end": 33.123}, {"text": "to", "start": 33.158, "end": 33.228}, {"text": "the", "start": 33.309, "end": 33.378}, {"text": "owner\u2019s", "start": 33.448, "end": 33.785}, {"text": "post-quantum", "start": 33.901, "end": 34.609}, {"text": "key.", "start": 34.679, "end": 35.097}, {"text": "We", "start": 35.793, "end": 35.933}, {"text": "start", "start": 35.991, "end": 36.269}, {"text": "with", "start": 36.316, "end": 36.444}, {"text": "the", "start": 36.478, "end": 36.548}, {"text": "dealer\u2019s", "start": 36.594, "end": 36.943}, {"text": "check.", "start": 36.989, "end": 37.43}, {"text": "This", "start": 37.558, "end": 37.767}, {"text": "watch", "start": 37.837, "end": 38.069}, {"text": "comes", "start": 38.127, "end": 38.336}, {"text": "back", "start": 38.394, "end": 38.568}, {"text": "sellable.", "start": 38.626, "end": 39.311}, {"text": "The", "start": 40.008, "end": 40.135}, {"text": "chain", "start": 40.194, "end": 40.449}, {"text": "says", "start": 40.53, "end": 40.867}, {"text": "the", "start": 41.041, "end": 41.18}, {"text": "offer", "start": 41.262, "end": 41.529}, {"text": "can", "start": 41.598, "end": 41.726}, {"text": "go", "start": 41.784, "end": 41.923}, {"text": "through.", "start": 41.981, "end": 42.504}, {"text": "The", "start": 43.618, "end": 43.758}, {"text": "owner", "start": 43.839, "end": 44.106}, {"text": "reports", "start": 44.176, "end": 44.64}, {"text": "the", "start": 44.721, "end": 44.814}, {"text": "theft", "start": 44.884, "end": 45.139}, {"text": "from", "start": 45.174, "end": 45.313}, {"text": "their", "start": 45.36, "end": 45.522}, {"text": "phone", "start": 45.569, "end": 45.929}, {"text": "with", "start": 45.975, "end": 46.161}, {"text": "one", "start": 46.23, "end": 46.405}, {"text": "signature.", "start": 46.451, "end": 47.217}, {"text": "QoreChain", "start": 47.914, "end": 48.471}, {"text": "verifies", "start": 48.541, "end": 49.098}, {"text": "it", "start": 49.156, "end": 49.237}, {"text": "on", "start": 49.295, "end": 49.377}, {"text": "chain", "start": 49.435, "end": 49.748}, {"text": "and", "start": 49.818, "end": 49.934}, {"text": "freezes", "start": 50.015, "end": 50.398}, {"text": "the", "start": 50.445, "end": 50.514}, {"text": "passport", "start": 50.573, "end": 51.072}, {"text": "in", "start": 51.118, "end": 51.188}, {"text": "the", "start": 51.234, "end": 51.304}, {"text": "next", "start": 51.362, "end": 51.571}, {"text": "block.", "start": 51.617, "end": 52.14}, {"text": "We", "start": 52.836, "end": 52.976}, {"text": "run", "start": 53.057, "end": 53.243}, {"text": "the", "start": 53.289, "end": 53.359}, {"text": "same", "start": 53.417, "end": 53.649}, {"text": "dealer", "start": 53.696, "end": 53.986}, {"text": "check", "start": 54.044, "end": 54.265}, {"text": "again.", "start": 54.323, "end": 54.845}, {"text": "Do", "start": 55.124, "end": 55.24}, {"text": "not", "start": 55.309, "end": 55.46}, {"text": "buy.", "start": 55.518, "end": 56.052}, {"text": "Once", "start": 56.865, "end": 57.144}, {"text": "the", "start": 57.19, "end": 57.26}, {"text": "watch", "start": 57.318, "end": 57.539}, {"text": "is", "start": 57.585, "end": 57.666}, {"text": "back,", "start": 57.736, "end": 58.096}, {"text": "the", "start": 58.165, "end": 58.282}, {"text": "owner", "start": 58.363, "end": 58.618}, {"text": "unfreezes", "start": 58.688, "end": 59.234}, {"text": "it.", "start": 59.303, "end": 59.663}, {"text": "The", "start": 60.267, "end": 60.395}, {"text": "dealer", "start": 60.453, "end": 60.72}, {"text": "can", "start": 60.778, "end": 60.894}, {"text": "buy", "start": 60.952, "end": 61.138}, {"text": "it", "start": 61.196, "end": 61.265}, {"text": "again,", "start": 61.312, "end": 61.811}, {"text": "but", "start": 61.927, "end": 62.09}, {"text": "the", "start": 62.124, "end": 62.206}, {"text": "offer", "start": 62.287, "end": 62.6}, {"text": "from", "start": 62.682, "end": 62.856}, {"text": "before", "start": 62.914, "end": 63.344}, {"text": "the", "start": 63.46, "end": 63.564}, {"text": "report", "start": 63.645, "end": 64.098}, {"text": "stays", "start": 64.249, "end": 64.597}, {"text": "dead.", "start": 64.655, "end": 65.12}, {"text": "We", "start": 65.724, "end": 65.851}, {"text": "try", "start": 65.909, "end": 66.083}, {"text": "to", "start": 66.153, "end": 66.211}, {"text": "accept", "start": 66.269, "end": 66.629}, {"text": "it.", "start": 66.687, "end": 66.989}, {"text": "Refused.", "start": 67.198, "end": 67.999}, {"text": "Quantum", "start": 68.603, "end": 68.998}, {"text": "computers", "start": 69.056, "end": 69.636}, {"text": "are", "start": 69.694, "end": 69.845}, {"text": "expected", "start": 69.892, "end": 70.344}, {"text": "to", "start": 70.391, "end": 70.449}, {"text": "crack", "start": 70.518, "end": 70.751}, {"text": "today\u2019s", "start": 70.809, "end": 71.111}, {"text": "wallet", "start": 71.169, "end": 71.482}, {"text": "keys.", "start": 71.529, "end": 72.016}, {"text": "We", "start": 72.295, "end": 72.423}, {"text": "try", "start": 72.481, "end": 72.69}, {"text": "a", "start": 72.748, "end": 72.771}, {"text": "sale", "start": 72.84, "end": 73.119}, {"text": "with", "start": 73.154, "end": 73.293}, {"text": "the", "start": 73.328, "end": 73.398}, {"text": "compromised", "start": 73.444, "end": 74.036}, {"text": "key.", "start": 74.094, "end": 74.536}, {"text": "QoreChain", "start": 74.919, "end": 75.499}, {"text": "refuses", "start": 75.673, "end": 76.184}, {"text": "it.", "start": 76.265, "end": 76.591}, {"text": "Selling", "start": 76.974, "end": 77.31}, {"text": "the", "start": 77.368, "end": 77.438}, {"text": "watch", "start": 77.485, "end": 77.798}, {"text": "requires", "start": 77.914, "end": 78.448}, {"text": "the", "start": 78.495, "end": 78.564}, {"text": "owner\u2019s", "start": 78.646, "end": 78.971}, {"text": "post-quantum", "start": 79.04, "end": 79.644}, {"text": "signature.", "start": 79.702, "end": 80.422}, {"text": "So", "start": 80.933, "end": 81.119}, {"text": "does", "start": 81.177, "end": 81.339}, {"text": "reporting", "start": 81.397, "end": 81.815}, {"text": "a", "start": 81.862, "end": 81.885}, {"text": "theft", "start": 81.943, "end": 82.326}, {"text": "or", "start": 82.442, "end": 82.593}, {"text": "lifting", "start": 82.663, "end": 82.965}, {"text": "the", "start": 83.011, "end": 83.081}, {"text": "freeze.", "start": 83.127, "end": 83.684}, {"text": "Private", "start": 84.288, "end": 84.683}, {"text": "buyers", "start": 84.718, "end": 85.101}, {"text": "can", "start": 85.159, "end": 85.275}, {"text": "check", "start": 85.321, "end": 85.507}, {"text": "the", "start": 85.554, "end": 85.623}, {"text": "passport", "start": 85.67, "end": 86.169}, {"text": "directly.", "start": 86.215, "end": 86.947}, {"text": "For", "start": 87.643, "end": 87.806}, {"text": "dealers", "start": 87.887, "end": 88.224}, {"text": "and", "start": 88.259, "end": 88.328}, {"text": "marketplaces,", "start": 88.375, "end": 89.257}, {"text": "or", "start": 89.338, "end": 89.501}, {"text": "an", "start": 89.559, "end": 89.617}, {"text": "insurer", "start": 89.675, "end": 90.081}, {"text": "checking", "start": 90.14, "end": 90.465}, {"text": "a", "start": 90.523, "end": 90.546}, {"text": "watch,", "start": 90.616, "end": 91.068}, {"text": "it", "start": 91.184, "end": 91.324}, {"text": "takes", "start": 91.359, "end": 91.602}, {"text": "one", "start": 91.684, "end": 91.927}, {"text": "HTTPS", "start": 91.962, "end": 92.833}, {"text": "call", "start": 92.914, "end": 93.205}, {"text": "or", "start": 93.379, "end": 93.541}, {"text": "one", "start": 93.634, "end": 93.831}, {"text": "contract", "start": 93.878, "end": 94.389}, {"text": "read.", "start": 94.458, "end": 94.865}, {"text": "Halt", "start": 95.468, "end": 95.759}, {"text": "is", "start": 95.817, "end": 95.91}, {"text": "live", "start": 95.991, "end": 96.27}, {"text": "on", "start": 96.304, "end": 96.397}, {"text": "QoreChain\u2019s", "start": 96.467, "end": 97.175}, {"text": "Diana", "start": 97.349, "end": 97.779}, {"text": "testnet.", "start": 97.837, "end": 98.522}, {"text": "Anyone", "start": 99.033, "end": 99.427}, {"text": "can", "start": 99.462, "end": 99.59}, {"text": "open", "start": 99.648, "end": 99.869}, {"text": "the", "start": 99.915, "end": 99.985}, {"text": "transactions,", "start": 100.02, "end": 100.855}, {"text": "right", "start": 101.03, "end": 101.25}, {"text": "down", "start": 101.285, "end": 101.471}, {"text": "to", "start": 101.506, "end": 101.575}, {"text": "the", "start": 101.657, "end": 101.726}, {"text": "signed", "start": 101.761, "end": 101.993}, {"text": "theft", "start": 102.016, "end": 102.249}, {"text": "report.", "start": 102.307, "end": 102.864}, {"text": "Halt.", "start": 103.247, "end": 103.735}, {"text": "Stolen", "start": 104.246, "end": 104.675}, {"text": "watches,", "start": 104.722, "end": 105.256}, {"text": "unsellable.", "start": 105.383, "end": 106.393}];
+const OFF = 0.8, END = 110.0;
+const T = i => WORDS[i].start + OFF;
+const tl = gsap.timeline({ paused: true });
+const hash = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
+
+/* ---------- dot-lattice dial, a pure function of time ---------- */
+function drawDial(ctx, w, h, st) {
+  ctx.clearRect(0, 0, w, h);
+  const { cx, cy, R, gap } = st;
+  const sec = st.frozenAt != null && st.t > st.frozenAt ? Math.floor(st.frozenAt) : Math.floor(st.t);
+  const hands = [{ a: ((sec * 6 - 90) * Math.PI) / 180, l: R * .84, wd: 1.1 }, { a: ((310 - 90) * Math.PI) / 180, l: R * .62, wd: 2.2 }, { a: ((52 - 90) * Math.PI) / 180, l: R * .44, wd: 2.6 }];
+  const diag = Math.hypot(w, h);
+  for (let y = gap / 2; y < h; y += gap) for (let x = gap / 2; x < w; x += gap) {
+    const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy);
+    let v = .05 + hash(x, y) * .05;
+    if (Math.abs(d - R) < gap * .7) v = .95;
+    else if (Math.abs(d - R * .9) < gap * .5 && Math.round(((Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI)) * 60) % 5 === 0) v = .8;
+    else if (d < R * .9) { v = .08 + hash(x, y) * .06; for (const hd of hands) { const al = dx * Math.cos(hd.a) + dy * Math.sin(hd.a), off = Math.abs(-dx * Math.sin(hd.a) + dy * Math.cos(hd.a)); if (al > -gap && al < hd.l && off < gap * .45 * hd.wd) v = .95; } if (d < gap * .9) v = 1; }
+    if (Math.abs(dy) < gap * 1.2 && dx > R && dx < R + gap * 2.4) v = .9;
+    if (v < .2 && d > R * 1.35) continue;
+    const red = st.wave > 0 && Math.hypot(x - (cx + R + gap), y - cy) / diag < st.wave * 1.2;
+    ctx.fillStyle = red ? `rgba(255,69,38,${v})` : `rgba(243,241,236,${v})`;
+    ctx.beginPath(); ctx.arc(x, y, v > .5 ? gap * .3 : gap * .2, 0, 6.283); ctx.fill();
+  }
+}
+const D = { t: 0 };
+const dctx = document.getElementById("dial").getContext("2d");
+tl.to(D, { t: T(14), duration: T(14), ease: "none", onUpdate: () => drawDial(dctx, 1920, 1080, { t: D.t, cx: 620, cy: 500, R: 330, gap: 14, wave: 0 }) }, 0);
+const P = { t: 0 };
+const pctx = document.getElementById("ppDial").getContext("2d");
+tl.to(P, { t: 9, duration: 9, ease: "none", onUpdate: () => drawDial(pctx, 672, 380, { t: 3 + P.t, cx: 336, cy: 190, R: 150, gap: 10, wave: 0 }) }, T(75) - .3);
+const PH = { t: 0, wave: 0 };
+const phctx = document.getElementById("phDial").getContext("2d");
+tl.to(PH, { t: 9, duration: 9, ease: "none", onUpdate: () => drawDial(phctx, 356, 260, { t: 20 + PH.t, cx: 178, cy: 130, R: 100, gap: 8, wave: PH.wave, frozenAt: T(131) - (T(114) - .3) }) }, T(114) - .3);
+const E = { t: 0 };
+const ectx = document.getElementById("endDial").getContext("2d");
+tl.to(E, { t: END - T(260) + .3, duration: END - T(260) + .3, ease: "none", onUpdate: () => drawDial(ectx, 1920, 1080, { t: 30 + E.t, cx: 960, cy: 470, R: 420, gap: 15, wave: 0 }) }, T(260) - .3);
+
+/* ---------- ground light ---------- */
+tl.fromTo("#g1", { x: -60, y: 30, scale: 1 }, { x: 80, y: -40, scale: 1.12, duration: END, ease: "sine.inOut" }, 0);
+tl.fromTo("#g2", { x: 40, y: 0 }, { x: -120, y: 60, duration: END, ease: "sine.inOut" }, 0);
+tl.fromTo("#g3", { x: 0, y: 0 }, { x: 140, y: -50, duration: END, ease: "sine.inOut" }, 0);
+tl.fromTo("#bg", { opacity: 0 }, { opacity: .55, duration: 2.5, ease: "power2.out" }, 0);
+
+/* ---------- helpers ---------- */
+const FLAPCH = "0123456789$,";
+function flaps(id, text) { const el = document.getElementById(id); el.innerHTML = [...text].map(c => `<div class="fl"><span>${c}</span></div>`).join(""); return [...el.children]; }
+function flapIn(cells, finals, t0, per) {
+  cells.forEach((c, i) => { const s = c.firstChild, n = 3 + (i % 3);
+    for (let k = 0; k < n; k++) tl.set(s, { textContent: FLAPCH[(i * 7 + k * 5) % FLAPCH.length] }, t0 + i * .05 + k * per);
+    tl.set(s, { textContent: finals[i] }, t0 + i * .05 + n * per);
+    tl.fromTo(c, { rotationX: -70 }, { rotationX: 0, duration: per * (n + 1), ease: "power2.out" }, t0 + i * .05); });
+}
+const cardIn = (sel, t, from) => tl.fromTo(sel, Object.assign({ opacity: 0, y: 120, rotationX: 22, scale: .92, filter: "blur(12px)" }, from || {}), { opacity: 1, y: 0, x: 0, rotationX: 6, rotationY: 0, scale: 1, filter: "blur(0px)", duration: .8, ease: "expo.out" }, t);
+const out = (sel, t) => tl.to(sel, { opacity: 0, scale: .95, filter: "blur(14px)", duration: .3, ease: "power2.in" }, t);
+const pop = (sel, t) => tl.fromTo(sel, { opacity: 0, y: 30, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .45, ease: "back.out(1.5)" }, t);
+const ARROW = '<svg class="ar" viewBox="0 0 32 32"><path d="M5 3 L5 25.5 L10.6 20.2 L14.4 28.6 L18 27 L14.3 18.8 L22 18.8 Z" fill="#111" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>';
+const HAND = '<svg class="hd" viewBox="0 0 32 32" style="opacity:0"><path d="M11.2 15.5 V5.2 c0-1.3 1-2.3 2.2-2.3 s2.2 1 2.2 2.3 v8.1 c0-1.2 1-2.1 2.1-2.1 s2.1.9 2.1 2.1 v1 c0-1.1.9-2 2-2 s2 .9 2 2 v1.3 c0-1 .9-1.8 1.9-1.8 s1.9.8 1.9 1.8 v6.6 c0 4.3-3.1 7.9-7.6 7.9 h-2.6 c-2.6 0-4.4-1.2-5.8-3.3 L6.2 19.6 c-.6-.9-.4-2.1.5-2.7 .9-.6 2.1-.4 2.8.5 Z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/><path d="M15.6 13.3 V18 M19.8 14.4 V18 M23.8 15.7 V18.4" stroke="#111" stroke-width="1.3" stroke-linecap="round"/></svg>';
+document.querySelectorAll(".cur").forEach(c => c.innerHTML = ARROW + HAND);
+// cursor: glide in, become the hand over the button, click on the word
+function clickAt(cur, btn, from, to, tArrive, tClick) {
+  const c = "#" + cur;
+  tl.set(c + " .hd", { opacity: 0 }, 0); tl.set(c + " .ar", { opacity: 1 }, 0);
+  tl.fromTo(c, { x: from[0], y: from[1] }, { x: to[0], y: to[1], duration: 1.1, ease: "power3.inOut" }, tArrive - 1.1);
+  tl.set(c + " .ar", { opacity: 0 }, tArrive - .12); tl.set(c + " .hd", { opacity: 1 }, tArrive - .12);
+  tl.to(c, { scale: .86, duration: .07, ease: "power2.in" }, tClick - .02); tl.to(c, { scale: 1, duration: .18, ease: "power2.out" }, tClick + .05);
+  if (btn) { tl.to(btn, { scale: .97, duration: .07 }, tClick - .02); tl.to(btn, { scale: 1, duration: .2, ease: "back.out(2)" }, tClick + .05); }
+  tl.set(c + " .hd", { opacity: 0 }, tClick + .5); tl.set(c + " .ar", { opacity: 1 }, tClick + .5);
+  tl.to(c, { x: to[0] + 620, y: to[1] + 120, duration: .8, ease: "power2.inOut" }, tClick + .5);
+}
+
+/* ---------- S1: the offer on the counter ---------- */
+tl.fromTo("#dialW", { opacity: 0, scale: 1.2, filter: "blur(14px)" }, { opacity: .9, scale: 1, filter: "blur(0px)", duration: 2, ease: "power3.out" }, 0);
+tl.to("#dialW", { scale: 1.06, duration: 4, ease: "none" }, 2);
+tl.fromTo("#s1 .flabel, #fPrice", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .5, ease: "expo.out", stagger: .06 }, T(1) - .1);
+flapIn(flaps("fPrice", "$14,200"), "$14,200", T(1), .07);
+pop("#isStolen", T(12) - .15);
+tl.to("#dialW", { opacity: 0, filter: "blur(16px)", duration: .3, ease: "power2.in" }, T(14) - .35);
+tl.to("#s1 .flabel, #fPrice, #isStolen", { opacity: 0, x: -60, filter: "blur(10px)", duration: .25, ease: "power3.in" }, T(14) - .35);
+
+/* ---------- S2-S4: the register ---------- */
+cardIn("#reg1", T(14) - .25, { rotationY: -10 });
+const serial = "Serial 7Z41 K9 0328";
+for (let k = 1; k <= serial.length; k++) tl.set("#typed", { textContent: serial.slice(0, k) }, T(15) + k * .045);
+tl.fromTo("#caret", { opacity: 1 }, { opacity: 0, duration: .01 }, T(16) + .2);
+tl.fromTo("#res1", { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: .3, ease: "power2.out" }, T(17));
+tl.fromTo("#res1 i", { color: "#5C606B" }, { color: "#C77700", duration: .3 }, T(26) - .1);
+// another country: the US register slides left, the UK register comes in on the right
+tl.to("#reg1", { x: -440, scale: .7, rotationY: 10, duration: .7, ease: "power3.inOut" }, T(27) - .2);
+tl.fromTo("#reg2", { opacity: 0, x: 1000, scale: .7, rotationY: -30 }, { opacity: 1, x: 440, scale: .7, rotationY: -10, rotationX: 6, duration: .8, ease: "expo.out" }, T(36) - .5);
+tl.to("#reg2", { opacity: 0, x: 900, filter: "blur(14px)", duration: .4, ease: "power3.in" }, T(38) - .4);
+tl.to("#reg1", { x: 0, scale: 1, rotationY: -4, duration: .6, ease: "power3.inOut" }, T(38) - .4);
+const stamp = (id, t, rot) => tl.fromTo(id, { opacity: 0, scale: 1.9, rotation: rot - 8 }, { opacity: 1, scale: 1, rotation: rot, duration: .28, ease: "power4.in" }, t);
+stamp("#st1", T(44) - .02, -4); stamp("#st2", T(54) - .02, 3);
+out("#reg1", T(58) - .3);
+
+/* ---------- S5: word against paperwork ---------- */
+tl.fromTo("#bub1", { opacity: 0, x: -120, scale: .92 }, { opacity: 1, x: 0, scale: 1, duration: .5, ease: "back.out(1.4)" }, T(64) - .15);
+cardIn("#cert", T(66) - .45, { rotationY: -24, x: 200 });
+tl.to("#cert", { rotationY: -8, duration: 3, ease: "sine.inOut" }, T(66) + .4);
+tl.fromTo("#certQ", { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: .25, ease: "power4.in" }, T(70) - .05);
+tl.fromTo("#cert", { x: 0 }, { keyframes: [{ x: -10, duration: .04 }, { x: 8, duration: .04 }, { x: -4, duration: .04 }, { x: 0, duration: .04 }] }, T(70));
+out("#bub1, #cert", T(71) - .4);
+
+/* ---------- S6: So we built Halte ---------- */
+(function mark() {
+  const s = document.getElementById("logoMark"); let h = "";
+  for (let y = 5; y < 150; y += 10) for (let x = 5; x < 150; x += 10) { const d = Math.hypot(x - 75, y - 75); if (d > 72) continue;
+    const ring = Math.abs(d - 64) < 6, hand = (Math.abs(x - 75) < 4 && y < 75 && y > 20) || (Math.abs(y - 75) < 4 && x > 75 && x < 112);
+    h += `<circle class="lm" cx="${x}" cy="${y}" r="${ring || hand ? 4 : 2}" fill="${ring || hand ? "#F3F1EC" : "rgba(243,241,236,.16)"}"/>`; }
+  s.innerHTML = h;
+})();
+tl.fromTo("#logoMark .lm", { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: .3, ease: "back.out(2)", stagger: { each: .0015, from: "center" } }, T(71) - .15);
+tl.fromTo("#logoWord", { opacity: 0, x: -40, filter: "blur(10px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: .5, ease: "expo.out" }, T(74) - .2);
+tl.fromTo("#logo", { scale: 1 }, { scale: 1.06, duration: 2.4, ease: "none" }, T(71) - .2);
+tl.to("#bg", { opacity: .9, duration: .5 }, T(74));
+tl.to("#logo", { opacity: 0, scale: 1.2, filter: "blur(14px)", duration: .3, ease: "power3.in" }, T(75) - .35);
+
+/* ---------- S7: the passport ---------- */
+cardIn("#pp1", T(75) - .25, { rotationY: 34, x: -160 });
+tl.to("#pp1", { rotationY: 10, duration: 7, ease: "sine.inOut" }, T(75) + .6);
+pop("#fcMaker", T(76) - .1); pop("#fcChain", T(87) - .15); pop("#fcKey", T(93) - .1);
+out("#pp1, #fcMaker, #fcChain, #fcKey", T(95) - .35);
+
+/* ---------- S8: dealer check, sellable ---------- */
+cardIn("#dl1", T(95) - .25);
+tl.to("#dl1", { rotationX: 2, scale: 1.02, duration: 7, ease: "sine.inOut" }, T(95) + .6);
+clickAt("cur1", "#buy1", [1720, 1000], [640, 545], T(99), T(100) + .1);
+tl.fromTo("#v1", { opacity: 0, y: 24, scale: .98 }, { opacity: 1, y: 0, scale: 1, duration: .45, ease: "expo.out" }, T(105) - .3);
+out("#dl1, #cur1", T(114) - .35);
+
+/* ---------- S9: the owner reports from the phone ---------- */
+tl.fromTo("#ph", { opacity: 0, y: 220, rotationX: 18, filter: "blur(12px)" }, { opacity: 1, y: 0, rotationX: 4, filter: "blur(0px)", duration: .8, ease: "expo.out" }, T(114) - .25);
+document.getElementById("sig").innerHTML = Array.from({ length: 30 }, () => "<span></span>").join("");
+tl.set("#sig span", { background: "#23232a" }, 0); tl.set("#sigl", { opacity: 0 }, 0);
+clickAt("cur2", "#rbtn", [1500, 1100], [930, 640], T(122), T(123));
+tl.to("#sigl", { opacity: 1, duration: .2 }, T(123) + .1);
+tl.to("#sig span", { background: "#6FE3A6", duration: .04, stagger: .03 }, T(123) + .1);
+tl.to("#ph", { x: -300, rotationY: 12, duration: .7, ease: "power3.inOut" }, T(125) - .3);
+pop("#fcVer", T(125) + .1);
+tl.to("#phOk", { opacity: 0, duration: .12 }, T(131)); tl.fromTo("#phNo", { opacity: 0, scale: .9 }, { opacity: 1, scale: 1, duration: .35, ease: "expo.out" }, T(131));
+tl.to(PH, { wave: 1, duration: .8, ease: "power2.in" }, T(131));
+tl.to("#gred", { opacity: 1, duration: .4, ease: "power2.out" }, T(131)); tl.to("#gred", { opacity: .35, duration: 1.5 }, T(131) + .5);
+pop("#fcBlk", T(136) - .1);
+out("#ph, #fcVer, #fcBlk, #cur2", T(138) - .35);
+
+/* ---------- S10: same check, refused ---------- */
+cardIn("#dl2", T(138) - .25);
+clickAt("cur3", "#buy2", [1720, 1000], [640, 545], T(142) + .2, T(143) + .05);
+tl.fromTo("#v2", { opacity: 0, y: 24, scale: .98 }, { opacity: 1, y: 0, scale: 1, duration: .4, ease: "expo.out" }, T(145) - .15);
+tl.to("#gred", { opacity: 0, duration: 1.2 }, T(146));
+out("#dl2, #cur3", T(148) - .35);
+
+/* ---------- S11: recovered, old offer stays dead ---------- */
+cardIn("#dl3", T(148) - .25);
+tl.to("#d3no", { opacity: 0, duration: .12 }, T(155)); tl.fromTo("#d3ok", { opacity: 0, scale: .9 }, { opacity: 1, scale: 1, duration: .35, ease: "expo.out" }, T(155));
+tl.fromTo("#oldTag", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: .25, ease: "power4.in" }, T(171) - .1);
+clickAt("cur4", "#buy3", [1720, 1000], [640, 545], T(174), T(175) + .05);
+tl.fromTo("#v3", { opacity: 0, y: 24, scale: .98 }, { opacity: 1, y: 0, scale: 1, duration: .4, ease: "expo.out" }, T(177) - .15);
+out("#dl3, #cur4", T(178) - .35);
+
+/* ---------- S12: Q-Day ---------- */
+const plctx = document.getElementById("plane").getContext("2d");
+const Q = { t: 0, amp: 0, cold: 1 };
+function drawPlane() {
+  const c = plctx; c.clearRect(0, 0, 1920, 1080);
+  for (let gz = 1; gz < 46; gz++) for (let gx = -40; gx <= 40; gx++) {
+    const z = gz * 38, x = gx * 38, wave = Math.sin(gx * .35 + Q.t * 2.2) * Math.cos(gz * .3 - Q.t * 1.7) * Q.amp * 30;
+    const f = 900 / (z + 300), sx = 960 + x * f, sy = 560 + (260 + wave) * f;
+    if (sx < -20 || sx > 1940 || sy > 1100) continue;
+    const a = Math.max(0, 1 - z / 1700) * .9;
+    c.fillStyle = Q.cold ? `rgba(169,193,255,${a})` : `rgba(255,90,54,${a})`;
+    c.beginPath(); c.arc(sx, sy, Math.max(.8, 3.2 * f), 0, 6.283); c.fill();
+  }
+}
+tl.fromTo("#plane", { opacity: 0 }, { opacity: 1, duration: 1, ease: "power2.out" }, T(178) - .2);
+tl.to(Q, { t: 17, duration: 17, ease: "none", onUpdate: drawPlane }, T(178) - .3);
+tl.to(Q, { amp: 1, duration: 1, ease: "power2.inOut" }, T(181));
+tl.to("#gcold", { opacity: 1, duration: 1 }, T(178)); tl.to(["#g1", "#g2", "#g3"], { opacity: .15, duration: 1 }, T(178));
+tl.fromTo("#qday", { opacity: 0, scale: 1.08, filter: "blur(14px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: .6, ease: "expo.out" }, T(178) - .1);
+tl.to("#qday", { opacity: 0, filter: "blur(12px)", duration: .25, ease: "power2.in" }, T(181) - .15);
+tl.fromTo("#ckey", { opacity: 0, y: 60, rotationX: 20 }, { opacity: 1, y: 0, rotationX: 8, duration: .45, ease: "expo.out" }, T(181) + .05);
+const parts = document.getElementById("parts"); let ph = "";
+for (let i = 0; i < 90; i++) ph += `<i id="pt${i}" style="left:${690 + (i % 15) * 36}px;top:${310 + Math.floor(i / 15) * 48}px"></i>`;
+parts.innerHTML = ph; tl.set("#parts i", { opacity: 0 }, 0);
+tl.to("#ckey", { opacity: 0, scale: 1.04, duration: .12 }, T(185) + .1);
+for (let i = 0; i < 90; i++) { const a = hash(i, 3) * 6.283, r = 200 + hash(i, 9) * 480;
+  tl.fromTo("#pt" + i, { opacity: 1, x: 0, y: 0, background: "#A9C1FF" }, { opacity: 0, x: Math.cos(a) * r, y: Math.sin(a) * r * .7, background: "#FF5A36", duration: 1.4 + hash(i, 5) * .6, ease: "expo.out" }, T(185) + .1 + hash(i, 1) * .08); }
+tl.to(Q, { cold: 0, duration: .01 }, T(187)); tl.to("#gcold", { opacity: 0, duration: .8 }, T(187)); tl.to(["#g1", "#g2", "#g3"], { opacity: 1, duration: .8 }, T(187));
+tl.fromTo("#cforge", { opacity: 0, x: -200, rotationY: 30 }, { opacity: 1, x: 0, rotationY: 12, duration: .55, ease: "expo.out" }, T(187) - .1);
+tl.fromTo("#dl4", { opacity: 0, x: 200, rotationY: -28 }, { opacity: 1, x: 0, rotationY: -10, duration: .55, ease: "expo.out" }, T(190) - .3);
+tl.fromTo("#v4", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .4, ease: "expo.out" }, T(196) - .1);
+out("#cforge, #dl4", T(198) - .4);
+tl.set("#n1, #n2, #n3", { opacity: 0 }, 0);
+pop("#n1", T(198)); pop("#n2", T(208) - .1); pop("#n3", T(212) - .1);
+out("#n1, #n2, #n3, #plane", T(215) - .35);
+
+/* ---------- S13: who uses it ---------- */
+pop("#who1", T(215) - .1); pop("#who2", T(223)); pop("#who3", T(227) + .05);
+cardIn("#code", T(222) - .3, { rotationX: 30 });
+tl.set("#resp, #sol, #sol2", { opacity: 0 }, 0);
+tl.to("#resp", { opacity: 1, duration: .25 }, T(236)); tl.to("#sol, #sol2", { opacity: 1, duration: .25, stagger: .15 }, T(238) - .1);
+out("#who1, #who2, #who3, #code", T(241) - .35);
+
+/* ---------- S14: proof ---------- */
+cardIn("#exp", T(241) - .25, { rotationY: -16 });
+tl.to("#exp", { rotationX: 2, scale: 1.04, duration: 7, ease: "sine.inOut" }, T(241) + .6);
+tl.fromTo("#exp dl div", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: .3, stagger: .3 }, T(241) + .5);
+out("#exp", T(260) - .35);
+
+/* ---------- S15: end ---------- */
+tl.fromTo("#endDial", { opacity: 0 }, { opacity: .25, duration: 1.2 }, T(260) - .2);
+tl.fromTo("#endW", { opacity: 0, filter: "blur(12px)", y: 20 }, { opacity: 1, filter: "blur(0px)", y: 0, duration: .6, ease: "expo.out" }, T(260) - .1);
+tl.fromTo("#endT", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5, ease: "expo.out" }, T(261) - .1);
+tl.fromTo("#endU", { opacity: 0 }, { opacity: 1, duration: .5 }, T(263) + .4);
+
+/* ---------- captions ---------- */
+const SHOW = {}; WORDS.forEach((w, i) => { if (/^Halt[.]?$/.test(w.text)) SHOW[i] = w.text.replace("Halt", "Halte"); });
+const KEY = { 13: "k", 26: "k", 37: "k", 46: "k", 70: "k", 74: "k", 87: "k", 93: "k", 105: "g", 131: "k", 147: "k", 171: "k", 177: "k", 183: "k", 196: "k", 204: "k", 235: "k", 240: "k", 247: "k", 263: "k" };
+const caps = document.getElementById("caps"); const groups = []; let cur = [];
+for (let i = 0; i < 260; i++) { cur.push(i); const t = WORDS[i].text, next = WORDS[i + 1];
+  if (/[.?!]$/.test(t) || (/,$/.test(t) && cur.length >= 3) || cur.length >= 7 || !next || (next.start - WORDS[i].end > .3)) { groups.push(cur); cur = []; } }
+if (cur.length) groups.push(cur);
+caps.innerHTML = groups.map((g, n) => `<div class="cg" id="cg${n}">` + g.map(i => `<span class="${KEY[i] || ""}">${SHOW[i] || WORDS[i].text}</span>`).join(" ") + `</div>`).join("");
+groups.forEach((g, n) => {
+  const last = g[g.length - 1];
+  const s = T(g[0]) - .08, e = Math.min(T(last) + (WORDS[last].end - WORDS[last].start) + .25, groups[n + 1] ? T(groups[n + 1][0]) - .1 : END - .2);
+  tl.fromTo("#cg" + n, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .14, ease: "power2.out" }, s);
+  tl.to("#cg" + n, { opacity: 0, duration: .1, ease: "power2.in" }, e - .1);
+  tl.set("#cg" + n, { opacity: 0 }, e);
+});
+
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
