@@ -48,7 +48,7 @@ export default async function TransactionPage({ params, searchParams }: {
   const height = tx?.height ?? blockHint;
 
   return (
-    <main className="pp pp-head">
+    <div className="paper"><main className="pp pp-head" style={{ paddingTop: 48, paddingBottom: 80 }}>
       <Wordmark />
       <h1>Diana testnet transaction</h1>
       {!tx && <p>{unavailable
@@ -68,6 +68,6 @@ export default async function TransactionPage({ params, searchParams }: {
         {height && <div><dt className="mono">Block</dt><dd><a href={`${RPC}/block?height=${height}`}>{n(height)} on Diana ↗</a></dd></div>}
         {tx && <div><dt className="mono">Source</dt><dd><a href={`${TXS}/${tx.txhash}`}>Diana transaction JSON ↗</a></dd></div>}
       </dl>
-    </main>
+    </main></div>
   );
 }
