@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Archivo"; src: url("assets/fonts/Archivo.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+      @font-face { font-family: "Instrument Sans"; src: url("assets/fonts/InstrumentSans.woff2") format("woff2"); font-weight: 400 700; font-stretch: 75% 100%; }
+      @font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 400 500; }
+      /* Watch-dial world: midnight sunburst dial as the stage, porcelain enamel UI, lume green for go, signal red for stolen. */
+      :root {
+        --dial-hi: #22376B; --dial: #0F1A38; --dial-lo: #050914;
+        --porcelain: #F5F4EF; --card: #FFFFFF; --ink: #0C1222; --ink2: #5B6172; --hair: rgba(12,18,34,.09);
+        --lume: #7CF0B9; --go: #0B7A50; --go-bg: #E4F7EE;
+        --stop: #C9301A; --stop-bg: #FDEAE5; --ember: #FF5A36;
+        --display: "Archivo", "Inter", sans-serif; --ui: "Instrument Sans", "Inter", sans-serif; --mono: "Geist Mono", "JetBrains Mono", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--dial-lo); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--ui); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+      /* stage */
+      #bg { position: absolute; inset: 0; z-index: 0; }
+      .sun { position: absolute; left: -540px; top: -940px; width: 3000px; height: 3000px; border-radius: 50%;
+        background:
+          repeating-conic-gradient(from 0deg, rgba(255,255,255,.045) 0deg .35deg, rgba(0,0,0,.05) .35deg .7deg),
+          radial-gradient(circle at 50% 50%, var(--dial-hi) 0%, var(--dial) 34%, var(--dial-lo) 62%); }
+      .sweep { position: absolute; left: -540px; top: -940px; width: 3000px; height: 3000px; border-radius: 50%;
+        background: conic-gradient(from 200deg, transparent 0deg, rgba(160,190,255,.16) 18deg, transparent 42deg, transparent 180deg, rgba(160,190,255,.10) 200deg, transparent 226deg); mix-blend-mode: screen; }
+      .track { position: absolute; left: -540px; top: -940px; width: 3000px; height: 3000px; }
+      .ember { position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 62%, rgba(255,70,38,.55), rgba(120,20,10,.25) 45%, transparent 75%); opacity: 0; }
+
+      /* camera + window */
+      #cam { position: absolute; inset: 0; z-index: 2; }
+      .win { position: absolute; left: 230px; top: 150px; width: 1460px; height: 800px; border-radius: 18px; overflow: hidden; background: var(--porcelain);
+        box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 50px 120px -30px rgba(0,0,0,.75), 0 18px 40px -12px rgba(0,0,0,.5); }
+      .chrome { height: 52px; background: #E9E8E2; border-bottom: 1px solid var(--hair); display: flex; align-items: center; padding: 0 20px; gap: 9px; }
+      .chrome i { width: 13px; height: 13px; border-radius: 50%; display: block; }
+      .chrome i:nth-child(1) { background: #FF5F57; } .chrome i:nth-child(2) { background: #FEBC2E; } .chrome i:nth-child(3) { background: #28C840; }
+      .url { margin: 0 auto; transform: translateX(-30px); font: 500 19px var(--ui); color: #474D5E; background: rgba(12,18,34,.06); padding: 6px 22px; border-radius: 9px; letter-spacing: .01em; }
+      .redge { position: absolute; inset: 0; border-radius: 18px; box-shadow: inset 0 0 0 3px var(--stop), 0 0 80px rgba(255,69,38,.45); opacity: 0; pointer-events: none; }
+
+      .brand { position: absolute; left: 44px; top: 78px; display: flex; align-items: center; gap: 12px; font: 600 22px var(--display); font-stretch: 125%; letter-spacing: .06em; text-transform: uppercase; }
+      .brand svg { width: 26px; height: 26px; }
+      .nav { position: absolute; right: 44px; top: 78px; display: flex; gap: 28px; font: 500 21px var(--ui); color: var(--ink2); }
+
+      .pp { position: absolute; left: 40px; top: 140px; width: 620px; height: 620px; background: var(--card); border-radius: 22px; box-shadow: 0 1px 0 var(--hair), 0 20px 40px -24px rgba(12,18,34,.25); padding: 34px 36px; }
+      .pp .lab { font: 500 22px var(--ui); color: var(--ink2); letter-spacing: .02em; }
+      .pp h2 { font: 600 42px var(--display); font-stretch: 110%; letter-spacing: -.01em; margin-top: 6px; }
+      .chips { position: relative; height: 40px; margin-top: 16px; }
+      .chip { position: absolute; left: 0; top: 0; display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 20px 0 16px; border-radius: 999px; font: 600 23px var(--ui); }
+      .chip b { width: 11px; height: 11px; border-radius: 50%; }
+      .chip.ok { background: var(--go-bg); color: var(--go); } .chip.ok b { background: #22C27F; box-shadow: 0 0 0 4px rgba(34,194,127,.18); }
+      .chip.no { background: var(--stop-bg); color: var(--stop); opacity: 0; } .chip.no b { background: var(--stop); box-shadow: 0 0 0 4px rgba(224,55,28,.18); }
+      .dialwrap { position: absolute; right: 30px; top: 30px; width: 150px; height: 150px; }
+      .dialwrap svg { width: 100%; height: 100%; }
+      .meta { position: absolute; left: 36px; right: 36px; bottom: 34px; display: grid; gap: 0; }
+      .meta div { display: flex; justify-content: space-between; align-items: baseline; padding: 13px 0; border-top: 1px solid var(--hair); font-size: 25px; }
+      .meta dt { color: var(--ink2); font-weight: 500; } .meta dd { font-weight: 600; }
+      .meta dd small { font: 500 20px var(--mono); color: var(--ink2); margin-left: 8px; }
+
+      .desk { position: absolute; left: 690px; top: 140px; width: 730px; height: 380px; background: var(--card); border-radius: 22px; box-shadow: 0 1px 0 var(--hair), 0 20px 40px -24px rgba(12,18,34,.25); padding: 30px 34px; }
+      .desk h3, .own h3 { font: 600 28px var(--ui); letter-spacing: -.01em; }
+      .desk .sub, .own .sub { font: 500 23px var(--ui); color: var(--ink2); margin-top: 4px; }
+      .btn { position: absolute; display: flex; align-items: center; justify-content: center; gap: 12px; height: 64px; border-radius: 999px; font: 600 25px var(--ui); }
+      .btn.buy { left: 34px; top: 118px; width: 250px; background: var(--ink); color: #fff; }
+      .btn.rep { left: 34px; top: 104px; width: 290px; background: #fff; color: var(--stop); box-shadow: inset 0 0 0 2px var(--stop); }
+      .verdict { position: absolute; left: 34px; right: 34px; top: 206px; height: 146px; border-radius: 16px; border: 2px dashed rgba(12,18,34,.14); }
+      .v { position: absolute; inset: -2px; border-radius: 16px; padding: 22px 26px; opacity: 0; }
+      .v.idle { opacity: 1; display: flex; align-items: center; font: 500 24px var(--ui); color: var(--ink2); }
+      .v.go { background: var(--go-bg); box-shadow: inset 0 0 0 2px rgba(14,138,90,.25); }
+      .v.no { background: var(--stop-bg); box-shadow: inset 0 0 0 2px rgba(224,55,28,.3); }
+      .v strong { display: flex; align-items: center; gap: 14px; font: 700 34px var(--display); font-stretch: 112%; letter-spacing: -.01em; }
+      .v.go strong { color: var(--go); } .v.no strong { color: var(--stop); }
+      .v strong i { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 700 22px var(--ui); color: #fff; font-style: normal; }
+      .v.go strong i { background: var(--go); } .v.no strong i { background: var(--stop); }
+      .v p { margin-top: 10px; font: 500 24px var(--ui); color: var(--ink); opacity: .8; }
+      .v p span { font-family: var(--mono); font-size: 21px; }
+      .own { position: absolute; left: 690px; top: 540px; width: 730px; height: 220px; background: var(--card); border-radius: 22px; box-shadow: 0 1px 0 var(--hair), 0 20px 40px -24px rgba(12,18,34,.25); padding: 30px 34px; }
+      .own .key { position: absolute; left: 350px; top: 127px; white-space: nowrap; font: 500 18px var(--mono); color: var(--ink2); }
+
+      /* cursor */
+      #cur { position: absolute; left: 0; top: 0; width: 58px; height: 58px; z-index: 6; }
+      .pearl { position: absolute; inset: 0; border-radius: 50%;
+        background: radial-gradient(circle at 34% 28%, #fff 0 14%, #F4F2EC 26%, #D9D5CC 62%, #B4AEA3 88%, #9C968B 100%);
+        box-shadow: 0 10px 22px rgba(5,9,20,.45), 0 2px 5px rgba(5,9,20,.35), inset 0 -5px 9px rgba(0,0,0,.14), inset 0 3px 4px rgba(255,255,255,.7); }
+      .ring { position: absolute; left: -38px; top: -38px; width: 134px; height: 134px; opacity: 0; }
+
+      /* pills + captions */
+      .pill { position: absolute; top: 56px; left: 0; right: 0; display: flex; justify-content: center; z-index: 5; }
+      .pill > div { display: inline-flex; align-items: center; gap: 14px; height: 62px; padding: 0 30px 0 14px; background: rgba(255,255,255,.97); border-radius: 999px; box-shadow: 0 18px 40px -14px rgba(0,0,0,.55); font: 600 30px var(--ui); letter-spacing: -.01em; color: var(--ink); }
+      .pill svg { width: 36px; height: 36px; }
+      .pill em { font-style: normal; }
+      .pill em.go { color: var(--go); } .pill em.no { color: var(--stop); }
+      .pill .w { display: inline-block; }
+      .caps { position: absolute; left: 0; right: 0; bottom: 34px; height: 70px; z-index: 5; }
+      .cg { position: absolute; left: 0; right: 0; top: 0; text-align: center; font: 600 44px var(--ui); letter-spacing: -.015em; color: rgba(255,255,255,.4); opacity: 0; }
+      .cg > i { font-style: normal; display: inline-block; padding: 8px 26px 12px; border-radius: 18px; background: rgba(6,10,22,.82); box-shadow: 0 10px 30px -10px rgba(0,0,0,.5); }
+      .cg span { display: inline-block; margin: 0 .12em; }
+      .cg span.k { --hi: #FF7A5C; } .cg span.g { --hi: var(--lume); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="16" data-width="1920" data-height="1080">
+
+      <div id="bg" class="clip" data-start="0" data-duration="16" data-track-index="0" data-layout-ignore>
+        <div class="sun" id="sun"></div>
+        <svg class="track" id="track" viewBox="0 0 3000 3000" aria-hidden="true"></svg>
+        <div class="sweep" id="sweep"></div>
+        <div class="ember" id="ember"></div>
+      </div>
+
+      <div id="cam" class="clip" data-start="0" data-duration="16" data-track-index="1" data-layout-allow-overflow>
+        <div id="camin" style="position:absolute;inset:0">
+          <div class="win" id="win">
+            <div class="chrome"><i></i><i></i><i></i><span class="url">halte-roan.vercel.app/p/HLT-9C67-55AC</span></div>
+            <div class="brand"><svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11" fill="none" stroke="#0C1222" stroke-width="2.4"/><path d="M13 13V6.5M13 13l4.5 3" stroke="#0C1222" stroke-width="2.4" stroke-linecap="round"/></svg>Halte</div>
+            <div class="nav"><span>Passport</span><span>Dealer check</span><span>Proof</span></div>
+
+            <div class="pp">
+              <div class="lab">Watch passport</div>
+              <h2>HLT-9C67-55AC</h2>
+              <div class="chips"><span class="chip ok" id="chipOk"><b></b>Active</span><span class="chip no" id="chipNo"><b></b>Reported stolen</span></div>
+              <div class="dialwrap"><svg viewBox="0 0 200 200" id="mini" aria-hidden="true"><g id="miniDots"></g><g id="secHand"><line x1="100" y1="112" x2="100" y2="34" stroke="#0C1222" stroke-width="3.2" stroke-linecap="round"/><circle cx="100" cy="100" r="6" fill="#0C1222"/></g></svg></div>
+              <dl class="meta">
+                <div><dt>Owner key</dt><dd>ML-DSA-87<small>2,592 B</small></dd></div>
+                <div><dt>Network</dt><dd>QoreChain Diana</dd></div>
+                <div><dt>Offer</dt><dd>#31 · Halte demo dealer</dd></div>
+                <div><dt>Block</dt><dd id="blk">10,814,076</dd></div>
+              </dl>
+            </div>
+
+            <div class="desk">
+              <h3>Dealer counter</h3>
+              <div class="sub">Check the offer before you pay.</div>
+              <div class="btn buy" id="buy">Try to buy <span>→</span></div>
+              <div class="verdict">
+                <div class="v idle" id="vIdle">No check yet.</div>
+                <div class="v go" id="vGo"><strong><i>✓</i>Sellable</strong><p>The sale would go through · <span>block 10,814,076</span></p></div>
+                <div class="v no" id="vNo"><strong><i>✕</i>Refused · PassportFrozen</strong><p>Reported stolen by its owner · <span>block 10,814,082</span></p></div>
+              </div>
+            </div>
+
+            <div class="own">
+              <h3>Owner</h3>
+              <div class="sub">Signs with the ML-DSA-87 key on their phone.</div>
+              <div class="btn rep" id="rep">Report missing</div>
+              <div class="key">pqcVerify · 4,627-byte signature</div>
+            </div>
+            <div class="redge" id="redge"></div>
+          </div>
+
+          <div id="cur" data-layout-allow-occlusion><svg class="ring" id="ring" viewBox="0 0 134 134" aria-hidden="true"></svg><div class="pearl" id="pearl"></div></div>
+        </div>
+      </div>
+
+      <div id="pills" class="clip" data-start="0" data-duration="16" data-track-index="2">
+        <div class="pill" id="p1"><div><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="#0C1222"/><circle cx="18" cy="18" r="9" fill="none" stroke="#7CF0B9" stroke-width="2.4"/><path d="M18 18V12" stroke="#7CF0B9" stroke-width="2.4" stroke-linecap="round"/></svg><span class="w">The</span><span class="w">dealer</span><em class="w go">checks</em></div></div>
+        <div class="pill" id="p2"><div><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="#0C1222"/><circle cx="18" cy="18" r="9" fill="none" stroke="#FF5A36" stroke-width="2.4"/><path d="M18 18V12" stroke="#FF5A36" stroke-width="2.4" stroke-linecap="round"/></svg><span class="w">Reported</span><em class="w no">stolen</em></div></div>
+        <div class="pill" id="p3"><div><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="16" fill="#0C1222"/><circle cx="18" cy="18" r="9" fill="none" stroke="#FF5A36" stroke-width="2.4"/><path d="M18 18V12" stroke="#FF5A36" stroke-width="2.4" stroke-linecap="round"/></svg><span class="w">Same</span><span class="w">offer.</span><em class="w no">Refused.</em></div></div>
+      </div>
+
+      <div id="caps" class="clip caps" data-start="0" data-duration="16" data-track-index="3" data-track-kind="captions">
+        <div class="cg" id="c1"></div><div class="cg" id="c2"></div><div class="cg" id="c3"></div><div class="cg" id="c4"></div><div class="cg" id="c5"></div><div class="cg" id="c6"></div>
+      </div>
+
+      <audio id="vo1" class="clip" src="assets/audio/vo.mp3" data-start="2.2" data-media-start="0" data-duration="4.25" data-track-index="4" data-volume="1"></audio>
+      <audio id="vo2" class="clip" src="assets/audio/vo.mp3" data-start="7.7" data-media-start="4.4" data-duration="2.1" data-track-index="5" data-volume="1"></audio>
+      <audio id="vo3" class="clip" src="assets/audio/vo.mp3" data-start="11.3" data-media-start="6.75" data-duration="3.4" data-track-index="6" data-volume="1"></audio>
+      <audio id="sfx" class="clip" src="assets/audio/sfx.wav" data-start="0" data-duration="16" data-track-index="7" data-volume="1"></audio>
+    </div>
+
+    <script>
+      // ---------- static drawing (no timing) ----------
+      const NS = "http://www.w3.org/2000/svg";
+      (function track() { // minute track of a dial, huge, behind everything
+        const g = document.getElementById("track");
+        for (let i = 0; i < 60; i++) {
+          const a = (i / 60) * Math.PI * 2, r1 = 1370, r2 = i % 5 === 0 ? 1290 : 1340;
+          const l = document.createElementNS(NS, "line");
+          l.setAttribute("x1", 1500 + r1 * Math.cos(a)); l.setAttribute("y1", 1500 + r1 * Math.sin(a));
+          l.setAttribute("x2", 1500 + r2 * Math.cos(a)); l.setAttribute("y2", 1500 + r2 * Math.sin(a));
+          l.setAttribute("stroke", i % 5 === 0 ? "rgba(220,230,255,.20)" : "rgba(220,230,255,.09)");
+          l.setAttribute("stroke-width", i % 5 === 0 ? 10 : 4); l.setAttribute("stroke-linecap", "round");
+          g.appendChild(l);
+        }
+      })();
+      (function mini() { // dot-matrix dial on the passport
+        const g = document.getElementById("miniDots");
+        for (let y = 6; y < 200; y += 12) for (let x = 6; x < 200; x += 12) {
+          const d = Math.hypot(x - 100, y - 100); if (d > 96) continue;
+          const onRing = Math.abs(d - 88) < 7, idx = Math.abs(d - 76) < 6 && Math.round(((Math.atan2(y - 100, x - 100) + Math.PI) / (2 * Math.PI)) * 12) % 3 === 0;
+          const c = document.createElementNS(NS, "circle");
+          c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", onRing || idx ? 3.4 : 2);
+          c.setAttribute("fill", onRing || idx ? "#0C1222" : "rgba(12,18,34,.13)"); c.setAttribute("class", "md");
+          g.appendChild(c);
+        }
+      })();
+      (function ring() { // click ring: twelve dial indices
+        const s = document.getElementById("ring");
+        for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2, c = document.createElementNS(NS, "circle");
+          c.setAttribute("cx", 67 + 56 * Math.cos(a)); c.setAttribute("cy", 67 + 56 * Math.sin(a)); c.setAttribute("r", i % 3 === 0 ? 5.5 : 3.8); c.setAttribute("fill", "currentColor"); s.appendChild(c); }
+      })();
+      // captions from the voice's word timings (film time = clip start + word time - media start)
+      const W = [["I'm",0,.24],["the",.32,.4],["dealer.",.6,.88],["I",1.28,1.36],["check",1.44,1.68],["the",1.72,1.76],["offer.",1.84,2.44],["The",2.64,2.8],["sale",2.88,3.12],["would",3.2,3.36],["go",3.44,3.52],["through.",3.6,4.0],
+                 ["Then",4.507,4.56],["the",4.64,4.72],["owner",4.8,5.04],["reports",5.24,5.44],["it",5.52,5.68],["stolen.",5.76,6.32],
+                 ["Same",6.88,7.12],["dealer.",7.2,7.68],["Same",8.08,8.32],["offer.",8.4,9.0],["Refused.",9.2,10.24]];
+      const seg = (t) => (t < 4.3 ? 2.2 : t < 6.6 ? 7.7 - 4.4 : 11.3 - 6.75) + t;
+      const GROUPS = [[0, 3, "c1"], [3, 7, "c2"], [7, 12, "c3", { 11: "g" }], [12, 18, "c4", { 17: "k" }], [18, 22, "c5"], [22, 23, "c6", { 22: "k" }]];
+      GROUPS.forEach(([a, b, id, keys]) => { document.getElementById(id).innerHTML = "<i>" + W.slice(a, b).map((w, j) => `<span id="${id}w${j}" class="${(keys || {})[a + j] || ""}">${w[0]}</span>`).join(" ") + "</i>"; });
+
+      // ---------- timeline ----------
+      const tl = gsap.timeline({ paused: true });
+      // stage: slow dial rotation and a light sweep, like a wrist turning
+      tl.fromTo("#sun", { rotation: 0 }, { rotation: 22, duration: 16, ease: "none" }, 0);
+      tl.fromTo("#track", { rotation: -4 }, { rotation: 10, duration: 16, ease: "none" }, 0);
+      tl.fromTo("#sweep", { rotation: -30 }, { rotation: 40, duration: 16, ease: "none" }, 0);
+
+      // window arrives
+      tl.fromTo("#win", { y: 140, scale: 0.94, opacity: 0, filter: "blur(10px)" }, { y: 0, scale: 1, opacity: 1, filter: "blur(0px)", duration: 1.1, ease: "expo.out" }, 0.25);
+      tl.fromTo("#camin", { scale: 1, x: 0, y: 0 }, { scale: 1, duration: 0.01 }, 0);
+
+      // pill 1, word by word
+      tl.fromTo("#p1 > div", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, 0.8);
+      tl.fromTo("#p1 .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.08, ease: "power2.out" }, 0.9);
+
+      // seconds hand: one tick a second, stops at the report
+      tl.set("#secHand", { rotation: 0, transformOrigin: "100px 100px", svgOrigin: "100 100" }, 0);
+      for (let k = 0; k < 8; k++) tl.to("#secHand", { rotation: (k + 1) * 6, duration: 0.14, ease: "back.out(3)" }, 0.5 + k);
+
+      // cursor in from off-screen to Try to buy (button centre ~ 230+34+125+690, 150+140+118+32)
+      const BUY = { x: 1179 - 29, y: 440 - 29 }, REP = { x: 1109 - 29, y: 826 - 29 };
+      tl.fromTo("#cur", { x: 1780, y: 1120 }, { x: BUY.x, y: BUY.y, duration: 1.25, ease: "power3.inOut" }, 1.6);
+      tl.fromTo("#pearl", { scaleX: 1, scaleY: 1, rotation: -128 }, { keyframes: [{ scaleX: 1.42, scaleY: 0.78, duration: 0.55, ease: "power2.in" }, { scaleX: 1, scaleY: 1, duration: 0.7, ease: "power2.out" }] }, 1.6);
+      // click 1
+      tl.set("#ring", { opacity: 0, scale: 0.4 }, 0);
+      tl.set("#buy, #rep", { scale: 1 }, 0);
+      const click = (t, color) => {
+        tl.to("#pearl", { scale: 0.8, duration: 0.08, ease: "power2.in" }, t);
+        tl.to("#pearl", { scale: 1, duration: 0.3, ease: "back.out(2.2)" }, t + 0.08);
+        tl.set("#ring", { opacity: 1, scale: 0.4, color }, t + 0.04);
+        tl.to("#ring", { opacity: 0, scale: 1.25, duration: 0.65, ease: "expo.out" }, t + 0.05);
+      };
+      tl.to("#buy", { keyframes: [{ scale: 0.95, duration: 0.08 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }] }, 3.6);
+      click(3.6, "#F5F4EF");
+      // verdict: sellable
+      tl.to("#vIdle", { opacity: 0, duration: 0.15 }, 3.75);
+      tl.fromTo("#vGo", { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" }, 3.8);
+      // camera push to the verdict, hold, pull back
+      const push = (t, dur) => {
+        tl.to("#camin", { scale: 1.62, x: -526, y: 15, duration: 0.6, ease: "power2.inOut" }, t);
+        tl.to("#camin", { scale: 1, x: 0, y: 0, duration: 0.6, ease: "power2.inOut" }, t + 0.6 + dur);
+      };
+      push(3.95, 1.75);
+      // block counter ticks with the chain
+      const blk = { v: 10814076 };
+      tl.to(blk, { v: 10814082, duration: 6, ease: "none", onUpdate: () => { document.getElementById("blk").textContent = Math.round(blk.v).toLocaleString("en-US"); } }, 2.5);
+
+      // cursor to Report missing
+      tl.to("#cur", { x: REP.x, y: REP.y, duration: 0.9, ease: "power3.inOut" }, 7.1);
+      tl.to("#pearl", { keyframes: [{ scaleX: 1.3, scaleY: 0.82, rotation: 95, duration: 0.4, ease: "power2.in" }, { scaleX: 1, scaleY: 1, duration: 0.5, ease: "power2.out" }] }, 7.1);
+      tl.to("#rep", { keyframes: [{ scale: 0.95, duration: 0.08 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }] }, 8.35);
+      click(8.35, "#FF5A36");
+      tl.to("#cur", { x: REP.x + 70, y: REP.y + 70, duration: 0.6, ease: "power2.out" }, 8.9);
+      // the freeze: status flips, the world floods ember, the window edge goes red, pill swaps
+      tl.to("#chipOk", { opacity: 0, duration: 0.12 }, 8.45);
+      tl.fromTo("#chipNo", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out" }, 8.45);
+      tl.fromTo("#ember", { opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.35, ease: "power2.out" }, { opacity: 0.45, duration: 1.2, ease: "power2.inOut" }] }, 8.45);
+      tl.fromTo("#redge", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 8.45);
+      tl.to(".md", { fill: (i, el) => (el.getAttribute("r") > 3 ? "#E0371C" : "rgba(224,55,28,.18)"), duration: 0.5, stagger: { each: 0.004, from: "end" } }, 8.45);
+      tl.to("#secHand line, #secHand circle", { stroke: "#E0371C", fill: "#E0371C", duration: 0.3 }, 8.45);
+      tl.to("#vGo", { opacity: 0, duration: 0.2 }, 8.5);
+      tl.to("#vIdle", { opacity: 1, duration: 0.2 }, 8.55);
+      tl.to("#p1 > div", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power2.in" }, 8.4);
+      tl.fromTo("#p2 > div", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, 8.6);
+      tl.fromTo("#p2 .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.09 }, 8.65);
+
+      // back to the same button, same framing
+      tl.to("#cur", { x: BUY.x, y: BUY.y, duration: 0.9, ease: "power3.inOut" }, 10.6);
+      tl.to("#pearl", { keyframes: [{ scaleX: 1.3, scaleY: 0.82, rotation: -78, duration: 0.4, ease: "power2.in" }, { scaleX: 1, scaleY: 1, duration: 0.5, ease: "power2.out" }] }, 10.6);
+      tl.to("#p2 > div", { opacity: 0, filter: "blur(6px)", duration: 0.18, ease: "power2.in" }, 11.2);
+      tl.fromTo("#p3 > div", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, 11.4);
+      tl.fromTo("#p3 .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.1 }, 11.45);
+      tl.to("#buy", { keyframes: [{ scale: 0.95, duration: 0.08 }, { scale: 1, duration: 0.3, ease: "back.out(2)" }] }, 12.6);
+      click(12.6, "#F5F4EF");
+      tl.to("#vIdle", { opacity: 0, duration: 0.12 }, 12.7);
+      tl.fromTo("#vNo", { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" }, 12.75);
+      tl.to("#camin", { scale: 1.62, x: -526, y: 15, duration: 0.6, ease: "power2.inOut" }, 12.85);
+      tl.to("#cur", { x: 1471, y: 411, duration: 0.7, ease: "power2.inOut" }, 13.0); // park clear of the verdict
+
+      // captions: group shows, words go grey -> white (or accent) on their spoken onset
+      GROUPS.forEach(([a, b, id]) => {
+        const s = seg(W[a][1]) - 0.12, e = seg(W[b - 1][2]) + 0.45;
+        tl.fromTo("#" + id, { opacity: 0 }, { opacity: 1, duration: 0.12 }, s);
+        for (let j = a; j < b; j++) {
+          const el = document.getElementById(id + "w" + (j - a));
+          const hi = el.classList.contains("k") ? "#FF7A5C" : el.classList.contains("g") ? "#7CF0B9" : "#FFFFFF";
+          tl.fromTo(el, { color: "rgba(255,255,255,0.4)" }, { color: hi, duration: 0.08 }, seg(W[j][1]));
+        }
+        if (id !== "c6") { tl.to("#" + id, { opacity: 0, duration: 0.12, ease: "power2.in" }, e - 0.12); tl.set("#" + id, { opacity: 0 }, e); }
+      });
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
