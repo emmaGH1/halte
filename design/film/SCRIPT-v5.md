@@ -2,7 +2,7 @@
 
 ### 1. Before a dealer buys
 
-**VO** Today, watch dealers can check a stolen-items register before they buy. A stolen watch can come back clean. The owner may already have reported the theft in another country. Even the right register can be out of date, and until the owner reports the theft, there’s nothing to find. That leaves the dealer weighing the seller’s word against paperwork someone can fake.
+**VO** Before money changes hands, a dealer wants to know whether the watch is stolen. An empty search result only tells the dealer what’s in that register today. The owner may already have reported the theft in another country. Even the right register can be out of date, and until the owner reports the theft, there’s nothing to find. That leaves the dealer weighing the seller’s word against paperwork someone can fake.
 
 **Screen** Hold on a watch and its paperwork, then show how a theft report and a dealer lookup can land in different national registers.
 
