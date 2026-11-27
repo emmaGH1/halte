@@ -4,6 +4,7 @@ import { guillocheBand, rosette } from "@/lib/art";
 import deployment from "@/lib/deployment.json";
 import replay from "@/lib/replay.json";
 import { Calibre, Seal, SiteFooter, SiteNav, Wordmark } from "../../ui";
+import "./passport.css";
 import { Tour } from "./tour";
 
 type Entry = { event: string; block: string; hash: string; url: string; sender: string; args: Record<string, string>; pq?: { signatureBytes: number; signature: string } };
@@ -20,9 +21,9 @@ const n = (s: string | number) => Number(s).toLocaleString("en-US");
 const BAND = guillocheBand(640, 70);
 const ROSE = rosette(150, 9, 18, 22);
 const OFFER_STATE: Record<string, string> = {
-  "would succeed": "live: its dealer could accept now",
-  PassportFrozen: "blocked: reported missing",
-  StaleOffer: "dead: a report or transfer moved the epoch on",
+  "would succeed": "Open to its named dealer",
+  PassportFrozen: "Blocked by the missing report",
+  StaleOffer: "Invalidated by a later report or transfer",
   Expired: "expired",
   OfferClosed: "closed",
   NoPqcKey: "dealer has no usable PQ key",
@@ -37,9 +38,9 @@ function rowsOf(p: P | null, checks: Check[]): Row[] {
     const relayed = `relayed by ${short(e.sender)}${p && e.sender.toLowerCase() !== (e.args.owner ?? p.owner).toLowerCase() ? " (not the holder)" : ""}`;
     const pq = e.pq ? `ML-DSA-87 signature (${n(e.pq.signatureBytes)} bytes) verified on chain by pqcVerify` : "";
     if (e.event === "Minted") rows.push({ kind: "ok", text: "Passport issued · active", small: `holder ${short(e.args.owner)} · PoP-proven ML-DSA-87 key required · block ${n(e.block)}`, tx: e.url, block: e.block });
-    if (e.event === "OfferMade") rows.push({ kind: "ok", demo: "offer-made", text: `The owner signs transfer offer #${e.args.offerId} to a dealer`, small: `${pq} · ${relayed} · dealer ${short(e.args.dealer)} · epoch ${e.args.epoch}`, tx: e.url, block: e.block });
+    if (e.event === "OfferMade") rows.push({ kind: "ok", demo: "offer-made", text: `Dealer offer #${e.args.offerId} signed`, small: `${pq} · ${relayed} · dealer ${short(e.args.dealer)} · epoch ${e.args.epoch}`, tx: e.url, block: e.block });
     if (e.event === "Frozen") rows.push({ kind: "ok", demo: "pqc-verified", text: "Reported missing · frozen", small: `${pq} · ${relayed} · block ${n(e.block)}`, tx: e.url, block: e.block });
-    if (e.event === "Recovered") rows.push({ kind: "ok", text: "Recovered by the owner · active", small: `${pq} · ${relayed} · epoch now ${e.args.epoch}, so every older offer stays dead`, tx: e.url, block: e.block });
+    if (e.event === "Recovered") rows.push({ kind: "ok", text: "Watch recovered · active", small: `${pq} · ${relayed} · epoch now ${e.args.epoch}, so every older offer stays dead`, tx: e.url, block: e.block });
     if (e.event === "Transferred") rows.push({ kind: "ok", text: `Changed hands: ${who(e.args.from)} → ${short(e.args.to)}`, small: `offer #${e.args.offerId} · block ${n(e.block)}`, tx: e.url, block: e.block });
     if (e.event === "OfferCancelled") rows.push({ kind: "info", text: `Offer #${e.args.offerId} withdrawn by the holder`, tx: e.url, block: e.block });
   }
@@ -167,6 +168,19 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
   const lastFreeze = [...(p?.history ?? [])].reverse().find((e) => e.event === "Frozen");
   const rows = rowsOf(p, checks);
   const offer = p?.offer;
+  // A refreshed passport read supersedes simulations from earlier blocks.
+  const recent = checks.at(-1);
+  const latest = p && recent && BigInt(recent.block) >= BigInt(p.block) ? recent : undefined;
+  const reason = latest?.kind === "no" ? latest.text.match(/refused \((.+)\)$/)?.[1]
+    : frozen ? "PassportFrozen" : offer?.reason;
+  const denied = latest ? latest.kind === "no" : frozen || (!!offer && !offer.live && reason !== "unavailable");
+  const allowed = latest ? latest.kind === "yes" : !denied && offer?.live;
+  const tone = denied ? "stop" : allowed ? "go" : "";
+  const verdict = denied ? (reason === "PassportFrozen" ? "Do not buy" : "Refused")
+    : allowed ? (latest?.demo === "thief-not-refused" ? "Check allowed" : "Sellable")
+    : !p ? "Reading passport…" : offer ? "Check unavailable" : "No open offer";
+  const explanation = latest?.text ?? (denied ? reason : allowed ? "The dealer can accept this offer."
+    : !p ? "Checking Diana" : offer ? "Diana could not confirm the offer." : "An owner-signed offer is required to buy.");
   const yours = !!p?.yours;
   const sawPositive = checks.some((c) => c.demo === "accept-would-succeed");
   const no = `HLT-${id.slice(2, 6)}-${id.slice(6, 10)}`.toUpperCase();
@@ -205,80 +219,138 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
       <div className="grain" aria-hidden />
       {nav}
 
-      <main className="pp">
-        <div className="pp-head">
-          <span className="mono">Demo transfer passport · QoreChain Diana</span>
-          <h1>
-            {!p ? <>Reading the passport…</> : frozen ? <>Reported missing. <em>Unsellable.</em></> : transferred ? <>Passport transferred. <em>New holder on chain.</em></> : recovered ? <>Recovered. <em>Back with its owner.</em></> : <>In its owner&apos;s hands. <em>For sale only by them.</em></>}
-          </h1>
-        </div>
+      <main className="pp passport">
+        <header className="passport-heading">
+          <h1>Watch passport</h1>
+          <span className="passport-number">{no}</span>
+        </header>
+        <div className="passport-layout">
+          <article className={`cert ${frozen ? "is-frozen" : ""}`}>
+            <svg className="band" viewBox="0 0 640 70" preserveAspectRatio="none" aria-hidden dangerouslySetInnerHTML={{ __html: BAND }} />
+            <svg className="rose" viewBox="-170 -170 340 340" aria-hidden dangerouslySetInnerHTML={{ __html: ROSE }} />
+            <div className="micro-line top" aria-hidden>{"HALTE · ML-DSA-87 · PQCVERIFY 0x0A01 · ".repeat(12)}</div>
+            <div className="micro-line bottom" aria-hidden>{"STOLEN MEANS UNSELLABLE · QORECHAIN DIANA · ".repeat(12)}</div>
+            <div className="foil" aria-hidden />
 
-        <article className={`cert ${frozen ? "is-frozen" : ""}`}>
-          <svg className="band" viewBox="0 0 640 70" preserveAspectRatio="none" aria-hidden dangerouslySetInnerHTML={{ __html: BAND }} />
-          <svg className="rose" viewBox="-170 -170 340 340" aria-hidden dangerouslySetInnerHTML={{ __html: ROSE }} />
-          <div className="micro-line top" aria-hidden>{"HALTE · ML-DSA-87 · PQCVERIFY 0x0A01 · ".repeat(12)}</div>
-          <div className="micro-line bottom" aria-hidden>{"STOLEN MEANS UNSELLABLE · QORECHAIN DIANA · ".repeat(12)}</div>
-          <div className="foil" aria-hidden />
+            <div className="ctitle">
+              <h2>Certificat de provenance</h2>
+              <span className="mono">Certificate of provenance · Nº {no}</span>
+            </div>
 
-          <div className="ctitle">
-            <h2>Certificat de provenance</h2>
-            <span className="mono">Certificate of provenance · Nº {no}</span>
-          </div>
-
-          {!p && <p className="loading mono">Reading passport from Diana…</p>}
-          {p && (
-            <div className="fields">
-              <div className="f"><span className="mono">Passport</span><b className="m" data-demo="passport-id" data-value={id}>{short(id)}</b></div>
-              <div className="f">
-                <span className="mono">Status</span>
-                <b className={`status ${status}`}>
-                  {frozen && <s className="was">Active</s>}
-                  {recovered && !frozen && <s className="was">Frozen</s>}
-                  <span data-demo="passport-status">{status}</span>
-                </b>
+            {!p && <p className="loading mono">Reading passport from Diana…</p>}
+            {p && (
+              <div className="fields">
+                <div className="f"><span className="mono">Passport</span><b className="m" data-demo="passport-id" data-value={id}>{short(id)}</b></div>
+                <div className="f">
+                  <span className="mono">Status</span>
+                  <b className={`status ${status}`}>
+                    {frozen && <s className="was">Active</s>}
+                    {recovered && !frozen && <s className="was">Frozen</s>}
+                    <span data-demo="passport-status">{frozen ? "Reported stolen · frozen" : status}</span>
+                  </b>
+                </div>
+                <div className="f"><span className="mono">Holder</span><b className="m">{short(p.owner)}</b></div>
+                <div className="f"><span className="mono">Holder key</span><b>{p.key.state === "ok" ? `ML-DSA-87 · ${n(p.key.bytes ?? 0)} bytes · PoP` : p.key.state === "unusable" ? "No usable ML-DSA-87 key" : "Key status unavailable"}</b></div>
+                <div className="f"><span className="mono">Verifier</span><b>pqcVerify · 0x…0a01</b></div>
+                <div className="f"><span className="mono">Epoch · nonce</span><b>{p.epoch} · {p.nonce}</b></div>
+                <div className="f"><span className="mono">Network</span><b>QoreChain Diana</b></div>
               </div>
-              <div className="f"><span className="mono">Holder</span><b className="m">{short(p.owner)}</b></div>
-              <div className="f"><span className="mono">Holder key</span><b>{p.key.state === "ok" ? `ML-DSA-87 · ${n(p.key.bytes ?? 0)} bytes · PoP` : p.key.state === "unusable" ? "No usable ML-DSA-87 key" : "Key status unavailable"}</b></div>
-              <div className="f"><span className="mono">Verifier</span><b>pqcVerify · 0x…0a01</b></div>
-              <div className="f"><span className="mono">Epoch · nonce</span><b>{p.epoch} · {p.nonce}</b></div>
+            )}
+
+            <div className="figure">
+              <div className="fig-draw">
+                <Calibre geo={{ cx: 260, cy: 260, R: 196 }} viewBox="0 0 520 520" stopped={frozen} uid="pp" />
+                <span className="mono cap">Fig. 1 · {frozen ? "Stop lever engaged" : "Running"}</span>
+              </div>
+              <div className="fig-seal">
+                <Seal key={sealText} text={sealText} show={frozen || !!recovered} tone={frozen ? "red" : "grey"} size={140} />
+              </div>
+            </div>
+
+            <div className="microprint">
+              <span className="mono lbl">
+                {lastPq?.pq ? `Owner's ML-DSA-87 signature · ${n(lastPq.pq.signatureBytes)} bytes · ${lastPq.event === "OfferMade" ? "offer" : lastPq.event === "Frozen" ? "report" : "recovery"} · read back from the tx` : "Owner signature · awaiting a signed offer or report"}
+              </span>
+              <p>{lastPq?.pq ? lastPq.pq.signature.slice(2) : "0".repeat(1400)}</p>
+            </div>
+          </article>
+          <div className="passport-desk">
+            <section className="dealer-panel" aria-labelledby="dealer-heading">
+              <h2 id="dealer-heading">Dealer check</h2>
+              <div className={`dealer-result ${tone}`}>
+                <strong>{verdict}</strong>
+                <span>{explanation}</span>
+              </div>
               {offer && (
                 <div className="f wide">
                   <span className="mono">Dealer offer</span>
                   <b data-demo="offer-id" data-live={offer.live ? "1" : "0"} className={offer.live ? "" : "dead"}>
-                    #{offer.id} · {OFFER_STATE[offer.reason] ?? offer.reason}{offer.checkedAt ? <small className="mono"> contract answer for its dealer · block {n(offer.checkedAt)}</small> : null}
+                    #{offer.id} · {OFFER_STATE[offer.reason] ?? offer.reason}{offer.checkedAt ? <small className="mono"> Checked at block {n(offer.checkedAt)}</small> : null}
                   </b>
                 </div>
               )}
-            </div>
-          )}
+              <p className="sr-only" role="status" aria-live="polite">{say}</p>
 
-          <div className="figure">
-            <div className="fig-draw">
-              <Calibre geo={{ cx: 260, cy: 260, R: 196 }} viewBox="0 0 520 520" stopped={frozen} uid="pp" />
-              <span className="mono cap">Fig. 1 · {frozen ? "Stop lever engaged" : "Running"}</span>
-            </div>
-            <div className="fig-seal">
-              <Seal key={sealText} text={sealText} show={frozen || !!recovered} tone={frozen ? "red" : "grey"} size={140} />
+              <div className="actions">
+                {yours && status === "active" && !offer?.live && !transferred && (
+                  <button data-demo="offer" className="ghost" onClick={() => write("offer", "offer", "Offer opened")} disabled={!!busy}>{busy === "offer" ? "Owner signing the offer…" : "The owner offers it to a dealer"}</button>
+                )}
+                {offer && !transferred && (
+                  <button data-demo="dealer-accept" className={!sawPositive && status === "active" ? "ink" : "ghost"} onClick={accept} disabled={!!busy}>{busy === "accept" ? "Asking Diana…" : "The dealer tries to buy it"}</button>
+                )}
+                {yours && frozen && (
+                  <button data-demo="recover" className="ink" onClick={() => write("recover", "recover", "Recovered. The passport is active again.")} disabled={!!busy}>{busy === "recover" ? "Signing with ML-DSA-87…" : "The owner recovers the watch"}</button>
+                )}
+                {yours && status === "active" && !transferred && (
+                  <button data-demo="report-missing" className="red" onClick={() => write("freeze", "freeze", "Reported missing. The passport is frozen.")} disabled={!!busy}>{busy === "freeze" ? "Signing with ML-DSA-87…" : "Report missing"}</button>
+                )}
+              </div>
+              {mine && (
+                <div className="actions own-actions" data-demo="own-actions">
+                  {status === "active" && !offer?.live && !transferred && (
+                    <button data-demo="own-offer" className="ghost" onClick={() => ownWrite("offer", "Offer opened, signed in this browser")} disabled={!!busy}>{busy === "own-offer" ? "Signing in this browser…" : "Offer it to the dealer (sign here)"}</button>
+                  )}
+                  {frozen && (
+                    <button data-demo="own-recover" className="ink" onClick={() => ownWrite("recover", "Recovered with your key")} disabled={!!busy}>{busy === "own-recover" ? "Signing in this browser…" : "Recover it (sign here)"}</button>
+                  )}
+                  {status === "active" && !transferred && (
+                    <button data-demo="own-report" className="red" onClick={() => ownWrite("freeze", "Reported missing with your key")} disabled={!!busy}>{busy === "own-report" ? "Signing in this browser…" : "Report missing (sign here)"}</button>
+                  )}
+                </div>
+              )}
+              {mine && <p className="fine custody" data-demo="own-custody">Your key: generated in this browser and never sent anywhere. Each button signs here with your ML-DSA-87 key; Halte&apos;s dealer account only relays the signature. <a href="/own">Your key →</a></p>}
+              {yours && <p className="fine custody" data-demo="custody-note">Hosted demo: Halte holds this demo holder&apos;s ML-DSA-87 key and signs when you press. The contract still verifies each signature against the holder&apos;s registered key.</p>}
+              {err && (
+                <p className="err" role="alert">
+                  {err.text}
+                  {err.recorded && <> <a href={RECORDED} target="_blank" rel="noreferrer">See the recorded run on Diana ↗</a></>}
+                </p>
+              )}
+              {p && <Tour id={id} yours={yours} status={status} offerLive={!!offer?.live} checks={checks} history={p.history} busy={busy} />}
+            </section>
+            <div className="actions attacks" id="break" aria-label="Try to break it">
+              <h2>Try to break it</h2>
+              {status === "active" && !transferred && !mine && (
+                <button data-demo="thief-sell" className="ghost" onClick={() => thief("thief-sell")} disabled={!!busy}>{busy === "thief-sell" ? "Trying…" : "A thief with the classical key tries to sell it"}</button>
+              )}
+              {status === "active" && !transferred && (
+                <button data-demo="wrong-key-freeze" className="ghost" onClick={() => thief("wrong-key-freeze")} disabled={!!busy}>{busy === "wrong-key-freeze" ? "Trying…" : "Someone forges a missing report"}</button>
+              )}
+              {frozen && (
+                <button data-demo="thief-unfreeze" className="ghost" onClick={() => thief("thief-unfreeze")} disabled={!!busy}>{busy === "thief-unfreeze" ? "Trying…" : "A thief tries to lift the report"}</button>
+              )}
             </div>
           </div>
-
-          <div className="microprint">
-            <span className="mono lbl">
-              {lastPq?.pq ? `Owner's ML-DSA-87 signature · ${n(lastPq.pq.signatureBytes)} bytes · ${lastPq.event === "OfferMade" ? "offer" : lastPq.event === "Frozen" ? "report" : "recovery"} · read back from the tx` : "Owner signature · awaiting a signed offer or report"}
-            </span>
-            <p>{lastPq?.pq ? lastPq.pq.signature.slice(2) : "0".repeat(1400)}</p>
-          </div>
-        </article>
-
+        </div>
         <section className="register" aria-labelledby="reg-h">
-          <h2 className="mono" id="reg-h">Register <span className="dim">· from Diana{p ? ` @ block ${n(p.block)}` : ""}</span></h2>
+          <h2 id="reg-h">Passport history <span className="dim">{p ? `Block ${n(p.block)}` : ""}</span></h2>
           <ol className="timeline">
             {rows.map((s, i) => (
               <li key={i} className={s.kind} data-demo={s.demo}>
-                <span className="mono idx">{String(i + 1).padStart(2, "0")}</span>
+                <span aria-hidden className="idx" />
                 <div>
                   {s.text}
-                  {s.tx ? <> · <a data-demo="tx-link" href={s.tx} target="_blank" rel="noreferrer">view tx ↗</a></> : <span className="mono tag"> · live check, not sent</span>}
+                  {s.tx ? <a data-demo="tx-link" href={s.tx} target="_blank" rel="noreferrer">view tx ↗</a> : <span className="mono tag"> · live check, not sent</span>}
                   {s.small && <small>{s.small}</small>}
                 </div>
               </li>
@@ -286,49 +358,6 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
           </ol>
         </section>
 
-        <p className="sr-only" role="status" aria-live="polite">{say}</p>
-
-        <div className="actions">
-          {yours && status === "active" && !offer?.live && !transferred && (
-            <button data-demo="offer" className="ghost" onClick={() => write("offer", "offer", "Offer opened")} disabled={!!busy}>{busy === "offer" ? "Owner signing the offer…" : "The owner offers it to a dealer"}</button>
-          )}
-          {offer && !transferred && (
-            <button data-demo="dealer-accept" className={!sawPositive && status === "active" ? "ink" : "ghost"} onClick={accept} disabled={!!busy}>{busy === "accept" ? "Asking Diana…" : "The dealer tries to buy it"}</button>
-          )}
-          {yours && frozen && (
-            <button data-demo="recover" className="ink" onClick={() => write("recover", "recover", "Recovered. The passport is active again.")} disabled={!!busy}>{busy === "recover" ? "Signing with ML-DSA-87…" : "The owner recovers the watch"}</button>
-          )}
-          {yours && status === "active" && !transferred && (
-            <button data-demo="report-missing" className="red" onClick={() => write("freeze", "freeze", "Reported missing. The passport is frozen.")} disabled={!!busy}>{busy === "freeze" ? "Signing with ML-DSA-87…" : "Report missing"}</button>
-          )}
-        </div>
-        {mine && (
-          <div className="actions own-actions" data-demo="own-actions">
-            {status === "active" && !offer?.live && !transferred && (
-              <button data-demo="own-offer" className="ghost" onClick={() => ownWrite("offer", "Offer opened, signed in this browser")} disabled={!!busy}>{busy === "own-offer" ? "Signing in this browser…" : "Offer it to the dealer (sign here)"}</button>
-            )}
-            {frozen && (
-              <button data-demo="own-recover" className="ink" onClick={() => ownWrite("recover", "Recovered with your key")} disabled={!!busy}>{busy === "own-recover" ? "Signing in this browser…" : "Recover it (sign here)"}</button>
-            )}
-            {status === "active" && !transferred && (
-              <button data-demo="own-report" className="red" onClick={() => ownWrite("freeze", "Reported missing with your key")} disabled={!!busy}>{busy === "own-report" ? "Signing in this browser…" : "Report missing (sign here)"}</button>
-            )}
-          </div>
-        )}
-        {mine && <p className="fine custody" data-demo="own-custody">Your key: generated in this browser and never sent anywhere. Each button signs here with your ML-DSA-87 key; Halte&apos;s dealer account only relays the signature. <a href="/own">Your key →</a></p>}
-        {yours && <p className="fine custody" data-demo="custody-note">Hosted demo: Halte holds this demo holder&apos;s ML-DSA-87 key and signs when you press. The contract still verifies each signature against the holder&apos;s registered key.</p>}
-        <div className="actions attacks" id="break" aria-label="Try to break it">
-          <span className="mono">Try to break it</span>
-          {status === "active" && !transferred && !mine && (
-            <button data-demo="thief-sell" className="ghost" onClick={() => thief("thief-sell")} disabled={!!busy}>{busy === "thief-sell" ? "Trying…" : "A thief with the classical key tries to sell it"}</button>
-          )}
-          {status === "active" && !transferred && (
-            <button data-demo="wrong-key-freeze" className="ghost" onClick={() => thief("wrong-key-freeze")} disabled={!!busy}>{busy === "wrong-key-freeze" ? "Trying…" : "Someone forges a missing report"}</button>
-          )}
-          {frozen && (
-            <button data-demo="thief-unfreeze" className="ghost" onClick={() => thief("thief-unfreeze")} disabled={!!busy}>{busy === "thief-unfreeze" ? "Trying…" : "A thief tries to lift the report"}</button>
-          )}
-        </div>
         {p && (
           <p className="fine">
             <button className="linkish" data-demo="copy-public-link" onClick={() => {
@@ -345,12 +374,6 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
             Read-only here: this passport was issued in another browser, so only live checks run. <a href="/">Issue your own →</a>
           </p>
         )}
-        {err && (
-          <p className="err" role="alert">
-            {err.text}
-            {err.recorded && <> <a href={RECORDED} target="_blank" rel="noreferrer">See the recorded run on Diana ↗</a></>}
-          </p>
-        )}
         <p className="fine">
           Contract {short(p?.contract ?? deployment.contract)} on QoreChain Diana testnet.{" "}
           {mine || (p && ![replay.owner, replay.dealer].some((a) => a.toLowerCase() === p.owner.toLowerCase()))
@@ -359,7 +382,6 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
           The holder signs every offer, report and recovery; the dealer&apos;s account relays them,
           so each receipt shows a sender who is not the holder. &ldquo;Live check&rdquo; rows are eth_calls against Diana, not broadcast.
         </p>
-        {p && <Tour id={id} yours={yours} status={status} offerLive={!!offer?.live} checks={checks} history={p.history} busy={busy} />}
       </main>
       <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
     </div>

@@ -1,0 +1,68 @@
+.passport { --ok: #5bd69a; font-family: var(--sans), sans-serif; }
+.passport-heading { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:24px; }
+.passport-heading h1 { font-size:clamp(38px,4vw,64px); font-weight:500; letter-spacing:-.045em; line-height:1.05; }
+.passport-number { color:var(--pale); font:14px var(--mono),monospace; }
+.passport .cert { background:radial-gradient(ellipse at 60% 24%,#252421,#15151a 68%); }
+.passport .status span { display:inline-flex; align-items:center; gap:7px; padding:3px 10px; border-radius:99px; color:var(--ok); background:#18342a; font-size:14px; }
+.passport .status span::before,.dealer-result strong::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+.passport .status.frozen span { color:#ff785f; background:#38211f; }
+.passport-desk { margin-top:20px; min-width:0; }
+.dealer-panel,.passport .attacks { padding:24px; border:1px solid var(--hair); border-radius:18px; background:var(--card); }
+.dealer-panel h2,.passport .register h2 { font:500 28px/1.15 var(--sans),sans-serif; letter-spacing:-.035em; }
+.dealer-result { display:grid; gap:8px; padding:22px; margin-top:20px; border-radius:10px; background:#202026; }
+.dealer-result strong { display:flex; align-items:center; gap:14px; font-size:clamp(30px,3vw,52px); line-height:1.05; font-weight:500; letter-spacing:-.04em; }
+.dealer-result span { font-size:16px; color:var(--ink2); }
+.dealer-result.go { color:var(--ok); background:#11291f; }
+.dealer-result.stop { color:var(--red); background:#321915; }
+.passport .dealer-panel .f { margin-top:10px; }
+.passport .f .mono,.passport .attacks > span { font:400 14px var(--sans),sans-serif; letter-spacing:0; text-transform:none; color:var(--ink2); opacity:1; }
+.passport .dealer-panel small.mono { margin:6px 0; font-size:13px; color:var(--muted); }
+.passport .actions:empty { display:none; }
+.passport .actions button { border-radius:99px; padding:13px 18px; }
+.passport .actions button.red { background:transparent; color:var(--ink); border-color:var(--pale); }
+.passport .attacks { margin-top:14px; background:transparent; }
+.passport .attacks > span { font-size:21px; font-weight:500; color:var(--ink); }
+.passport .attacks button { font-size:15px; }
+.passport .register h2 { display:flex; align-items:baseline; justify-content:space-between; gap:15px; opacity:1; padding-bottom:18px; border-color:var(--hair); }
+.passport .register h2 span { font:13px var(--mono),monospace; }
+.passport .timeline li { position:relative; grid-template-columns:12px 1fr; gap:16px; padding:16px 0; font:500 17px/1.4 var(--sans),sans-serif; box-shadow:none; color:var(--ink); }
+.passport .timeline .idx { align-self:start; margin:8px 0 0 2px; width:8px; height:8px; border-radius:50%; background:var(--ok); opacity:1; }
+.passport .timeline li.no .idx,.passport .timeline [data-demo="pqc-verified"] .idx { background:var(--red); }
+.passport .timeline .info .idx { background:var(--muted); }
+.passport .timeline li:not(:last-child)::after { content:""; position:absolute; left:5px; top:36px; bottom:-17px; width:1px; background:var(--hair); }
+.passport .timeline small,.passport .timeline .tag { font:400 14px/1.5 var(--sans),sans-serif; color:var(--ink2); text-transform:none; letter-spacing:0; }
+.passport .timeline a { float:right; font:400 14px var(--sans),sans-serif; margin:3px 0 0 10px; }
+@media (min-width:1100px) {
+  .pp.passport { max-width:1424px; padding:36px 32px 80px; }
+  .passport-layout { display:grid; grid-template-columns:1.13fr 1fr; gap:28px; align-items:start; }
+  .passport-desk { margin-top:0; }
+  .passport .cert { display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:66px 48px 30px; }
+  .passport .cert .band { height:30px; }
+  .passport .ctitle,.passport .microprint { grid-column:1/-1; }
+  .passport .fields { grid-template-columns:1fr; margin:16px 0 0; }
+  .passport .f { padding:7px 0; }
+  .passport .figure { position:relative; display:block; margin:0; }
+  .passport .fig-draw { max-width:none; }
+  .passport .fig-seal { position:absolute; bottom:12px; right:-8px; transform:scale(.65); transform-origin:right bottom; }
+  .passport .microprint p { max-height:28px; }
+  .passport .dealer-panel,.passport .attacks { padding:26px 30px; }
+  .passport .actions:not(.attacks) { display:flex; flex-wrap:wrap; }
+  .passport .actions:empty { display:none; }
+  .passport .tour { position:static; max-width:none; margin:18px 0 0; border-radius:12px; }
+  .passport .tour-bar i { background:var(--ink); }
+  .passport .tour-target { outline-color:var(--ink); animation:none; }
+  .passport .fine { font-size:15px; }
+}
+.passport .attacks h2 { grid-column:1/-1; font-size:22px; font-weight:500; letter-spacing:-.025em; }
+.passport .cert:not(.is-frozen) .calibre { --red:var(--gold); }
+.passport .cert .rose { opacity:.09; }
+.passport .dealer-panel b.dead { color:var(--ink2); }
+.passport .dealer-result { border-left:3px solid currentColor; }
+.passport .dealer-result strong::before { display:none; }
+.passport .dealer-result span { font-size:18px; }
+@media (min-width:1100px) {
+  .passport .fields { grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:14px; }
+  .passport .fields .f:nth-child(-n+4),.passport .fields .f:last-child { grid-column:1/-1; }
+  .passport .fields .f { padding:7px 0; }
+  .passport .attacks button { border-radius:9px; }
+}
