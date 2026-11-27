@@ -1,0 +1,19 @@
+/* walkthrough: the live recording, a camera that pushes in, a macOS cursor that keeps its size */
+.vw { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: visible; }
+.vw video { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.curL { position: absolute; inset: 0; z-index: 40; pointer-events: none; }
+.mcur { position: absolute; left: 0; top: 0; width: 64px; height: 64px; }
+.mcur svg { position: absolute; left: 0; top: 0; width: 64px; height: 64px; overflow: visible; filter: drop-shadow(0 5px 8px rgba(0,0,0,.4)); }
+.scene { position: absolute; inset: 0; }
+.qbig { position: absolute; left: 0; right: 0; top: 330px; text-align: center; font: 900 300px/1 var(--sans); letter-spacing: -.06em; color: var(--bone); }
+.qsub { position: absolute; left: 0; right: 0; top: 690px; text-align: center; font: 700 52px var(--sans); letter-spacing: -.02em; color: rgba(243,241,236,.7); }
+.qsub b { color: var(--sig); font-weight: 700; }
+#qKey { position: absolute; left: 0; top: 0; }
+.px { position: absolute; width: 14px; height: 14px; }
+.proof { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.proof img { width: 1920px; height: 1080px; display: block; }
+.endw { position: absolute; left: 0; right: 0; text-align: center; color: var(--bone); }
+.caps2 { position: absolute; left: 0; right: 0; bottom: 54px; height: 70px; z-index: 60; }
+.cg2 { position: absolute; left: 0; right: 0; top: 0; text-align: center; opacity: 0; }
+.cg2 i { font-style: normal; display: inline-block; padding: 10px 26px 13px; border-radius: 16px; background: rgba(8,8,10,.78); font: 700 38px var(--sans); letter-spacing: -.01em; color: #fff; box-shadow: 0 12px 30px -10px rgba(0,0,0,.6); }
+.cg2 .k { color: #FF6A4A; } .cg2 .g { color: #6FE3A6; }
