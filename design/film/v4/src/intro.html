@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-500.woff2") format("woff2"); font-weight: 500; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-700.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Satoshi"; src: url("assets/fonts/Satoshi-900.woff2") format("woff2"); font-weight: 900; }
+@font-face { font-family: "Geist Mono"; src: url("assets/fonts/GeistMono.woff2") format("woff2"); font-weight: 400 500; }
+/* Halte intro: paper-grey and near-black scenes flip on the beat; pixel objects carry the story; red only for stolen. */
+:root { --paper: #E7E6E2; --ink: #121216; --night: #0A0A0C; --bone: #F3F1EC; --sig: #FF4526; --mute: rgba(18,18,22,.45);
+  --sans: "Satoshi", "Inter", sans-serif; --mono: "Geist Mono", monospace; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--night); }
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+.full { position: absolute; inset: 0; }
+.light { background: radial-gradient(ellipse at 50% 45%, #F1F0EC 0%, var(--paper) 55%, #CFCDC7 100%); color: var(--ink); }
+.dark { background: radial-gradient(ellipse at 50% 45%, #18181c 0%, var(--night) 70%); color: var(--bone); }
+#grain { opacity: .09; mix-blend-mode: multiply; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='260' height='260' filter='url(%23n)'/></svg>"); }
+.guide { position: absolute; left: 0; right: 0; top: 540px; border-top: 3px dashed rgba(18,18,22,.35); }
+.guide.b { top: 760px; }
+.bw { position: absolute; top: 470px; left: 0; font: 900 330px/1 var(--sans); letter-spacing: -.055em; color: var(--ink); white-space: nowrap; }
+.sent { position: absolute; left: 0; right: 0; top: 505px; text-align: center; font: 700 58px var(--sans); letter-spacing: -.025em; color: var(--ink); }
+.sent span { display: inline-block; margin: 0 .12em; opacity: 0; position: relative; }
+#ring1 { position: absolute; overflow: visible; }
+.burst { position: absolute; left: -500px; top: 40px; width: 1300px; height: 1000px; background: radial-gradient(closest-side, rgba(255,69,38,1), rgba(255,69,38,.55) 30%, rgba(255,69,38,0) 70%); clip-path: polygon(0 50%, 38% 42%, 60% 0, 50% 46%, 100% 50%, 50% 54%, 60% 100%, 38% 58%); filter: blur(6px); }
+.spr { position: absolute; left: 0; top: 0; filter: drop-shadow(6px 8px 0 rgba(0,0,0,.25)); }
+.spr svg { display: block; }
+.word { position: absolute; font: 700 96px var(--sans); letter-spacing: -.035em; white-space: nowrap; }
+.caret { display: inline-block; width: .08em; height: .9em; background: currentColor; vertical-align: -.08em; margin-left: .15em; }
+.small { position: absolute; left: 0; right: 0; text-align: center; font: 700 52px var(--sans); letter-spacing: -.02em; }
+.brush { position: absolute; left: -200px; top: 560px; width: 1500px; height: 260px; background: var(--sig); clip-path: polygon(0 70%, 100% 0, 100% 22%, 4% 100%); transform-origin: 0 100%; }
+.blob { position: absolute; border-radius: 50%; background: var(--ink); filter: blur(1px); }
+.lt { position: absolute; font: 900 230px/1 var(--sans); color: var(--ink); letter-spacing: -.04em; }
+.logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 36px; }
+.logo svg { width: 160px; height: 160px; }
+.logo b { font: 900 180px var(--sans); letter-spacing: -.05em; color: var(--bone); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="{{END}}" data-width="1920" data-height="1080">
+
+  <!-- A: big words on guide lines -->
+  <div id="sA" class="clip full light" data-start="0" data-duration="{{B(7)}}" data-track-index="0">
+    <div class="guide"></div><div class="guide b"></div>
+    <div class="bw" id="bw1">before</div><div class="bw" id="bw2">money</div><div class="bw" id="bw3">changes hands</div>
+  </div>
+
+  <!-- B: the sentence, the red circle -->
+  <div id="sB" class="clip full light" data-start="{{B(7)}}" data-duration="{{B(13)-B(7)}}" data-track-index="1">
+    <div class="sent" id="sent"></div>
+    <svg id="ring1" width="420" height="200" viewBox="0 0 420 200" aria-hidden="true"><path id="ringPath" d="M40 110 C 30 40, 200 20, 330 45 C 420 62, 410 150, 300 168 C 190 186, 60 175, 52 120 C 48 92, 120 62, 230 60" fill="none" stroke="#FF4526" stroke-width="7" stroke-linecap="round"/></svg>
+  </div>
+
+  <!-- C: burst, objects fly out -->
+  <div id="sC" class="clip full light" data-start="{{B(13)}}" data-duration="{{B(15)-B(13)}}" data-track-index="2">
+    <div class="burst" id="burst"></div>
+    <div id="flyers"></div>
+  </div>
+
+  <!-- D: no record found -->
+  <div id="sD" class="clip full dark" data-start="{{B(15)}}" data-duration="{{B(26)-B(15)}}" data-track-index="3">
+    <div class="spr" id="dGlass" style="left:420px;top:330px"></div>
+    <div class="word" id="dW1" style="left:920px;top:470px">no record found.<span class="caret"></span></div>
+    <div class="word" id="dW2" style="left:920px;top:470px;color:var(--sig)">as of today.<span class="caret"></span></div>
+  </div>
+
+  <!-- E: the ring, another country -->
+  <div id="sE" class="clip full light" data-start="{{B(26)}}" data-duration="{{B(36)-B(26)}}" data-track-index="4">
+    <div id="ringE"></div>
+    <div class="spr" id="eGlobe" style="left:800px;top:330px"></div>
+    <div class="small" id="eTxt" style="top:880px">reported in <span style="color:var(--sig)">another country.</span></div>
+  </div>
+
+  <!-- F: out of date -->
+  <div id="sF" class="clip full dark" data-start="{{B(36)}}" data-duration="{{B(42)-B(36)}}" data-track-index="5">
+    <div class="brush" id="brush"></div>
+    <div class="spr" id="fCal" style="left:430px;top:330px"></div>
+    <div class="word" id="fW" style="left:930px;top:470px">out of date.<span class="caret"></span></div>
+  </div>
+
+  <!-- G: nothing to find -->
+  <div id="sG" class="clip full light" data-start="{{B(42)}}" data-duration="{{B(52)-B(42)}}" data-track-index="6">
+    <div id="ringG"></div>
+    <div id="blobs"></div>
+    <div class="small" id="gTxt" style="top:505px">nothing to find.</div>
+  </div>
+
+  <!-- H1: the seller's word -->
+  <div id="sH1" class="clip full dark" data-start="{{B(52)}}" data-duration="{{B(57)-B(52)}}" data-track-index="7">
+    <div class="spr" id="hPhone" style="left:430px;top:330px"></div>
+    <div class="word" id="hW" style="left:930px;top:470px">the seller's word.<span class="caret"></span></div>
+  </div>
+
+  <!-- H2: F A K E -->
+  <div id="sH2" class="clip full light" data-start="{{B(57)}}" data-duration="{{B(65)-B(57)}}" data-track-index="8">
+    <div class="lt" id="lF" style="left:240px;top:420px">F</div>
+    <div class="spr" id="hPaper" style="left:640px;top:360px"></div>
+    <div class="lt" id="lA" style="left:1000px;top:420px">A</div>
+    <div class="lt" id="lK" style="left:1290px;top:420px">K</div>
+    <div class="lt" id="lE" style="left:1560px;top:420px">E</div>
+  </div>
+
+  <!-- I: So we built Halte, into the live site -->
+  <div id="sI" class="clip full dark" data-start="{{B(65)}}" data-duration="{{B(70)-B(65)+0.3}}" data-track-index="9">
+    <div class="small" id="iSo" style="top:505px;color:var(--bone)">So we built</div>
+    <div class="logo" id="logo"><svg viewBox="0 0 150 150" id="logoMark" aria-hidden="true"></svg><b>Halte</b></div>
+  </div>
+  <div id="liveW" class="full"><video id="live" class="clip" src="assets/video/live-home.mp4" muted playsinline data-start="{{B(70)}}" data-media-start="0" data-duration="{{END-B(70)}}" data-track-index="10" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover"></video></div>
+
+  <div id="grainL" class="clip full" data-start="0" data-duration="{{B(70)}}" data-track-index="11" data-layout-ignore><div class="full" id="grain"></div></div>
+
+  <audio id="music0" class="clip" src="assets/audio/harlem-heat.mp3" data-start="0" data-media-start="0" data-duration="{{OFF}}" data-track-index="20" data-volume="0.7"></audio>
+  <audio id="music1" class="clip" src="assets/audio/harlem-heat.mp3" data-start="{{OFF}}" data-media-start="{{OFF}}" data-duration="{{T(74)+0.4-OFF}}" data-track-index="22" data-volume="0.26"></audio>
+  <audio id="music2" class="clip" src="assets/audio/harlem-heat.mp3" data-start="{{T(74)+0.4}}" data-media-start="{{T(74)+0.4}}" data-duration="{{END-T(74)-0.4}}" data-track-index="23" data-volume="0.65" data-fade-out="1.5"></audio>
+  <audio id="vo" class="clip" src="assets/audio/vo.mp3" data-start="{{OFF}}" data-media-start="0" data-duration="{{T(74)-OFF+0.9}}" data-track-index="21" data-volume="1" data-fade-out="0.2"></audio>
+</div>
+
+<script>
+/*SPRITES*/
+const WORDS = /*WORDS*/[];
+const OFF = {{OFF}};
+const T = i => WORDS[i].start + OFF;
+const tl = gsap.timeline({ paused: true });
+const hash = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
+const put = (id, name, px) => document.getElementById(id).innerHTML = spriteSVG(name, px);
+
+/* A: each big word slides across on its spoken word */
+[["#bw1", 0, 1], ["#bw2", 1, 2], ["#bw3", 2, 4]].forEach(([id, a, b]) => {
+  const t0 = T(a) - .12, t1 = T(b) - .05;
+  tl.fromTo(id, { x: 1950 }, { x: 140, duration: .22, ease: "expo.out" }, t0);
+  tl.to(id, { x: -60, duration: t1 - t0 - .3, ease: "none" }, t0 + .22);
+  tl.to(id, { x: -2600, duration: .16, ease: "power3.in" }, t1 - .16);
+});
+tl.fromTo(".guide", { scaleX: 0, transformOrigin: "0 50%" }, { scaleX: 1, duration: .4, ease: "expo.out" }, 0.2);
+
+/* B: the sentence lands word by word; a red pen circles "stolen" */
+const sent = document.getElementById("sent");
+sent.innerHTML = WORDS.slice(4, 14).map((w, j) => `<span id="sw${j}">${w.text}</span>`).join(" ");
+for (let j = 0; j < 10; j++) tl.fromTo("#sw" + j, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: .12 }, T(4 + j) - .03);
+const sw = document.getElementById("sw9"); // "stolen."
+const ring = document.getElementById("ring1");
+tl.set(ring, { opacity: 0 }, 0);
+sw.appendChild(ring); ring.style.left = "-78px"; ring.style.top = "-62px";
+const path = document.getElementById("ringPath"), L = 1250;
+tl.set(path, { strokeDasharray: L, strokeDashoffset: L }, 0);
+tl.set(ring, { opacity: 1 }, T(13) + .05);
+tl.to(path, { strokeDashoffset: 0, duration: .38, ease: "power2.out" }, T(13) + .05);
+tl.to("#sent", { scale: 1.06, duration: 1.2, ease: "none" }, T(4));
+
+/* C: burst and the objects fly out */
+const NAMES = ["watch", "cash", "glass", "globe", "calendar", "paper", "phone", "coin", "key"];
+document.getElementById("flyers").innerHTML = NAMES.map((n, i) => `<div class="spr" id="fl${i}" style="left:700px;top:420px">${spriteSVG(n, 9)}</div>`).join("");
+tl.fromTo("#burst", { scaleX: .2, opacity: 0 }, { scaleX: 1.15, opacity: 1, duration: .3, ease: "expo.out" }, {{B(13)}});
+NAMES.forEach((n, i) => { const a = (i / NAMES.length) * 6.283 + .4, r = 520 + hash(i, 2) * 220;
+  tl.fromTo("#fl" + i, { x: 0, y: 0, scale: .3, rotation: 0, opacity: 0 }, { x: Math.cos(a) * r * 1.3, y: Math.sin(a) * r * .75, scale: 1.1, rotation: (hash(i, 7) - .5) * 70, opacity: 1, duration: .75, ease: "expo.out" }, {{B(13)}} + .02 * i); });
+
+/* D: magnifier + typed words */
+put("dGlass", "glass", 24);
+tl.fromTo("#dGlass", { scale: .6, rotation: -14, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: .45, ease: "back.out(1.7)" }, {{B(15)}});
+tl.to("#dGlass", { rotation: 6, y: -14, duration: 3.6, ease: "sine.inOut" }, {{B(15)}} + .45);
+const type = (sel, t, cps = 26) => { const el = document.querySelector(sel), full = el.firstChild.textContent;
+  tl.set(el, { opacity: 1 }, t); for (let k = 0; k <= full.length; k++) tl.set(el.firstChild, { textContent: full.slice(0, k) }, t + k / cps); };
+tl.set("#dW1, #dW2, #fW, #hW", { opacity: 0 }, 0);
+type("#dW1", T(15) - .05);
+tl.set("#dW1", { opacity: 0 }, T(25) - .25);
+type("#dW2", T(25) - .2, 30);
+gsap.utils.toArray(".caret").forEach(c => { for (let k = 0; k < 70; k++) tl.set(c, { opacity: k % 2 }, 6 + k * .27); });
+
+/* E and G: the ring of objects, orbiting in depth */
+function ringScene(hostId, prefix, t0, dur, px) {
+  const host = document.getElementById(hostId);
+  host.innerHTML = NAMES.map((n, i) => `<div class="spr" id="${prefix}${i}">${spriteSVG(n, px)}</div>`).join("");
+  const S = { a: 0 };
+  const draw = () => NAMES.forEach((n, i) => { const a = S.a + (i / NAMES.length) * 6.283, z = Math.sin(a);
+    const el = document.getElementById(prefix + i);
+    el.style.transform = `translate(${960 + Math.cos(a) * 560 - 8 * px}px, ${470 + z * 190 - 8 * px}px) scale(${.75 + (z + 1) * .22})`;
+    el.style.zIndex = Math.round((z + 1) * 50); });
+  tl.fromTo(S, { a: 0 }, { a: 2.2, duration: dur, ease: "none", onUpdate: draw }, t0);
+  draw();
+}
+ringScene("ringE", "re", {{B(26)}}, {{B(36)-B(26)}}, 9);
+tl.fromTo("#ringE", { scale: .7, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: "expo.out" }, {{B(26)}});
+put("eGlobe", "globe", 20);
+tl.fromTo("#eGlobe", { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: .45, ease: "back.out(1.8)" }, T(36) - .1);
+tl.to("#ringE", { opacity: .25, filter: "blur(6px)", duration: .3 }, T(36) - .1);
+tl.fromTo("#eTxt", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .3, ease: "expo.out" }, T(33));
+
+/* F: calendar, out of date, red brush */
+put("fCal", "calendar", 24);
+tl.fromTo("#fCal", { scale: .6, rotation: 12, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: .45, ease: "back.out(1.7)" }, {{B(36)}});
+type("#fW", T(44) - .1);
+tl.fromTo("#brush", { scaleX: 0 }, { scaleX: 1, duration: .28, ease: "power4.out" }, T(46) - .05);
+
+/* G: the ring again, then it turns to ink and is gone */
+ringScene("ringG", "rg", {{B(42)}}, {{B(52)-B(42)}}, 9);
+tl.fromTo("#ringG", { scale: .8, opacity: 0 }, { scale: 1, opacity: 1, duration: .4, ease: "expo.out" }, {{B(42)}});
+let bh = ""; for (let i = 0; i < 26; i++) { const s = 30 + hash(i, 4) * 90; bh += `<div class="blob" id="bl${i}" style="width:${s}px;height:${s * (.6 + hash(i, 8) * .5)}px;left:${930 + (hash(i, 1) - .5) * 1100}px;top:${470 + (hash(i, 3) - .5) * 380}px"></div>`; }
+document.getElementById("blobs").innerHTML = bh;
+tl.set(".blob", { opacity: 0, scale: 0 }, 0);
+tl.to("#ringG", { opacity: 0, scale: 1.1, filter: "blur(8px)", duration: .25 }, T(55) - .1);
+for (let i = 0; i < 26; i++) { tl.to("#bl" + i, { opacity: 1, scale: 1, duration: .12 }, T(55) - .1 + hash(i, 6) * .15);
+  tl.to("#bl" + i, { opacity: 0, x: (hash(i, 9) - .5) * 900, y: (hash(i, 5) - .3) * 600, scale: .2, duration: .9, ease: "expo.out" }, T(55) + .25 + hash(i, 6) * .1); }
+tl.fromTo("#gTxt", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: .25 }, T(55) + .35);
+
+/* H1: the seller's word */
+put("hPhone", "phone", 24);
+tl.fromTo("#hPhone", { y: 200, rotation: -10, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: .45, ease: "back.out(1.5)" }, {{B(52)}});
+type("#hW", T(62) - .3, 30);
+
+/* H2: F A K E around a certificate, then the letters scatter */
+put("hPaper", "paper", 26);
+tl.set("#lF, #lA, #lK, #lE, #hPaper", { opacity: 0 }, 0);
+[["#lF", {{B(57)}}], ["#hPaper", {{B(58)}}], ["#lA", {{B(59)}}], ["#lK", {{B(60)}}], ["#lE", {{B(61)}}]].forEach(([id, t]) =>
+  tl.fromTo(id, { opacity: 0, scale: 1.6, filter: "blur(10px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: .18, ease: "power3.out" }, t));
+tl.to("#hPaper", { color: "#FF4526", rotation: -8, scale: 1.12, duration: .2 }, T(70) - .05);
+["#lF", "#lA", "#lK", "#lE"].forEach((id, i) => tl.to(id, { x: (i - 1.5) * 260 + (hash(i, 2) - .5) * 300, y: (hash(i, 4) - .5) * 700, rotation: (hash(i, 6) - .5) * 260, scale: .35, duration: .9, ease: "expo.out" }, T(70) + .15));
+tl.to("#hPaper", { y: 40, rotation: -14, duration: .9, ease: "expo.out" }, T(70) + .15);
+
+/* I: So we built Halte */
+(function mark() { const s = document.getElementById("logoMark"); let h = "";
+  for (let y = 5; y < 150; y += 10) for (let x = 5; x < 150; x += 10) { const d = Math.hypot(x - 75, y - 75); if (d > 72) continue;
+    const on = Math.abs(d - 64) < 6 || (Math.abs(x - 75) < 4 && y < 75 && y > 20) || (Math.abs(y - 75) < 4 && x > 75 && x < 112);
+    h += `<circle class="lm" cx="${x}" cy="${y}" r="${on ? 4 : 2}" fill="${on ? "#F3F1EC" : "rgba(243,241,236,.16)"}"/>`; }
+  s.innerHTML = h; })();
+tl.fromTo("#iSo", { opacity: 0 }, { opacity: 1, duration: .15 }, T(71) - .05);
+tl.to("#iSo", { opacity: 0, duration: .1 }, T(74) - .12);
+tl.set("#logo", { opacity: 0 }, 0);
+tl.set("#logo", { opacity: 1 }, T(74) - .1);
+tl.fromTo("#logoMark .lm", { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: .25, ease: "back.out(2)", stagger: { each: .0012, from: "center" } }, T(74) - .1);
+tl.fromTo("#logo", { scale: 1.15 }, { scale: 1, duration: .5, ease: "expo.out" }, T(74) - .1);
+tl.to("#logo", { scale: 3.2, opacity: 0, duration: .32, ease: "power3.in" }, {{B(70)}} - .3);
+tl.fromTo("#liveW", { scale: 1.12, opacity: 0 }, { scale: 1, opacity: 1, duration: .6, ease: "expo.out" }, {{B(70)}});
+
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script>
+</body>
+</html>
