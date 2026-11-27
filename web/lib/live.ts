@@ -1,6 +1,7 @@
 import "server-only";
 import { parseAbi, type Hex } from "viem";
-import { HALTE_ABI, contract, deployBlock, ownerAccount, pub, txUrl } from "./chain";
+import { HALTE_ABI, contract, deployBlock, ownerAccount, pub } from "./chain";
+import { txUrl } from "./tx-url";
 
 const PQC_KEY_STATUS = "0x0000000000000000000000000000000000000a02";
 const keyAbi = parseAbi(["function pqcKeyStatus(address) view returns (bool registered, uint8 algorithmId, bytes pubkey, bool possessionProven)"]);
@@ -57,7 +58,7 @@ export async function readLive(): Promise<Live> {
       block: latest.toString(),
       minted: minted?.length,
       frozen: frozen?.length,
-      lastFreeze: last ? { hash: last.transactionHash, url: txUrl(last.transactionHash), block: last.blockNumber.toString() } : null,
+      lastFreeze: last ? { hash: last.transactionHash, url: txUrl(last.transactionHash, last.blockNumber), block: last.blockNumber.toString() } : null,
       keyBytes: key && key[0] && key[1] === 1 && key[3] ? (key[2].length - 2) / 2 : undefined,
     };
   } catch {

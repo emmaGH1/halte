@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import deployment from "@/lib/deployment.json";
 import type { Saved, Step } from "@/lib/own";
 import { SiteFooter, SiteNav, Wordmark } from "../ui";
 
@@ -100,7 +99,7 @@ export default function Own() {
           The demo dealer&apos;s key stays hosted: it&apos;s a different party.
         </p>
       </main>
-      <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
+      <div className="night"><SiteFooter /></div>
     </div>
   );
 }

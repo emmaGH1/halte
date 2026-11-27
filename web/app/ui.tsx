@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { heldMark, movement, type Geometry } from "@/lib/art";
+import { deployTxUrl } from "@/lib/tx-url";
 
 /** The Halte mark. "ticking": the hand sweeps; "frozen": it stops and the red wedge shows the held time. */
 export function HeldLogo({ mode = "static", size = 28 }: { mode?: "static" | "ticking" | "frozen"; size?: number }) {
@@ -135,8 +136,7 @@ export function SiteNav({ brand, refText, links, cta }: { brand: React.ReactNode
 }
 
 /** Dark caseback footer: brand, three columns, a large engraved wordmark, base line. */
-export function SiteFooter({ deployTx, block }: { deployTx: string; block?: string }) {
-  const tx = `https://explore.qore.network/tx/${deployTx.replace(/^0x/, "").toUpperCase()}`;
+export function SiteFooter() {
   const gh = "https://github.com/emmaGH1/halte";
   return (
     <footer className="foot">
@@ -148,7 +148,7 @@ export function SiteFooter({ deployTx, block }: { deployTx: string; block?: stri
         </div>
         <div className="foot-cols">
           <div><span className="mono">Navigate</span><a href="/#how">How it works</a><a href="/#proof">Proof</a><a href="/">Issue a passport</a></div>
-          <div><span className="mono">On chain</span><a href={tx} target="_blank" rel="noreferrer">Deploy transaction ↗</a><span>Diana testnet</span>{block && <span className="num">Block {Number(block).toLocaleString("en-US")}</span>}</div>
+          <div><span className="mono">On chain</span><a href={deployTxUrl} target="_blank" rel="noreferrer">Deploy transaction ↗</a><span>Diana testnet</span></div>
           <div><span className="mono">Project</span><a href={gh} target="_blank" rel="noreferrer">Source ↗</a><a href={`${gh}/blob/main/docs/AUDIT.md`} target="_blank" rel="noreferrer">QCAI audit ↗</a><span>Apache-2.0</span></div>
         </div>
       </div>

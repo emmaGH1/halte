@@ -209,7 +209,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
             <a href="/">Issue a demo passport →</a>
           </p>
         </main>
-        <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
+        <div className="night"><SiteFooter /></div>
       </div>
     );
   }
@@ -383,7 +383,7 @@ export default function Passport({ params }: { params: Promise<{ id: string }> }
           so each receipt shows a sender who is not the holder. &ldquo;Live check&rdquo; rows are eth_calls against Diana, not broadcast.
         </p>
       </main>
-      <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
+      <div className="night"><SiteFooter /></div>
     </div>
   );
 }

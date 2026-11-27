@@ -5,12 +5,13 @@ import { privateKeyToAccount } from "viem/accounts";
 import abi from "./halte-abi.json";
 import deployment from "./deployment.json";
 import replay from "./replay.json";
+import { txUrl } from "./tx-url";
 
 const CONTRACT = deployment.contract as Hex;
 const STORE = "halte:own:v1";
 const diana = defineChain({ id: 9800, name: "QoreChain Diana", nativeCurrency: { name: "QOR", symbol: "QOR", decimals: 18 }, rpcUrls: { default: { http: ["https://evm-testnet.qore.host"] } } });
 const pub = createPublicClient({ chain: diana, transport: http() }); // Diana's EVM RPC allows browser origins
-const tx = (h: string) => `https://explore.qore.network/tx/${h.replace(/^0x/, "").toUpperCase()}`;
+const nativeTxUrl = (hash: string) => txUrl(hash.replace(/^0x/i, ""));
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export type Saved = { mnemonic: string; evm: string; cosmos: string; passport?: string; createdAt: string };
@@ -76,7 +77,7 @@ export async function onboard(update: (key: string, patch: Partial<Step>) => voi
   await run("fund", async () => {
     if (!info.exists) {
       const f = await api("/api/own/fund", { address: a.cosmos });
-      update("fund", { tx: tx(f.tx) });
+      update("fund", { tx: nativeTxUrl(f.tx) });
       for (let i = 0; i < 20 && !info.exists; i++) { await sleep(1200); info = await api(`/api/own/account?a=${a.cosmos}`); }
       if (!info.exists) throw new Error("The funding hasn't reached Diana yet. Try again in a moment.");
     }
@@ -88,7 +89,7 @@ export async function onboard(update: (key: string, patch: Partial<Step>) => voi
       const pop = signProofOfPossession({ chainId: info.chainId, account: a.cosmos, keypair: a.pqc });
       // registration is the one message QoreChain accepts signed classically: the key doesn't exist yet
       const h = await native(a, "classical", [buildRegisterPqcKeyMsg(a.cosmos, { pqcKeypair: a.pqc, proofOfPossession: pop })]);
-      update("register", { tx: tx(h) });
+      update("register", { tx: nativeTxUrl(h) });
       for (let i = 0; i < 20 && !info.registered; i++) { await sleep(1200); info = await api(`/api/own/account?a=${a.cosmos}`); }
       if (!info.registered) throw new Error("The key registration hasn't confirmed yet. Try again in a moment.");
     }
@@ -104,7 +105,7 @@ export async function onboard(update: (key: string, patch: Partial<Step>) => voi
   await run("window", async () => {
     const perTx = 600_000n * 250_000_000_000n / 1_000_000_000_000n; // uqor per admitted tx (gas × fee cap)
     const h = await native(a, "hybrid", [openEvmWindowMsg({ sender: a.cosmos, blocks: 2_000n, maxTxs: 2n, maxValue: perTx * 2n, allowedTargets: [CONTRACT] })]);
-    update("window", { state: "done", tx: tx(h) });
+    update("window", { state: "done", tx: nativeTxUrl(h) });
     await sleep(4000); // the window tx advances the account's nonce; let it settle
   });
 
@@ -116,7 +117,7 @@ export async function onboard(update: (key: string, patch: Partial<Step>) => voi
     if (r.status !== "success") throw new Error("The mint reverted on Diana.");
     s = { ...s!, passport: id };
     save(s);
-    update("mint", { state: "done", tx: tx(h), note: id });
+    update("mint", { state: "done", tx: txUrl(h, r.blockNumber), note: id });
     return id;
   });
 }
