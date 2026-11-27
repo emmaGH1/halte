@@ -24,13 +24,13 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import abi from "./halte-abi.json";
 import deployment from "./deployment.json";
+import { txUrl } from "./tx-url";
 
 export const HALTE_ABI = abi as any;
 export const CHAIN_ID = "qorechain-diana";
 export const REST = "https://api-testnet.qore.host";
 export const RPC = "https://rpc-testnet.qore.host";
 export const EVM_RPC = "https://evm-testnet.qore.host";
-export const EXPLORER = "https://explore.qore.network";
 
 export const diana = defineChain({
   id: 9800,
@@ -45,8 +45,6 @@ export const contract = () => {
   return a as Hex;
 };
 export const deployBlock = () => BigInt(deployment.deployBlock);
-
-export const txUrl = (hash: string) => `${EXPLORER}/tx/${hash.replace(/^0x/, "").toUpperCase()}`;
 
 export const pub = createPublicClient({ chain: diana, transport: http() });
 
@@ -128,7 +126,7 @@ export async function send(acc: UnifiedAccount, functionName: string, args: unkn
   const hash = await wallet.writeContract({ address: contract(), abi: HALTE_ABI, functionName, args, nonce, ...FEE } as any);
   const receipt = await pub.waitForTransactionReceipt({ hash, timeout: 45_000 });
   if (receipt.status !== "success") throw new Error(`${functionName} reverted on chain (${hash})`);
-  return { hash, url: txUrl(hash), block: receipt.blockNumber.toString(), sender: wallet.account.address, window };
+  return { hash, url: txUrl(hash, receipt.blockNumber), block: receipt.blockNumber.toString(), sender: wallet.account.address, window };
 }
 
 export class ContractRefusal extends Error {

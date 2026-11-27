@@ -137,7 +137,7 @@ export default function Counter({ params }: { params: Promise<{ id: string }> })
         )}
         <p className="fine"><a href={`/p/${id}${r?.offer ? `?offer=${r.offer.id}` : ""}`}>The passport&apos;s full register →</a></p>
       </main>
-      <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
+      <div className="night"><SiteFooter /></div>
     </div>
   );
 }

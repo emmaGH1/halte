@@ -1,6 +1,7 @@
 import "server-only";
 import { decodeFunctionData, parseEventLogs, type Hex } from "viem";
-import { HALTE_ABI, contract, deployBlock, pub, txUrl } from "./chain";
+import { HALTE_ABI, contract, deployBlock, pub } from "./chain";
+import { txUrl } from "./tx-url";
 
 export type Entry = {
   event: "Minted" | "OfferMade" | "Transferred" | "Frozen" | "Recovered" | "OfferCancelled";
@@ -42,7 +43,7 @@ export async function history(id: Hex, minBlock = 0n): Promise<{ entries: Entry[
         block: l.blockNumber.toString(),
         logIndex: l.logIndex,
         hash: l.transactionHash,
-        url: txUrl(l.transactionHash),
+        url: txUrl(l.transactionHash, l.blockNumber),
         sender: tx.from,
         args: Object.fromEntries(Object.entries(l.args).map(([k, v]) => [k, String(v)])),
       };

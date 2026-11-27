@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
 import replay from "@/lib/replay.json";
+import { txUrl } from "@/lib/tx-url";
 
 type R = { block: string; expected: string; outcome: string; match: boolean };
 const short = (s: string) => `${s.slice(0, 8)}…${s.slice(-4)}`;
 const n = (s: string) => Number(s).toLocaleString("en-US");
-const tx = (h: string) => `https://explore.qore.network/tx/${h.replace(/^0x/, "").toUpperCase()}`;
 const EVIDENCE = "https://github.com/emmaGH1/halte/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json";
 
 const TITLE: Record<string, string> = {
@@ -36,7 +36,7 @@ export function Replay() {
               <li key={i} className="tx">
                 <span className="mono">block {n(s.block)}</span>
                 <b>{TITLE[s.label] ?? s.label}</b>
-                <a href={tx(s.hash!)} target="_blank" rel="noreferrer">tx ↗</a>
+                <a href={txUrl(s.hash!, s.block)} target="_blank" rel="noreferrer">tx ↗</a>
               </li>
             );
           }

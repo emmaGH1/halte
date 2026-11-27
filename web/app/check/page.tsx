@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import deployment from "@/lib/deployment.json";
 import { SiteFooter, SiteNav, Wordmark } from "../ui";
 
 /** Paste a passport link or id; go to its counter check. Accepts /p/…, /check/… or a bare 0x id, keeps ?offer=. */
@@ -29,7 +28,7 @@ export default function CheckIndex() {
         {err && <p className="err" role="alert">{err}</p>}
         <p className="fine">Try the finished run: <a href={`/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2`}>passport HLT-BED6-4848, offer #2</a>, reported missing and then recovered, so its old offer stays dead.</p>
       </main>
-      <div className="night"><SiteFooter deployTx={deployment.deployTx} /></div>
+      <div className="night"><SiteFooter /></div>
     </div>
   );
 }

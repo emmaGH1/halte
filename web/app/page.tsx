@@ -1,5 +1,4 @@
-import deployment from "@/lib/deployment.json";
-import { txUrl } from "@/lib/chain";
+import { deployTxUrl } from "@/lib/tx-url";
 import { readLive } from "@/lib/live";
 import { DotIcon, Lattice } from "./lattice";
 import { MintButton } from "./mint";
@@ -30,7 +29,7 @@ const STEPS = [
 ];
 
 const FAQ: [string, string][] = [
-  ["Is this real or a mock-up?", "Real. Halte.sol is deployed on QoreChain's Diana testnet and every button in the demo sends a real transaction you can open in the explorer. For the demo, Halte holds the owner's and dealer's keys so you don't need a wallet. You can also generate your own key in the browser."],
+  ["Is this real or a mock-up?", "Real. Halte.sol is deployed on QoreChain's Diana testnet and you can verify the demo transactions directly against Diana. For the demo, Halte holds the owner's and dealer's keys so you don't need a wallet. You can also generate your own key in the browser."],
   ["What does “quantum-safe” mean here?", "Ordinary wallet keys (ECDSA) are expected to be breakable by large quantum computers, a moment called Q-Day. Halte only accepts the owner's ML-DSA-87 signature (NIST FIPS 204), checked on chain by QoreChain's pqcVerify precompile. A stolen or cracked wallet key can't report, recover or sell."],
   ["What happens when the watch is found?", "The owner signs a recovery and the passport is active again. Every offer made before the report stays refused (StaleOffer), so a sale arranged around the theft can never be completed."],
   ["How does a dealer or marketplace check?", "One HTTPS call to /api/check, or one contract read (statusOf) from any contract on QoreChain. No account, no fee, and the same answer for everyone."],
@@ -142,8 +141,8 @@ export default async function Home() {
           <h2>Don&apos;t trust this page. Check the chain.</h2>
         </div>
         <div className="hx-proof">
-          <a href={txUrl(deployment.deployTx)} target="_blank" rel="noreferrer"><span>Contract</span><b>{short(live.contract)}</b><i>Deploy transaction ↗</i></a>
-          <a href={live.lastFreeze?.url ?? txUrl(deployment.deployTx)} target="_blank" rel="noreferrer"><span>Last theft report</span><b>{live.lastFreeze ? `block ${n(live.lastFreeze.block)}` : "none yet"}</b><i>Verified by pqcVerify ↗</i></a>
+          <a href={deployTxUrl} target="_blank" rel="noreferrer"><span>Contract</span><b>{short(live.contract)}</b><i>Deploy transaction ↗</i></a>
+          {live.lastFreeze && <a href={live.lastFreeze.url} target="_blank" rel="noreferrer"><span>Last theft report</span><b>block {n(live.lastFreeze.block)}</b><i>Verified by pqcVerify ↗</i></a>}
           <a href={`${GH}/blob/main/docs/AUDIT.md`} target="_blank" rel="noreferrer"><span>Audit</span><b>QCAI, two stages</b><i>Every finding answered ↗</i></a>
           <a href={`${GH}/blob/main/evidence/release/0x900db566e46b6a68a7fd2f721b2ca6291f2ef3e4.json`} target="_blank" rel="noreferrer"><span>Tests</span><b>21 Hardhat tests</b><i>Plus a recorded run on Diana ↗</i></a>
         </div>
