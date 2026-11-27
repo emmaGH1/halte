@@ -1,8 +1,7 @@
 # Submission text for build.qorechain.io/p/halte
 
-Paste-ready. The human edits the platform page; nothing here is published by an agent. Replace `<FILM>` once the film is up.
+Paste-ready. The human edits the platform page; nothing here is published by an agent. Film link is filled in (Vimeo).
 
-**YouTube upload:** title `Halte: Stolen watches, unsellable (QoreChain Build Before Q-Day)`. Put this in the description: `Music: Harlem Heat by Dagored (freetouse.com).` The track's page on freetouse.com states the credit wording; check it before uploading.
 
 ## Tagline
 
@@ -17,7 +16,7 @@ Every watch gets a passport on QoreChain, tied to its owner's ML-DSA-87 key (NIS
 It is built for after Q-Day. A thief holding an ordinary wallet key (ECDSA) can't report, unfreeze or sell. Only the owner's post-quantum key can.
 
 **Try it (no wallet, works on a phone):**
-- ▶ Film (1:49): <FILM>
+- ▶ Film (1:49): https://vimeo.com/1250612041
 - Run the live check and see the verdicts: https://halte-roan.vercel.app (the "One question before you pay" section, then "Take the guided tour")
 - Check offer #2 at the dealer's counter: https://halte-roan.vercel.app/check/0xbed648483ebb7c1bb1ccb005a5f858540739d25789bc21ea1547803dac915fcd?offer=2
   - Same dealer, same offer, three moments on Diana: would accept → refused, `PassportFrozen` → still refused after recovery, `StaleOffer`.
