@@ -21,17 +21,19 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--
 #grain { opacity: .09; mix-blend-mode: multiply; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='260' height='260' filter='url(%23n)'/></svg>"); }
 .guide { position: absolute; left: 0; right: 0; top: 540px; border-top: 3px dashed rgba(18,18,22,.35); }
 .guide.b { top: 760px; }
-.bw { position: absolute; top: 470px; left: 0; font: 900 330px/1 var(--sans); letter-spacing: -.055em; color: var(--ink); white-space: nowrap; }
-.sent { position: absolute; left: 0; right: 0; top: 505px; text-align: center; font: 700 58px var(--sans); letter-spacing: -.025em; color: var(--ink); }
-.sent span { display: inline-block; margin: 0 .12em; opacity: 0; position: relative; }
+.bw { position: absolute; top: 400px; left: 0; right: 0; text-align: center; font: 900 330px/1 var(--sans); letter-spacing: -.055em; color: var(--ink); white-space: nowrap; }
+#bw3 { font-size: 250px; top: 440px; }
+.watch0 { position: absolute; left: 864px; top: 444px; }
+.sent { position: absolute; left: 120px; right: 120px; top: 430px; text-align: center; font: 800 84px/1.15 var(--sans); letter-spacing: -.035em; color: var(--ink); }
+.sent span { display: inline-block; margin: 0 .1em; color: rgba(18,18,22,.14); position: relative; }
 #ring1 { position: absolute; overflow: visible; }
-.burst { position: absolute; left: -500px; top: 40px; width: 1300px; height: 1000px; background: radial-gradient(closest-side, rgba(255,69,38,1), rgba(255,69,38,.55) 30%, rgba(255,69,38,0) 70%); clip-path: polygon(0 50%, 38% 42%, 60% 0, 50% 46%, 100% 50%, 50% 54%, 60% 100%, 38% 58%); filter: blur(6px); }
+.burst { position: absolute; left: 310px; top: 40px; width: 1300px; height: 1000px; background: radial-gradient(closest-side, rgba(255,69,38,1), rgba(255,69,38,.55) 30%, rgba(255,69,38,0) 70%); clip-path: polygon(0 50%, 38% 42%, 60% 0, 50% 46%, 100% 50%, 50% 54%, 60% 100%, 38% 58%); filter: blur(6px); }
 .spr { position: absolute; left: 0; top: 0; filter: drop-shadow(6px 8px 0 rgba(0,0,0,.25)); }
 .spr svg { display: block; }
 .word { position: absolute; font: 700 96px var(--sans); letter-spacing: -.035em; white-space: nowrap; }
 .caret { display: inline-block; width: .08em; height: .9em; background: currentColor; vertical-align: -.08em; margin-left: .15em; }
 .small { position: absolute; left: 0; right: 0; text-align: center; font: 700 52px var(--sans); letter-spacing: -.02em; }
-.brush { position: absolute; left: -200px; top: 560px; width: 1500px; height: 260px; background: var(--sig); clip-path: polygon(0 70%, 100% 0, 100% 22%, 4% 100%); transform-origin: 0 100%; }
+.brush { position: absolute; left: 910px; top: 590px; width: 640px; height: 46px; background: var(--sig); clip-path: polygon(0 55%, 100% 0, 99% 45%, 1% 100%); transform-origin: 0 50%; }
 .blob { position: absolute; border-radius: 50%; background: var(--ink); filter: blur(1px); }
 .lt { position: absolute; font: 900 230px/1 var(--sans); color: var(--ink); letter-spacing: -.04em; }
 .logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 36px; }
@@ -45,7 +47,7 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--
   <!-- A: big words on guide lines -->
   <div id="sA" class="clip full light" data-start="0" data-duration="{{B(7)}}" data-track-index="0">
     <div class="guide"></div><div class="guide b"></div>
-    <div class="bw" id="bw1">before</div><div class="bw" id="bw2">money</div><div class="bw" id="bw3">changes hands</div>
+    <div class="spr" id="w0" style="left:864px;top:444px"></div><div class="bw" id="bw1">before</div><div class="bw" id="bw2">money</div><div class="bw" id="bw3">changes hands</div>
   </div>
 
   <!-- B: the sentence, the red circle -->
@@ -85,7 +87,7 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--
   <div id="sG" class="clip full light" data-start="{{B(42)}}" data-duration="{{B(52)-B(42)}}" data-track-index="6">
     <div id="ringG"></div>
     <div id="blobs"></div>
-    <div class="small" id="gTxt" style="top:505px">nothing to find.</div>
+    <div class="small" id="gTxt" style="top:480px;font-size:96px;letter-spacing:-.04em">nothing to find.</div>
   </div>
 
   <!-- H1: the seller's word -->
@@ -96,16 +98,16 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--
 
   <!-- H2: F A K E -->
   <div id="sH2" class="clip full light" data-start="{{B(57)}}" data-duration="{{B(65)-B(57)}}" data-track-index="8">
-    <div class="lt" id="lF" style="left:240px;top:420px">F</div>
-    <div class="spr" id="hPaper" style="left:640px;top:360px"></div>
-    <div class="lt" id="lA" style="left:1000px;top:420px">A</div>
-    <div class="lt" id="lK" style="left:1290px;top:420px">K</div>
-    <div class="lt" id="lE" style="left:1560px;top:420px">E</div>
+    <div class="lt" id="lF" style="left:330px;top:420px">F</div>
+    <div class="spr" id="hPaper" style="left:540px;top:332px"></div>
+    <div class="lt" id="lA" style="left:1010px;top:420px">A</div>
+    <div class="lt" id="lK" style="left:1230px;top:420px">K</div>
+    <div class="lt" id="lE" style="left:1440px;top:420px">E</div>
   </div>
 
   <!-- I: So we built Halte, into the live site -->
   <div id="sI" class="clip full dark" data-start="{{B(65)}}" data-duration="{{B(70)-B(65)+0.3}}" data-track-index="9">
-    <div class="small" id="iSo" style="top:505px;color:var(--bone)">So we built</div>
+    <div class="small" id="iSo" style="top:490px;font-size:72px;color:var(--bone)">So we built</div>
     <div class="logo" id="logo"><svg viewBox="0 0 150 150" id="logoMark" aria-hidden="true"></svg><b>Halte</b></div>
   </div>
   <div id="liveW" class="full"><video id="live" class="clip" src="assets/video/live-home.mp4" muted playsinline data-start="{{B(70)}}" data-media-start="0" data-duration="{{END-B(70)}}" data-track-index="10" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover"></video></div>
@@ -128,32 +130,37 @@ const hash = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
 const put = (id, name, px) => document.getElementById(id).innerHTML = spriteSVG(name, px);
 
 /* A: each big word slides across on its spoken word */
+put("w0", "watch", 12);
+tl.set("#bw1, #bw2, #bw3", { x: 2400 }, 0);
+[{{B(0)}}, {{B(1)}}, {{B(2)}}].forEach((t, k) => tl.fromTo("#w0", { scale: k ? 1.12 : 0, rotation: k % 2 ? 6 : -6 }, { scale: 1, rotation: 0, duration: .3, ease: "back.out(2.4)" }, t));
+tl.to("#w0", { x: -1400, opacity: 0, duration: .18, ease: "power3.in" }, T(0) - .16);
 [["#bw1", 0, 1], ["#bw2", 1, 2], ["#bw3", 2, 4]].forEach(([id, a, b]) => {
-  const t0 = T(a) - .12, t1 = T(b) - .05;
-  tl.fromTo(id, { x: 1950 }, { x: 140, duration: .22, ease: "expo.out" }, t0);
-  tl.to(id, { x: -60, duration: t1 - t0 - .3, ease: "none" }, t0 + .22);
-  tl.to(id, { x: -2600, duration: .16, ease: "power3.in" }, t1 - .16);
+  const t0 = T(a) - .1, t1 = T(b) - .02;
+  tl.fromTo(id, { x: 2400 }, { x: 30, duration: .14, ease: "expo.out", immediateRender: false }, t0);
+  tl.to(id, { x: -30, duration: Math.max(.04, t1 - t0 - .24), ease: "none" }, t0 + .14);
+  tl.to(id, { x: -2400, duration: .1, ease: "power3.in" }, t1 - .1);
 });
 tl.fromTo(".guide", { scaleX: 0, transformOrigin: "0 50%" }, { scaleX: 1, duration: .4, ease: "expo.out" }, 0.2);
 
 /* B: the sentence lands word by word; a red pen circles "stolen" */
 const sent = document.getElementById("sent");
 sent.innerHTML = WORDS.slice(4, 14).map((w, j) => `<span id="sw${j}">${w.text}</span>`).join(" ");
-for (let j = 0; j < 10; j++) tl.fromTo("#sw" + j, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: .12 }, T(4 + j) - .03);
+tl.fromTo("#sent", { opacity: 0 }, { opacity: 1, duration: .12 }, {{B(7)}});
+for (let j = 0; j < 10; j++) tl.fromTo("#sw" + j, { color: "rgba(18,18,22,.14)" }, { color: j === 9 ? "#FF4526" : "#121216", duration: .08 }, T(4 + j) - .03);
 const sw = document.getElementById("sw9"); // "stolen."
 const ring = document.getElementById("ring1");
 tl.set(ring, { opacity: 0 }, 0);
-sw.appendChild(ring); ring.style.left = "-78px"; ring.style.top = "-62px";
+sw.appendChild(ring); ring.style.left = "50%"; ring.style.top = "50%"; ring.style.transform = "translate(-45%,-48%) scale(.92)";
 const path = document.getElementById("ringPath"), L = 1250;
 tl.set(path, { strokeDasharray: L, strokeDashoffset: L }, 0);
 tl.set(ring, { opacity: 1 }, T(13) + .05);
 tl.to(path, { strokeDashoffset: 0, duration: .38, ease: "power2.out" }, T(13) + .05);
-tl.to("#sent", { scale: 1.06, duration: 1.2, ease: "none" }, T(4));
+tl.fromTo("#sent", { scale: 1 }, { scale: 1.04, duration: {{B(13)-B(7)}}, ease: "none" }, {{B(7)}});
 
 /* C: burst and the objects fly out */
 const NAMES = ["watch", "cash", "glass", "globe", "calendar", "paper", "phone", "coin", "key"];
-document.getElementById("flyers").innerHTML = NAMES.map((n, i) => `<div class="spr" id="fl${i}" style="left:700px;top:420px">${spriteSVG(n, 9)}</div>`).join("");
-tl.fromTo("#burst", { scaleX: .2, opacity: 0 }, { scaleX: 1.15, opacity: 1, duration: .3, ease: "expo.out" }, {{B(13)}});
+document.getElementById("flyers").innerHTML = NAMES.map((n, i) => `<div class="spr" id="fl${i}" style="left:888px;top:468px">${spriteSVG(n, 9)}</div>`).join("");
+tl.fromTo("#burst", { scale: .1, rotation: -20, opacity: 0 }, { scale: 1.4, rotation: 0, opacity: 1, duration: .35, ease: "expo.out" }, {{B(13)}});
 NAMES.forEach((n, i) => { const a = (i / NAMES.length) * 6.283 + .4, r = 520 + hash(i, 2) * 220;
   tl.fromTo("#fl" + i, { x: 0, y: 0, scale: .3, rotation: 0, opacity: 0 }, { x: Math.cos(a) * r * 1.3, y: Math.sin(a) * r * .75, scale: 1.1, rotation: (hash(i, 7) - .5) * 70, opacity: 1, duration: .75, ease: "expo.out" }, {{B(13)}} + .02 * i); });
 
@@ -181,7 +188,7 @@ function ringScene(hostId, prefix, t0, dur, px) {
   tl.fromTo(S, { a: 0 }, { a: 2.2, duration: dur, ease: "none", onUpdate: draw }, t0);
   draw();
 }
-ringScene("ringE", "re", {{B(26)}}, {{B(36)-B(26)}}, 9);
+ringScene("ringE", "re", {{B(26)}}, {{B(36)-B(26)}}, 11);
 tl.fromTo("#ringE", { scale: .7, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: "expo.out" }, {{B(26)}});
 put("eGlobe", "globe", 20);
 tl.fromTo("#eGlobe", { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: .45, ease: "back.out(1.8)" }, T(36) - .1);
@@ -195,7 +202,7 @@ type("#fW", T(44) - .1);
 tl.fromTo("#brush", { scaleX: 0 }, { scaleX: 1, duration: .28, ease: "power4.out" }, T(46) - .05);
 
 /* G: the ring again, then it turns to ink and is gone */
-ringScene("ringG", "rg", {{B(42)}}, {{B(52)-B(42)}}, 9);
+ringScene("ringG", "rg", {{B(42)}}, {{B(52)-B(42)}}, 11);
 tl.fromTo("#ringG", { scale: .8, opacity: 0 }, { scale: 1, opacity: 1, duration: .4, ease: "expo.out" }, {{B(42)}});
 let bh = ""; for (let i = 0; i < 26; i++) { const s = 30 + hash(i, 4) * 90; bh += `<div class="blob" id="bl${i}" style="width:${s}px;height:${s * (.6 + hash(i, 8) * .5)}px;left:${930 + (hash(i, 1) - .5) * 1100}px;top:${470 + (hash(i, 3) - .5) * 380}px"></div>`; }
 document.getElementById("blobs").innerHTML = bh;
@@ -208,7 +215,7 @@ tl.fromTo("#gTxt", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "b
 /* H1: the seller's word */
 put("hPhone", "phone", 24);
 tl.fromTo("#hPhone", { y: 200, rotation: -10, opacity: 0 }, { y: 0, rotation: 0, opacity: 1, duration: .45, ease: "back.out(1.5)" }, {{B(52)}});
-type("#hW", T(62) - .3, 30);
+type("#hW", T(58) + .05, 34);
 
 /* H2: F A K E around a certificate, then the letters scatter */
 put("hPaper", "paper", 26);
@@ -216,7 +223,7 @@ tl.set("#lF, #lA, #lK, #lE, #hPaper", { opacity: 0 }, 0);
 [["#lF", {{B(57)}}], ["#hPaper", {{B(58)}}], ["#lA", {{B(59)}}], ["#lK", {{B(60)}}], ["#lE", {{B(61)}}]].forEach(([id, t]) =>
   tl.fromTo(id, { opacity: 0, scale: 1.6, filter: "blur(10px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: .18, ease: "power3.out" }, t));
 tl.to("#hPaper", { color: "#FF4526", rotation: -8, scale: 1.12, duration: .2 }, T(70) - .05);
-["#lF", "#lA", "#lK", "#lE"].forEach((id, i) => tl.to(id, { x: (i - 1.5) * 260 + (hash(i, 2) - .5) * 300, y: (hash(i, 4) - .5) * 700, rotation: (hash(i, 6) - .5) * 260, scale: .35, duration: .9, ease: "expo.out" }, T(70) + .15));
+["#lF", "#lA", "#lK", "#lE"].forEach((id, i) => tl.to(id, { x: (i - 1.5) * 120 + (hash(i, 2) - .5) * 160, y: (hash(i, 4) - .5) * 420, rotation: (hash(i, 6) - .5) * 220, scale: .45, duration: .9, ease: "expo.out" }, T(70) + .15));
 tl.to("#hPaper", { y: 40, rotation: -14, duration: .9, ease: "expo.out" }, T(70) + .15);
 
 /* I: So we built Halte */
